@@ -1,0 +1,27 @@
+language: r
+cache: packages
+
+r:
+  - release
+r: bioc-release
+
+addons:
+  apt:
+    packages:
+      - r-cran-ggplot2
+      - r-cran-nlme
+      - r-cran-gdata
+      - r-cran-grid  
+
+r_build_args: --no-build-vignettes
+r_check_args: --no-vignettes
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+    
+before_install:
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+
