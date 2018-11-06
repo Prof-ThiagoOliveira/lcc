@@ -1,0 +1,33 @@
+\name{simulated_hue}
+\docType{data}
+\alias{simulated_hue}
+\encoding{UTF-8}
+\title{Hue color simulated data}
+\description{
+Simulated hue data set based on papaya's maturation over time considering three
+methods of measurement.  
+}
+\usage{data(simulated_hue)}
+\format{
+  A data frame with 1200 observations on the mean hue variable.
+  The format is:
+Dataframe
+$ Fruit : Factor w/ 100 levels "1","2","3","4",..: 1 1 1 1 1 1 1 1 1 1 ...
+$ Method: Factor w/ 3 levels "Method 1","Method 2",..: 1 1 1 1 1 1 1 1 1 1 ...
+$ Time  : num  0 1 2 3 4 5 6 7 8 9 ...
+$ Hue   : num  111 111 109 104 104132 132 129 127 126 ...
+}
+
+\examples{
+data(simulated_hue)
+}
+\details{
+A total of 100 fruits were observed over 20 days by three methods to
+evaluate the mean hue of fruit's peel. The aim of agreement study was
+assess how well the methods 2, and 3 agree with method 1 over time.
+}
+
+\seealso{
+  \code{\link[lcc]{lcc}}.
+}
+\keyword{datasets}
