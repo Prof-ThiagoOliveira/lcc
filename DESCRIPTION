@@ -10,7 +10,8 @@ Date: 2018-11-05
 Depends: R (>= 3.2.3), nlme (>= 3.1-124), ggplot2 (>= 2.2.1), grid (>= 3.2.3), gdata (>= 2.18.0)
 Suggests: 
     roxygen2 (>= 3.0.0),
-    covr
+    covr,
+    testthat
 License: GPL (>= 2)
 Encoding: UTF-8
 Repository: CRAN
