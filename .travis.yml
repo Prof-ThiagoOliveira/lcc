@@ -1,25 +1,5 @@
-language: r
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+sudo: false
 cache: packages
-
-r:
-  - release
-
-addons:
-  apt:
-    packages:
-      - r-cran-ggplot2
-      - r-cran-nlme
-      - r-cran-gdata
-
-r_build_args: --no-build-vignettes
-r_check_args: --no-vignettes
-
-notifications:
-  email:
-    on_success: change
-    on_failure: change
-    
-before_install:
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-
