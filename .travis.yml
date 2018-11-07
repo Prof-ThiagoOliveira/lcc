@@ -3,3 +3,24 @@
 language: R
 sudo: false
 cache: packages
+
+r:
+    - release
+
+addons:
+   apt:
+     packages:
+       - r-cran-ggplot2
+       - r-cran-nlme
+       - r-cran-gdata
+
+r_build_args: --no-build-vignettes
+r_check_args: --no-vignettes
+
+notifications:
+   email:
+     on_success: change
+     on_failure: change
+     
+after_success:
+    - Rscript -e 'covr::codecov()'
