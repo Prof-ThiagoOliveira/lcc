@@ -3,6 +3,7 @@
 S3method(summary,lcc)
 export(lcc)
 export(lccPlot)
+export(time_lcc)
 import(gdata)
 import(ggplot2)
 importFrom(grid,grid.layout)

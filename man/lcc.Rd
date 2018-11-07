@@ -86,6 +86,7 @@ fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 summary(fm2)
 lccPlot(fm2)
 
+\dontrun{
 ## A grid of points as the Time variable for prediction
 fm3<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2,
@@ -93,6 +94,7 @@ fm3<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          to = max(hue$Time), n=40))
 summary(fm3)
 lccPlot(fm3)
+}
 
 ## Including an exponential variance function using time as a covariate.
 fm4<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
