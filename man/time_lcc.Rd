@@ -18,4 +18,12 @@ time_lcc(time, from, to, n)
 \description{
 An list specifying control arguments to generate a regular sequence for the time variable returned by the function \code{time_lcc}, which is used to constructed the LCC, LPC and LA curves and its simultaneous confidence intervals. Default is \code{NULL}.
 }
+\examples{
+ 
+data(hue)
+attach(hue)
+time_lcc(time=Time, from=min(Time), to=max(Time), n=30)
+detach(hue)
+
+}
 \keyword{internal}

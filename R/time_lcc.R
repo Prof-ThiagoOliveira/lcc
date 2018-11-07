@@ -27,7 +27,7 @@
 ##' @param n an integer specifying the desired length of the sequence. Generally, \code{n} between 30 and 50 is adequate.
 ##' @keywords internal
 ##' 
-##' @example 
+##' @examples  
 ##' data(hue)
 ##' attach(hue)
 ##' time_lcc(time=Time, from=min(Time), to=max(Time), n=30)
