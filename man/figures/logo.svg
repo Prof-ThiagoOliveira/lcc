@@ -74,9 +74,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.633192"
-     inkscape:cx="47.451099"
-     inkscape:cy="108.84916"
+     inkscape:zoom="1.7713852"
+     inkscape:cx="-49.954217"
+     inkscape:cy="121.61682"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -95,7 +95,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -216,18 +216,6 @@
        ry="34.612019" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.15094757px;line-height:125%;font-family:MathJax_AMS;-inkscape-font-specification:MathJax_AMS;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26798356px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="23.019274"
-       y="211.24861"
-       id="text2772"
-       transform="matrix(0.92054171,-0.42245792,0.41180544,0.89732983,0,0)"><tspan
-         sodipodi:role="line"
-         id="tspan2770"
-         x="23.019274"
-         y="211.24861"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46666622px;font-family:'Latin Modern Mono';-inkscape-font-specification:'Latin Modern Mono';stroke-width:0.26798356px">lcc</tspan></text>
-    <text
-       xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="35.40976"
        y="199.36279"
@@ -270,6 +258,18 @@
          x="91.833817"
          y="156.58051"
          style="stroke-width:0.26458332px" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.15094757px;line-height:125%;font-family:MathJax_AMS;-inkscape-font-specification:MathJax_AMS;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26798356px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="23.019274"
+       y="211.24861"
+       id="text2772"
+       transform="matrix(0.92054172,-0.42245793,0.41180544,0.89732982,2.0833335e-7,-8.9583331e-7)"><tspan
+         sodipodi:role="line"
+         id="tspan2770"
+         x="23.019274"
+         y="211.24861"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46666622px;font-family:'Latin Modern Mono';-inkscape-font-specification:'Latin Modern Mono';stroke-width:0.26798356px">lcc</tspan></text>
     <image
        style=""
        y="142.24414"
