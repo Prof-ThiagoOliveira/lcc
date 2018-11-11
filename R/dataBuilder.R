@@ -27,9 +27,5 @@ dataBuilder <- function(dataset, resp, subject, method, time){
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
                       to = c("y", "ind", "FacA", "time"),
                       info = FALSE), TRUE)
-  Data$ind <- as.factor(Data$ind)
-  Data$FacA <- as.factor(Data$FacA)
-  Data$time <- as.numeric(Data$time)
-  Data$y <- as.numeric(Data$y)
   return(Data)
 }
