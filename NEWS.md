@@ -5,4 +5,11 @@
 
 * Fixed issue when the wrong name of variable is declared.  
 
+* Fixed issue when three or more levels of methods is considered in the dataset.
+
+lccWrapper function:
+previous code
+\code{if(is.na(rho[[2]])=TRUE)}
+current code
+\code{if(length(rho)==1)}  
 
