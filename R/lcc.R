@@ -169,7 +169,7 @@
 ##' @export
 lcc <- function(dataset, resp, subject, method, time, qf, qr, covar = NULL, pdmat = pdSymm, var.class = NULL, weights.form = NULL, time_lcc = NULL, ci = FALSE, percentileMet = FALSE, alpha = 0.05, nboot = 5000, show.warnings = FALSE, components=FALSE, REML = TRUE, lme.control = NULL) {
   
-  Init<-init(var.class = var.class, weights.form = weights.form, REML = REML, qf = qf, qr = qr, pdmat = pdmat)
+  Init<-init(var.class = var.class, weights.form = weights.form, REML = REML, qf = qf, qr = qr, pdmat = pdmat, dataset=dataset)
   pdmat<-Init$pdmat
   MethodREML<-Init$MethodREML
   var.class<-Init$var.class

@@ -27,7 +27,14 @@
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-init<-function(var.class, weights.form, REML, qf, qr, pdmat){
+init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset){
+  Data <- data.frame(dataset)
+  Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
+    to = c("y", "ind", "FacA", "time"),
+    info = FALSE), TRUE)
+  if(class(Data)=="try-error"){
+    stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables", call.=FALSE)
+  }
     if(!is.function(pdmat)) {
       if(is.character(pdmat)) {
         if(substr(pdmat, nchar(pdmat) - 1, nchar(pdmat)) == "()") {
