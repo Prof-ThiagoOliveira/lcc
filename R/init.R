@@ -27,7 +27,11 @@
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset){
+init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset, resp, subject, method, time){
+  resp<-resp
+  subject<-subject
+  method<-method
+  time<-time
   Data <- data.frame(dataset)
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
     to = c("y", "ind", "FacA", "time"),
