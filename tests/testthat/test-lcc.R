@@ -51,5 +51,14 @@ test_that("var.class and weights.form" ,{
   
   # wrong name for weights.form
   expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 2, qr = 2, var.class = varIdent, weights.form = "both"),"Please specify the 'weight.form' correctly for varIdent class")
+  
+  # Wrong name for var.class and weights.form
+  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 2, qr = 2, var.class = AAA, weights.form = "AAA"),"object 'AAA' not found")
   })
 
+test_that("time_lcc" ,{
+  # Testing regular sequence
+  expect_that(fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 2, qr = 2, time_lcc =list(from=min(hue$Time), to=max(hue$Time), n=30)),is_a("lcc"))
+  expect_that(fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 2, qr = 2, time_lcc =list(time=seq(0,14,1), from=0, to=14, n=30)),is_a("lcc"))
+  expect_equivalent(fm1,fm2)
+})  
