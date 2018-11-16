@@ -177,10 +177,10 @@ test_that("Testing LCC estimates", {
 
 # Test for confidence intervals
 test_that("Test if confidence interval works",{
-  expect_that(fme2<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 500, components = TRUE),is_a("lcc"))
-  expect_that(fme3<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 500, components = TRUE, percentileMet = TRUE),is_a("lcc"))
-  expect_that(fme4<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 500, components = TRUE),is_a("lcc"))
-  expect_that(fme5<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 500, components = TRUE, percentileMet = TRUE),is_a("lcc"))
+  expect_that(fme2<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 1000, components = TRUE),is_a("lcc"))
+  expect_that(fme3<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 1000, components = TRUE, percentileMet = TRUE),is_a("lcc"))
+  expect_that(fme4<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 1000, components = TRUE),is_a("lcc"))
+  expect_that(fme5<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 1000, components = TRUE, percentileMet = TRUE),is_a("lcc"))
   expect_equal(fme2$Summary.lcc$fitted$LCC, fme3$Summary.lcc$fitted$LCC, tolerance = 0.05)
   expect_equal(fme4$Summary.lcc$fitted$LCC, fme5$Summary.lcc$fitted$LCC, tolerance = 0.05)
 })
