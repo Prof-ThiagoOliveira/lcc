@@ -7,9 +7,7 @@
 
 * Fixed issue when three or more levels of methods is considered in the dataset.
 
-lccWrapper function:
-previous code
-\code{if(is.na(rho[[2]])=TRUE)}
-current code
-\code{if(length(rho)==1)}  
+* Fixed issue in lccWrapper function:
+  	* previous code if(is.na(rho[[2]])=TRUE)
+	* current code if(length(rho)==1)  
 

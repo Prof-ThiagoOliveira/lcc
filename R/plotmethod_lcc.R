@@ -69,7 +69,7 @@
 ##' @export
 
 lccPlot<-function(obj, control = list(), ...){
-  
+  if(class(obj)!="lcc") stop("Object must inherit from class \"lcc\"", call.=FALSE) 
   # Arguments for the plot
   plot.cons<-plotControl(shape=1, colour="black",
     size=0.5, xlab = "Time",
