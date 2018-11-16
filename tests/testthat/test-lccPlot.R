@@ -107,9 +107,41 @@ test_that("Object does not inherit from class lcc", {
   aaa<-lm(rnorm(100,10,1)~rnorm(100,50,3))
   expect_error(lccPlot(aaa), "Object must inherit from class \"lcc\"")
 })
-
-test_that("Plot test",{
-  expect_that(fme1<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1),is_a("lcc"))
-  tmp<-tempfile()
-  expect_known_output(lccPlot(fme1), tmp)
+data(hue)
+test_that("LCC, LPC and LA plot test",{
+  # Two methods
+  expect_that(fme1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1),is_a("lcc"))
+  tmp1<-tempfile()
+  expect_known_output(lccPlot(fme1), tmp1)
+  ## Components TRUE
+  expect_that(fme2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
+  tmp2<-tempfile()
+  expect_known_output(lccPlot(fme2), tmp2)
+  # More than two methods
+  expect_that(fme3<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1),is_a("lcc"))
+  tmp3<-tempfile()
+  expect_known_output(lccPlot(fme3), tmp3)
+  ## Components TRUE
+  expect_that(fme4<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
+  tmp4<-tempfile()
+  expect_known_output(lccPlot(fme4), tmp4)
  })
+
+test_that("Confidence intervals plot",{
+  # Two methods
+  expect_that(fme5<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci = TRUE, nboot = 100),is_a("lcc"))
+  tmp5<-tempfile()
+  expect_known_output(lccPlot(fme5), tmp5)
+  ## Components TRUE
+  expect_that(fme6<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE, ci = TRUE, nboot = 100),is_a("lcc"))
+  tmp6<-tempfile()
+  expect_known_output(lccPlot(fme6), tmp6)
+  # More than two methods
+  expect_that(fme7<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 100),is_a("lcc"))
+  tmp7<-tempfile()
+  expect_known_output(lccPlot(fme7), tmp7)
+  # Components TRUE
+  expect_that(fme8<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE, ci=TRUE, nboot = 100),is_a("lcc"))
+  tmp8<-tempfile()
+  expect_known_output(lccPlot(fme8), tmp8)
+})
