@@ -178,4 +178,6 @@ test_that("Testing LCC estimates", {
 # Test for confidence intervals
 test_that("Test if confidence interval works",{
   expect_that(fme2<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 200, components = TRUE),is_a("lcc"))
+  expect_that(fme3<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean", method = "Method", time = "Time", qf = 1, qr = 1, ci=TRUE, nboot = 200, components = TRUE),is_a("lcc"))
 })
+
