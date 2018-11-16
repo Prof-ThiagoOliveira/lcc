@@ -146,7 +146,7 @@ test_that("Confidence intervals plot",{
   expect_known_output(lccPlot(fme8), tmp8)
 })
 
-test_that("labels, shape and colour"{
+test_that("labels, shape and colour",{
   expect_that(fm<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
   tmp<-tempfile()
   expect_known_output(lccPlot(fm, control=list(
