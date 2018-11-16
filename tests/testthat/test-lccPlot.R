@@ -145,3 +145,21 @@ test_that("Confidence intervals plot",{
   tmp8<-tempfile()
   expect_known_output(lccPlot(fme8), tmp8)
 })
+
+test_that("labels, shape and colour"{
+  expect_that(fm<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
+  tmp<-tempfile()
+  expect_known_output(lccPlot(fm, control=list(
+    shape = 2, colour = "red", size = 2, 
+    xlab = "Time (hours)", LCC_ylab = "Longitudinal CC", 
+    LPC_ylab = "Longitudinal PC", LA_ylab="Longitudinal A")), tmp)
+})
+
+test_that("Scales"{
+  a<-c(0,1)
+  b<-c(-0.5,1)
+  c<-c(-0.2,1)
+  expect_that(fm<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
+  tmp<-tempfile()
+  expect_known_output(lccPlot(fm, control=list(LCC_scale_y_continuous = a,LPC_scale_y_continuous = b, LA_scale_y_continuous = c)), tmp)
+})

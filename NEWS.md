@@ -9,5 +9,5 @@
 
 * Fixed issue in lccWrapper function:
   	* previous code if(is.na(rho[[2]])=TRUE)
-	* current code if(length(rho)==1)  
+	* current code if(length(rho)==1) 
 
