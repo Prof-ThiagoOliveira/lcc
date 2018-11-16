@@ -22,7 +22,7 @@
 ##'
 ##' @importFrom nlme lme
 ##'
-##' @import gdata
+##' @importFrom gdata rename.vars
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'

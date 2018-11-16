@@ -155,7 +155,7 @@ test_that("labels, shape and colour"{
     LPC_ylab = "Longitudinal PC", LA_ylab="Longitudinal A")), tmp)
 })
 
-test_that("Scales"{
+test_that("Scales",{
   a<-c(0,1)
   b<-c(-0.5,1)
   c<-c(-0.2,1)
