@@ -22,4 +22,4 @@
         }else(if(is.na(rho[[2]])){
             return(rho[[1]])
          }else(return(rho[[n.delta]])))
-        ```
+	 ```
