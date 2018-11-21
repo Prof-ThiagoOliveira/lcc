@@ -19,9 +19,10 @@
 ##' @description The \code{lcc} function gives fitted values and non-parametric bootstrap confidence intervals for LCC, longitudinal Pearson correlation (LPC), and longitudinal accuracy (LA) statistics. These statistics can be estimated using different structures for the variance-covariance matrix for random effects and variance functions to model heteroscedasticity among the within-group errors using or not the time as a covariate.
 ##'
 ##' @usage
-##' lcc(dataset, resp, subject, method, time, qf, qr, covar, pdmat, var.class,
-##'     weights.form, time_lcc, ci, percentileMet, alpha, nboot,
-##'     show.warnings, components, REML, lme.control)
+##' lcc(dataset, resp, subject, method, time, interaction, qf, 
+##'     qr, covar, pdmat, var.class, weights.form, time_lcc, ci, 
+##'     percentileMet, alpha, nboot, show.warnings, components, 
+##'     REML, lme.control)
 ##'
 ##' @param dataset an object of class \code{data.frame}.
 ##'
@@ -33,6 +34,8 @@
 ##'
 ##' @param time character string. Name of the time variable in the data set.
 ##'
+##' @param interaction an option to estimate the interaction effect between \code{method} and \code{time}. If \code{TRUE}, the default, interaction effect is estimated. If \code{FALSE} only the main effects of time and method are estimated.  
+##' 
 ##' @param qf an integer specifying the degree time polynomial trends, normally 1, 2 or 3. (Degree 0 is not allowed).
 ##'
 ##' @param qr an integer specifying random effects terms to account for subject-to-subject variation.  Note that \code{qr=0} specifies a random intercept (form \code{~ 1|subject}); \code{qr=1} specifies random intercept and slope (form \code{~ time|subject}). If \code{qr=qf=q}, with \eqn{q \ge 1}, random effects at subject level are added to all terms of the time polynomial regression (form \code{~ time + time^2 + ... + time^q|subject}). 
@@ -167,17 +170,14 @@
 ##' }
 ##' 
 ##' @export
-lcc <- function(dataset, resp, subject, method, time, qf, qr, covar = NULL, pdmat = pdSymm, var.class = NULL, weights.form = NULL, time_lcc = NULL, ci = FALSE, percentileMet = FALSE, alpha = 0.05, nboot = 5000, show.warnings = FALSE, components=FALSE, REML = TRUE, lme.control = NULL) {
+lcc <- function(dataset, resp, subject, method, time, interaction = TRUE, qf, qr, covar = NULL, pdmat = pdSymm, var.class = NULL, weights.form = NULL, time_lcc = NULL, ci = FALSE, percentileMet = FALSE, alpha = 0.05, nboot = 5000, show.warnings = FALSE, components=FALSE, REML = TRUE, lme.control = NULL) {
   
   Init<-init(var.class = var.class, weights.form = weights.form, REML = REML, qf = qf, qr = qr, pdmat = pdmat, dataset = dataset, resp = resp, subject = subject, method = method, 
     time = time)
   pdmat<-Init$pdmat
   MethodREML<-Init$MethodREML
   var.class<-Init$var.class
-  model.info <- try(lccModel(dataset = dataset, resp = resp, subject = subject, pdmat = pdmat,
-                           method = method, time = time, qf = qf, qr = qr, covar = covar,
-                           var.class = var.class, weights.form = weights.form,
-                           lme.control = lme.control, method.init = MethodREML))
+  model.info <- try(lccModel(dataset = dataset, resp = resp, subject = subject, pdmat = pdmat,method = method, time = time, qf = qf, qr = qr, interaction = interaction, covar = covar,  var.class = var.class, weights.form = weights.form, lme.control = lme.control, method.init = MethodREML))
   if(model.info$wcount == "1") {
     opt <- options(show.error.messages=FALSE)
     on.exit(options(opt)) 
@@ -201,17 +201,9 @@ lcc <- function(dataset, resp, subject, method, time, qf, qr, covar = NULL, pdma
   beta1 <- fx[-unlist(pat)]
   betas <- list()
   for(i in 2:lev.facA) betas[[i-1]] <- - fx[pat[[i-1]]]
-  lcc.int_full<-lccInternal(model = model, q_f = q_f, q_r=q_r, tk = tk,
-                        covar = covar, pdmat = pdmat, diffbeta = betas,
-                        time_lcc = time_lcc, ci = ci,
-                        percentileMet = percentileMet, alpha = alpha,
-                        nboot = nboot, labels = lev.lab,
-                        var.class = var.class, weights.form = weights.form,
-                        show.warnings = show.warnings, components = components,
-                        lme.control = lme.control, method.init = MethodREML)
+  lcc.int_full<-lccInternal(model = model, q_f = q_f, q_r=q_r, interaction = interaction, tk = tk, covar = covar, pdmat = pdmat, diffbeta = betas,          time_lcc = time_lcc, ci = ci, percentileMet = percentileMet, alpha = alpha,    nboot = nboot, labels = lev.lab, var.class = var.class, weights.form = weights.form, show.warnings = show.warnings, components = components, lme.control = lme.control, method.init = MethodREML)
   
-  lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]], "dataset" = dataset, 
-            "plot_info" = lcc.int_full[-1])
+  lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]], "dataset" = dataset, "plot_info" = lcc.int_full[-1])
   class(lcc)<-"lcc"
   return(invisible(lcc))
 }

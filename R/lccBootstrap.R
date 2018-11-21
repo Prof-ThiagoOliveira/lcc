@@ -48,18 +48,18 @@ return(Boot_Dataset)
 ##' @importFrom nlme fixef
 ##'
 ##' @keywords internal
-bootstrapSamples<-function(nboot, model, q_f, q_r, covar = covar, var.class, pdmat, weights.form, show.warnings,
-                       lme.control, method.init){
+bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar, var.class, pdmat, weights.form, show.warnings, lme.control, method.init){
   Dataset_boot<-list(NA)
   Boot_model<-list(NA)
   Diff<-list(NA)
   warnings <- 0
   for(i in 1:nboot){
     Dataset_boot[[i]]<-dataBootstrap(model=model)
-    lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="y", subject="ind", covar = covar,
-                               method="FacA", time="time", qf=q_f, qr=q_r, pdmat = pdmat,
-                               var.class = var.class, weights.form = weights.form,
-                               lme.control = lme.control, method.init = method.init)
+    lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="y", 
+      subject="ind", covar = covar,method="FacA", time="time", 
+      qf=q_f, qr=q_r, interaction = interaction, pdmat = pdmat, 
+      var.class = var.class, weights.form = weights.form, 
+      lme.control = lme.control, method.init = method.init)
     x<-NULL
     y<-NULL
     if(lccModel.fit$wcount == 1) {

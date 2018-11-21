@@ -1,5 +1,8 @@
 # lcc 1.1.0
 
+## New argument
+
+*  We included an argument called "interaction " in the lcc function as an option to estimate the interaction effect between time and method. If interaction is declared FALSE, the lcc function consider only the main effects of time and method in the model.
 
 ## Bug fixes and minor improvements
 

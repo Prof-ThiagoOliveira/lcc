@@ -4,9 +4,10 @@
 \alias{lcc}
 \title{Longitudinal Concordance Correlation (LCC) estimated by fixed effects and variance components of polynomial mixed-effects regression model}
 \usage{
-lcc(dataset, resp, subject, method, time, qf, qr, covar, pdmat, var.class,
-    weights.form, time_lcc, ci, percentileMet, alpha, nboot,
-    show.warnings, components, REML, lme.control)
+lcc(dataset, resp, subject, method, time, interaction, qf, 
+    qr, covar, pdmat, var.class, weights.form, time_lcc, ci, 
+    percentileMet, alpha, nboot, show.warnings, components, 
+    REML, lme.control)
 }
 \arguments{
 \item{dataset}{an object of class \code{data.frame}.}
@@ -18,6 +19,8 @@ lcc(dataset, resp, subject, method, time, qf, qr, covar, pdmat, var.class,
 \item{method}{character string. Name of the method variable in the data set. The first level of method is used as the gold-standard method.}
 
 \item{time}{character string. Name of the time variable in the data set.}
+
+\item{interaction}{an option to estimate the interaction effect between \code{method} and \code{time}. If \code{TRUE}, the default, interaction effect is estimated. If \code{FALSE} only the main effect of time and method are estimated.}
 
 \item{qf}{an integer specifying the degree time polynomial trends, normally 1, 2 or 3. (Degree 0 is not allowed).}
 
