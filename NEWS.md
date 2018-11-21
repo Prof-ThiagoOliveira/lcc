@@ -11,10 +11,14 @@
 * Fixed issue when three or more levels of methods is considered in the dataset.
 
 * Fixed issue in lccWrapper function get the correct rho:
-  	* previous code if(is.na(rho[[2]])=TRUE)
-	* current code   if(length(rho)==1){
-                            return(rho[[1]])
-                         }else(if(is.na(rho[[2]])){
-                           return(rho[[1]])
-                         }else(return(rho[[n.delta]])))
-
+  	* previous code:
+	```
+	if(is.na(rho[[2]])=TRUE)
+	```
+	* current code:
+	```if(length(rho)==1){
+              return(rho[[1]])
+           }else(if(is.na(rho[[2]])){
+              return(rho[[1]])
+           }else(return(rho[[n.delta]])))
+        ```
