@@ -20,7 +20,7 @@ lcc(dataset, resp, subject, method, time, interaction, qf,
 
 \item{time}{character string. Name of the time variable in the data set.}
 
-\item{interaction}{an option to estimate the interaction effect between \code{method} and \code{time}. If \code{TRUE}, the default, interaction effect is estimated. If \code{FALSE} only the main effect of time and method are estimated.}
+\item{interaction}{an option to estimate the interaction effect between \code{method} and \code{time}. If \code{TRUE}, the default, interaction effect is estimated. If \code{FALSE} only the main effects of time and method are estimated.}
 
 \item{qf}{an integer specifying the degree time polynomial trends, normally 1, 2 or 3. (Degree 0 is not allowed).}
 
