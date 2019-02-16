@@ -25,10 +25,15 @@ Installed from CRAN:
 install.packages("lcc")
 ```
 
-Installed the development version from Github: \`\`\`\` If you use
-------------------------------------------------------------------
+Installed the development version from Github:
+----------------------------------------------
 
-Windows, first install [Rtools](https://cran.r-project.org/bin/windows/Rtools/). If you are facing problems with Rtools installation, try to do it by selecting *Run as Admnistrator* option with right mouse button. On a Mac, you will need Xcode (available on the App Store).
+``` r
+install.packages("devtools")
+devtools::install_github("Prof-ThiagoOliveira/lcc")
+```
+
+If you use Windows, first install [Rtools](https://cran.r-project.org/bin/windows/Rtools/). If you are facing problems with Rtools installation, try to do it by selecting *Run as Admnistrator* option with right mouse button. On a Mac, you will need Xcode (available on the App Store).
 
 `lcc` can also be installed by downloading the appropriate files directly at the CRAN web site and following the instructions given in the section `6.3 Installing Packages` of the [R Installation and Administration](http://cran.r-project.org/doc/manuals/R-admin.pdf) manual.
 
