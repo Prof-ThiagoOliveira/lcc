@@ -7,7 +7,7 @@ lcc <img src="man/figures/logo.svg" align="right" height = 150/>
 
 `lcc` is a package under development based on estimation procedures for longitudinal concordance correlation (lcc), longitudinal Pearson correlation (lpc), and longitudinal accuracy (la) through fixed effects and variance components of polynomial mixed-effect regression model. The main features of the package are its ability to perform inference about the extent of agreement and use a numerical and graphical to summary the fitted values, sampled values, and confidence intervals. Morever, our approach accommodate balanced or unbalanced experimental design, allows to model heteroscedasticity among within-group errors using or not the time as covariate, and also allows for inclusion of covariates in the linear predictor to control systematic variations in the response variable. It was developed by Thiago de Paula Oliveira \[cre, aut\], Rafael de Andrade Moral \[aut\], John Hinde \[aut\], Silvio Sandoval Zocchi \[aut,ctb\], Clarice Garcia Borges Demétrio \[aut,ctb\].
 
-It has been available on CRAN since 2018 (<https://cran.r-project.org/package=lcc>). Its last version was updated on 2018-11-05. CRAN has lcc's stable version, which is recommended for most users.
+It has been available on CRAN since 2018 (<https://cran.r-project.org/package=lcc>). Its last version was updated on 2019-02-13. CRAN has lcc's stable version, which is recommended for most users.
 
 This github page has its version under development. New functions will be added as experimental work and, once it is done and running correctly, we will synchronize the repositories and add it to the CRAN.
 

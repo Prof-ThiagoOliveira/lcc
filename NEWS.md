@@ -33,4 +33,5 @@
 
 * Fixed issue when the "all.plots" argument is declared FALSE. Now the
 list of plot can be split into multiple pages and save them as pdf
-using ggsave function.
+using ggsave function. The marrangeGrob function of package gridExtra
+was used to solve this problem.
