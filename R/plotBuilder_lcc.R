@@ -24,6 +24,8 @@
 ##'
 ##' @importFrom grid grid.newpage
 ##'
+##' @importFrom gridExtra marrangeGrob
+##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
@@ -84,9 +86,9 @@ if(ci==FALSE){
                                      layout.pos.col = matchidx$col))
     }
     }else{
-          for(i in 1:numPlots){
-          print(Plot[[i]])
-      }
+      all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+      ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1, top = " ")
+      print(ml)
     }
   }
 }else{
@@ -155,10 +157,10 @@ if(ldb == 1) {
     print(Plot[[i]], vp = viewport(layout.pos.row = matchidx$row,
                                    layout.pos.col = matchidx$col))
         }
-      }else{
-             for(i in 1:numPlots){
-               print(Plot[[i]])
-        }
+  }else{
+     all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+     ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1, top = " ")
+      print(ml)
       }
     }
   }

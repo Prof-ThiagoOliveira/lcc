@@ -1,4 +1,4 @@
-# lcc 1.1.0
+# lcc 1.0.1
 
 ## New argument
 
@@ -27,3 +27,10 @@
             return(rho[[1]])
          }else(return(rho[[n.delta]])))
 	 ```
+# lcc 1.0.2
+
+# Bug fixes and minor improvements
+
+* Fixed issue when the "all.plots" argument is declared FALSE. Now the
+list of plot can be split into multiple pages and save them as pdf
+using ggsave function.

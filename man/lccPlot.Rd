@@ -4,11 +4,16 @@
 \alias{lccPlot}
 \title{Plot an lcc object}
 \usage{
-lccPlot(obj, control, ...)
+lccPlot(obj, type, control, ...)
 }
 \arguments{
 \item{obj}{an object inheriting from class "lcc", representing a
 fitted lcc model.}
+
+\item{type}{character string. If \code{type = "lcc"}, the output is
+the LCC plot; if \code{type = "lpc"}, the output is the LPC plot;
+and if \code{type = "la"} the output is the LA plot. Types "lpc"
+and "la" are available only if \code{components = TRUE}.}
 
 \item{control}{a list of control values or character strings
   returned by the function \code{\link{plotControl}}. Defaults to an
@@ -55,7 +60,8 @@ providing limits of the scale related to LA. Default is
 class. If \code{TRUE}, the default, returns an object created by the
 \code{\link[grid]{viewport}} function with multiple plots on a
 single page. If \code{FALSE} returns a single
-\code{\link[ggplot2]{ggplot}} object by different pages.}  }}
+\code{\link[ggplot2]{ggplot}} object by different pages using the
+\code{\link[gridExtra]{marrangeGrob}} function.}}}
 
 \item{...}{not used.}
 }
@@ -74,8 +80,21 @@ data(hue)
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2,
          components=TRUE)
-lccPlot(fm1)
+lccPlot(fm1, type="lcc")
+lccPlot(fm1, type="lpc")
+lccPlot(fm1, type="la")
 
+## Runing all.plots = FALSE and saving plots as pdf
+\dontrun{
+data(simulated_hue_block)
+attach(simulated_hue_block)
+fm2<-lcc(dataset = simulated_hue_block, subject = "Fruit",
+         resp = "Hue", method = "Method",time = "Time",
+         qf = 2, qr = 1, components = TRUE, covar = c("Block"),
+         time_lcc = list(n=50, from=min(Time), to=max(Time)))
+ggsave("myplots.pdf",
+       lccPlot(fm7, type="lcc", control=list(all.plot=FALSE)))
+}
 }
 \references{
 Lin, L. A Concordance Correlation Coefficient to

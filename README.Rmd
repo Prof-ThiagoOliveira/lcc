@@ -67,10 +67,13 @@ directly.
 install.packages("lcc")
 ```
 
-## Installed the development version from Github: ```r #
+## Installed the development version from Github:
+```r
 install.packages("devtools")
-devtools::install_github("Prof-ThiagoOliveira/lcc") ``` If you use
-Windows, first install
+devtools::install_github("Prof-ThiagoOliveira/lcc")
+```
+
+If you use Windows, first install
 [Rtools](https://cran.r-project.org/bin/windows/Rtools/). If you are
 facing problems with Rtools installation, try to do it by selecting *Run
 as Admnistrator* option with right mouse button. On a Mac, you will need

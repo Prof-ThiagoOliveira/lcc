@@ -22,10 +22,15 @@
 ##'   single plots of each statistics are returned on differents pages.
 ##'
 ##' @usage
-##' lccPlot(obj, control, ...)
+##' lccPlot(obj, type, control, ...)
 ##'
 ##' @param obj an object inheriting from class "lcc", representing a
 ##'   fitted lcc model.
+##'
+##' @param type character string. If \code{type = "lcc"}, the output is
+##'   the LCC plot; if \code{type = "lpc"}, the output is the LPC plot;
+##'   and if \code{type = "la"} the output is the LA plot. Types "lpc"
+##'   and "la" are available only if \code{components = TRUE}.
 ##'
 ##' @param control a list of control values or character strings
 ##'   returned by the function \code{\link{plotControl}}. Defaults to an
@@ -72,7 +77,8 @@
 ##' class. If \code{TRUE}, the default, returns an object created by the
 ##' \code{\link[grid]{viewport}} function with multiple plots on a
 ##' single page. If \code{FALSE} returns a single
-##' \code{\link[ggplot2]{ggplot}} object by different pages.}  }
+##' \code{\link[ggplot2]{ggplot}} object by different pages using the
+##' \code{\link[gridExtra]{marrangeGrob}} function.}}
 ##'
 ##' @param ... not used.
 ##'
@@ -97,12 +103,27 @@
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2,
 ##'          components=TRUE)
-##' lccPlot(fm1)
+##' lccPlot(fm1, type="lcc")
+##' lccPlot(fm1, type="lpc")
+##' lccPlot(fm1, type="la")
 ##'
+##' @examples
+##' ## Runing all.plots = FALSE and saving plots as pdf
+##' \dontrun{
+##' data(simulated_hue_block)
+##' attach(simulated_hue_block)
+##' fm2<-lcc(dataset = simulated_hue_block, subject = "Fruit",
+##'          resp = "Hue", method = "Method",time = "Time",
+##'          qf = 2, qr = 1, components = TRUE, covar = c("Block"),
+##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))
+##' ggsave("myplots.pdf",
+##'        lccPlot(fm7, type="lcc", control=list(all.plot=FALSE)))
+##' }
 ##' @export
 
-lccPlot<-function(obj, control = list(), ...){
-  if(class(obj)!="lcc") stop("Object must inherit from class \"lcc\"", call.=FALSE)
+lccPlot<-function(obj, type = "lcc", control = list(), ...){
+  if(class(obj)!="lcc") stop("Object must inherit from class \"lcc\"",
+                             call.=FALSE)
   # Arguments for the plot
   plot.cons<-plotControl(shape=1, colour="black",
     size=0.5, xlab = "Time",
@@ -138,46 +159,68 @@ lccPlot<-function(obj, control = list(), ...){
   ldb<-obj$plot_info$ldb
   ci<-obj$plot_info$ci
   components<-obj$plot_info$components
-
+  if (components == FALSE &  type != "lcc") {
+    stop("'lpc' and 'la' plots only if components is TRUE",
+         call.= FALSE)
+  }
+  #---------------------------------------------------------------------
     if(ci==FALSE) {
       if(ldb == 1) {
+        if (type == "lcc") {
           plot_lcc(rho=obj$plot_info$rho, tk.plot= tk.plot,
             tk.plot2=tk.plot2, ldb=ldb,
             model=model, ci = ci,
             arg=plot.cons)
+        }
         if(components==TRUE){
+          if (type == "lpc") {
             plot_lpc(LPC=obj$plot_info$rho.pearson, tk.plot= tk.plot,
               tk.plot2=tk.plot2, ldb=ldb,
               model=model, ci = ci, arg = plot.cons)
+          }
+          if (type == "la") {
             plot_la(Cb=obj$plot_info$Cb, tk.plot= tk.plot,
               tk.plot2=tk.plot2, ldb=ldb,
               model=model, ci = ci, arg = plot.cons)
-        }
+          }
+         }
       } else {
+         if (type == "lcc") {
           plot_lcc(rho=obj$plot_info$rho, tk.plot= tk.plot,
             tk.plot2=tk.plot2, ldb=ldb, model=model,
             ci = ci, arg = plot.cons)
-        if(components==TRUE){
+          }
+         if(components==TRUE){
+           if (type == "lpc") {
             plot_lpc(LPC=obj$plot_info$rho.pearson, tk.plot= tk.plot,
               tk.plot2=tk.plot2, ldb=ldb, model=model,
               ci = ci, arg = plot.cons)
+           }
+           if (type == "la") {
             plot_la(Cb=obj$plot_info$Cb, tk.plot= tk.plot,
               tk.plot2=tk.plot2, ldb=ldb, model=model,
               ci = ci, arg = plot.cons)
-        }
+           }
+          }
       }
     }else{
       ENV.LCC<-obj$plot_info$ENV.LCC
+      if (type == "lcc") {
         plot_lcc(rho=obj$plot_info$rho, ENV.LCC=ENV.LCC, tk.plot= tk.plot,
           tk.plot2=tk.plot2, ldb=ldb, model=model,
           ci = ci, arg = plot.cons)
-        if(components==TRUE){
+        }
+      if(components==TRUE){
+        if (type == "lpc") {
         ENV.LPC<-obj$plot_info$ENV.LPC
-        ENV.Cb<-obj$plot_info$ENV.LA
         plot_lpc(LPC=obj$plot_info$rho.pearson,ENV.LPC=ENV.LPC, tk.plot= tk.plot,
           tk.plot2=tk.plot2, ldb=ldb, model=model, ci = ci, arg = plot.cons)
+        }
+        if (type == "la") {
+        ENV.Cb<-obj$plot_info$ENV.LA
         plot_la(Cb=obj$plot_info$Cb,ENV.Cb = ENV.Cb, tk.plot= tk.plot,
           tk.plot2=tk.plot2, ldb=ldb, model=model, ci = ci, arg = plot.cons)
         }
+       }
     }
 }

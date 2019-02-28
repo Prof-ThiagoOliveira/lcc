@@ -72,11 +72,11 @@ if(ci==FALSE){
         Plot[[i]]<-Plot[[i]]+geom_hline(yintercept = 1, linetype="dashed")
       }
     }
+    numPlots = length(Plot)
     if(arg$all.plot){
     grid.newpage()
     cols<-ceiling(sqrt(ldb))
     rows<-signif(sqrt(ldb),1)
-    numPlots = length(Plot)
     layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
                      ncol = cols, nrow = rows)
     pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
@@ -86,9 +86,10 @@ if(ci==FALSE){
                                      layout.pos.col = matchidx$col))
     }
     }else{
-      for(i in 1:numPlots){
-        print(Plot[[i]])
-      }
+      all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+      ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1,
+                                    top = " ")
+      print(ml)
     }
   }
 }else{
@@ -160,9 +161,10 @@ if(ldb == 1) {
                                    layout.pos.col = matchidx$col))
         }
        }else{
-         for(i in 1:numPlots){
-           print(Plot[[i]])
-         }
+        all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+        ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1,
+                                      top = " ")
+        print(ml)
       }
     }
   }
