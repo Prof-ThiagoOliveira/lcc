@@ -52,25 +52,11 @@
 ##' \item{\code{xlab}:}{title for the \code{x} axis.  Default is
 ##' \code{"Time"}.}
 ##'
-##' \item{\code{LCC_ylab}:}{title for the \code{y} axis related with
-##' LCC. Default is \code{"LCC"}.}
+##' \item{\code{ylab}:}{title for the \code{y} axis. Default is "LCC",
+##' "LPC", or "LA"}
 ##'
-##' \item{\code{LPC_ylab}:}{title for the \code{y} axis related with
-##' LPC. Default is \code{"LPC"}.}
-##'
-##' \item{\code{LA_ylab}:}{title for the \code{y} axis related with
-##' LA. Default is \code{"LA"}.}
-##'
-##' \item{\code{LCC_scale_y_continuous}:}{numeric vector of length two
-##' providing limits of the scale related to LCC. Default is
-##' \code{c(0,1)}.}
-##'
-##' \item{\code{LPC_scale_y_continuous}:}{numeric vector of length two
-##' providing limits of the scale related to LPC. Default is
-##' \code{c(0,1)}.}
-##'
-##' \item{\code{LA_scale_y_continuous}:}{numeric vector of length two
-##' providing limits of the scale related to LA. Default is
+##' \item{\code{scale_y_continuous}:}{numeric vector of length two
+##' providing limits of the scale. Default is
 ##' \code{c(0,1)}.}
 ##'
 ##' \item{\code{all.plot}:}{\code{viewport} functions for the \code{lcc}
@@ -117,7 +103,7 @@
 ##'          qf = 2, qr = 1, components = TRUE, covar = c("Block"),
 ##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))
 ##' ggsave("myplots.pdf",
-##'        lccPlot(fm7, type="lcc", control=list(all.plot=FALSE)))
+##'        lccPlot(fm2, type="lcc", control=list(all.plot=FALSE)))
 ##' }
 ##' @export
 
@@ -127,12 +113,11 @@ lccPlot<-function(obj, type = "lcc", control = list(), ...){
   # Arguments for the plot
   plot.cons<-plotControl(shape=1, colour="black",
     size=0.5, xlab = "Time",
-    LCC_ylab = "LCC", LPC_ylab = "LPC",
-    LA_ylab = "LA",
-    LCC_scale_y_continuous=c(0,1),
-    LPC_scale_y_continuous=c(0,1),
-    LA_scale_y_continuous=c(0,1),
+    ylab = "LCC",
+    scale_y_continuous=c(0,1),
     all.plot = TRUE)
+  if (type == "lpc") plot.cons$ylab = "LPC"
+  if (type == "la") plot.cons$ylab = "LA"
   if(length(control)){
     nms <- names(control)
     if (!is.list(control) || is.null(nms))

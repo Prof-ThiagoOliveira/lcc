@@ -21,74 +21,74 @@ Data<-function(N,time){
     "Beta11","Beta12","Beta13","Beta14",
     "sigmab0","sigmab1","corb01",
     "error[1]","error[2]")
-  
+
   VAR1<-function(time) {
     sigmab0+sigmab1*time^2+2*covb0b1*time+error[1]
   }
-  
+
   VAR2<-function(time) {
     sigmab0+sigmab1*time^2+2*covb0b1*time+error[2]
   }
-  
+
   COV<-function(time) {
     sigmab0+sigmab1*time^2+2*covb0b1*time
   }
-  
-  E1<-function(time) sum(c(1,time)*c(Beta01,Beta11)) 
-  E2<-function(time) sum(c(1,time)*c(Beta02,Beta12)) 
-  E3<-function(time) sum(c(1,time)*c(Beta03,Beta13)) 
-  E4<-function(time) sum(c(1,time)*c(Beta04,Beta14)) 
-  
+
+  E1<-function(time) sum(c(1,time)*c(Beta01,Beta11))
+  E2<-function(time) sum(c(1,time)*c(Beta02,Beta12))
+  E3<-function(time) sum(c(1,time)*c(Beta03,Beta13))
+  E4<-function(time) sum(c(1,time)*c(Beta04,Beta14))
+
   mu1T<-Vectorize(function(t) E1(t), "t")
   mu2T<-Vectorize(function(t) E2(t), "t")
   mu3T<-Vectorize(function(t) E3(t), "t")
   mu4T<-Vectorize(function(t) E4(t), "t")
-  
+
   S12T<-Vectorize(function(t) E1(t)-E2(t), "t")
   S13T<-Vectorize(function(t) E1(t)-E3(t), "t")
   S14T<-Vectorize(function(t) E1(t)-E4(t), "t")
-  
+
   LCC12T <- Vectorize(function(t) 2*COV(t)/(VAR1(t)+VAR1(t)+(E1(t)-E2(t))^2), "t")
   LCC13T <- Vectorize(function(t) 2*COV(t)/(VAR2(t)+VAR2(t)+(E1(t)-E3(t))^2), "t")
   LCC14T <- Vectorize(function(t) 2*COV(t)/(VAR1(t)+VAR2(t)+(E1(t)-E4(t))^2), "t")
-  
+
   N<-N
   Fruit<-gl(N,length(time),4*N*length(time))
   Method<-gl(4,k=length(time)*N)
   Time<-rep(time, N*4)
-  
+
   E1y<-Vectorize(function(t) E1(t), "t")
   E2y<-Vectorize(function(t) E2(t), "t")
   E3y<-Vectorize(function(t) E3(t), "t")
   E4y<-Vectorize(function(t) E4(t), "t")
-  
+
   Evalue<-c(rep(E1y(time),N),
     rep(E2y(time),N),
     rep(E3y(time),N),
     rep(E4y(time),N))
-  
+
   require(MASS)
   bi<-mvrnorm(N,mu=c(0,0), Sigma = matrix(c(sigmab0,covb0b1,
     covb0b1,sigmab1),
     byrow=TRUE,ncol=2), empirical=FALSE)
-  
+
   Zi<-model.matrix(~time)
   Zb.<-list(NA)
   for(i in 1:N){
     Zb.[[i]]<-Zi%*%bi[i,]
   }
   Zb<-rep(unlist(Zb.),4)
-  
+
   residual<-c(rnorm(length(Zb)/2,mean=0,sd=sqrt(error[1])),
     rnorm(length(Zb)/2,mean=0,sd=sqrt(error[2])))
-  
+
   Response=Evalue+Zb+residual
-  
-  
+
+
   dataset<-data.frame(Fruit,Method,Response, Time)
-  
+
   Time2<-time
-  return(list("data"=dataset, "par"=par, 
+  return(list("data"=dataset, "par"=par,
     "LCC12T"=LCC12T(Time2),
     "LCC13T"=LCC13T(Time2),
     "LCC14T"=LCC14T(Time2),
@@ -149,10 +149,17 @@ test_that("Confidence intervals plot",{
 test_that("labels, shape and colour",{
   expect_that(fm<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
   tmp<-tempfile()
-  expect_known_output(lccPlot(fm, control=list(
-    shape = 2, colour = "red", size = 2, 
-    xlab = "Time (hours)", LCC_ylab = "Longitudinal CC", 
-    LPC_ylab = "Longitudinal PC", LA_ylab="Longitudinal A")), tmp)
+  expect_known_output(lccPlot(fm, type = "lcc", control=list(
+    shape = 2, colour = "red", size = 2,
+    xlab = "Time (hours)", ylab = "Longitudinal CC")), tmp)
+  tmp2<-tempfile()
+  expect_known_output(lccPlot(fm, type = "lpc", control=list(
+    shape = 2, colour = "red", size = 2,
+    xlab = "Time (hours)", ylab = "Longitudinal PC")), tmp2)
+  tmp3<-tempfile()
+  expect_known_output(lccPlot(fm, type = "la", control=list(
+    shape = 2, colour = "red", size = 2,
+    xlab = "Time (hours)", ylab = "Longitudinal Accuracy")), tmp3)
 })
 
 test_that("Scales",{
@@ -161,5 +168,9 @@ test_that("Scales",{
   c<-c(-0.2,1)
   expect_that(fm<-lcc(dataset = dataset$data, subject = "Fruit", resp = "Response", method = "Method", time = "Time", qf = 1, qr = 1, components = TRUE),is_a("lcc"))
   tmp<-tempfile()
-  expect_known_output(lccPlot(fm, control=list(LCC_scale_y_continuous = a,LPC_scale_y_continuous = b, LA_scale_y_continuous = c)), tmp)
+  expect_known_output(lccPlot(fm, control=list(scale_y_continuous = a)), tmp)
+  tmp2<-tempfile()
+  expect_known_output(lccPlot(fm, type = "lpc", control=list(scale_y_continuous = b)), tmp2)
+  tmp3<-tempfile()
+  expect_known_output(lccPlot(fm, type = "la", control=list(scale_y_continuous = c)), tmp3)
 })

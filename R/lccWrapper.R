@@ -38,7 +38,7 @@ lccWrapper <- function(model, q_f, tk, diffbeta, n.delta) {
                      delta = delta, deltal = deltal, model = model)
   if(length(rho)==1){
     return(rho[[1]])
-  }else(if(is.na(rho[[2]])){
+  }else(if(sum(is.na(rho[[2]]))!=0){
     return(rho[[1]])
   }else(return(rho[[n.delta]])))
 }

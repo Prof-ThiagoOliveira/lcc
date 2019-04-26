@@ -41,27 +41,11 @@
 ##' @param xlab a title for the \code{x} axis.  Default is
 ##'   \code{"Time"}.
 ##'
-##' @param LCC_ylab title for the \code{y} axis related with
-##'   longitudinal concordance correlation (LCC). Default is
+##' @param ylab title for the \code{y} axis. Default is
 ##'   \code{"LCC"}.
 ##'
-##' @param LPC_ylab title for the \code{y} axis related with
-##'   longitudinal Pearson correlation (LPC). Default is \code{"LPC"}.
-##'
-##' @param LA_ylab title for the \code{y} axis related with longitudinal
-##'   accuracy (LA). Default is \code{"LA"}.
-##'
-##' @param LCC_scale_y_continuous a numeric vector of length two
-##'   providing limits of the scale related with longitudinal
-##'   concordance correlation (LCC). Default is \code{c(0,1)}.
-##'
-##' @param LPC_scale_y_continuous a numeric vector of length two
-##'   providing limits of the scale related with longitudinal
-##'   concordance correlation (LCC). Default is \code{c(0,1)}.
-##'
-##' @param LA_scale_y_continuous a numeric vector of length two
-##'   providing limits of the scale related with longitudinal
-##'   concordance correlation (LCC). Default is \code{c(0,1)}.
+##' @param scale_y_continuous a numeric vector of length two
+##'   providing limits of the scale. Default is \code{c(0,1)}.
 ##'
 ##' @param all.plot viewports functions for \code{lcc} class. If
 ##'   \code{TRUE}, the default, returns a object created by
@@ -77,18 +61,12 @@
 ##'
 ##' @keywords internal
 plotControl<-function(plot= TRUE, shape=1, colour="black", size=0.5,
-                       xlab = "Time", LCC_ylab = "LCC",
-                       LPC_ylab = "LPC", LA_ylab = "LA",
-                       LCC_scale_y_continuous=c(0,1),
-                       LPC_scale_y_continuous=c(0,1),
-                       LA_scale_y_continuous=c(0,1),
+                       xlab = "Time", ylab = "LCC",
+                       scale_y_continuous=c(0,1),
                        all.plot=TRUE)
 {
        list(plot = plot, shape=shape, colour=colour, size=size,
-            xlab = xlab, LCC_ylab = LCC_ylab, LPC_ylab = LPC_ylab,
-            LA_ylab = LA_ylab,
-            LCC_scale_y_continuous = LCC_scale_y_continuous,
-            LPC_scale_y_continuous = LPC_scale_y_continuous,
-            LA_scale_y_continuous = LA_scale_y_continuous,
+            xlab = xlab, ylab = ylab,
+            scale_y_continuous = scale_y_continuous,
             all.plot = all.plot)
 }

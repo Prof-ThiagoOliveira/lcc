@@ -22,7 +22,7 @@
 ##' @usage NULL
 ##'
 ##' @importFrom nlme lmeControl pdSymm
-##' 
+##'
 ##' @importFrom stats model.matrix
 ##'
 ##' @references
@@ -110,13 +110,14 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
   warning.count <- 0
   if(class(model.lme) == "try-error") {
     warning.count <- 1
+    mes <- message(model.lme)
   } else if(is.character(model.lme$apVar) == TRUE) {
     warning.count <- 1
-  }
+    mes <- model.lme$apVar
+  } else {mes = NULL}
   lcc.fit <- list("model" = model.lme, "summary" = summary(model.lme),
                   "q_f" = qf, "data" = Data, "wcount" = warning.count,
-                  "lme.control" = lme.control)
+                  "lme.control" = lme.control,  "message" = mes)
   class(lcc.fit) <- "lcc.fit"
   return(lcc.fit)
 }
-
