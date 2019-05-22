@@ -13,9 +13,13 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal function to summarize fitted and sampled values for \code{lcc} objects
+
+##' @title Internal function to summarize fitted and sampled values for
+##'   \code{lcc} objects
 ##'
-##' @description This is an internally called function used to summarize fitted and sampled values, and the concordance correlation coefficient between them for \code{lcc} objects.
+##' @description This is an internally called function used to summarize
+##'   fitted and sampled values, and the concordance correlation
+##'   coefficient between them for \code{lcc} objects.
 ##'
 ##' @usage NULL
 ##'
@@ -106,7 +110,7 @@ lccSummary<-function(model, q_f, diffbeta, tk,
       CCC<-CCC_lin(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
       Pearson<-Pearson(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
        if(ldb==1){
-        LA<-CCC[[1]]/Pearson[[1]]         
+        LA<-CCC[[1]]/Pearson[[1]]
         LCC.data<-data.frame("Time"=tk.plot,"LCC"=rho, "LPC"=rho.pearson, "LA"=Cb)
         names(LCC.data)<-c("Time",
                            paste0(expression("LCC: "), levels(model$data$FacA)[2], " vs. ", levels(model$data$FacA)[1]),

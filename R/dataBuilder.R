@@ -27,13 +27,5 @@ dataBuilder <- function(dataset, resp, subject, method, time){
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
                       to = c("y", "ind", "FacA", "time"),
                       info = FALSE), TRUE)
-  if(class(Data)=="try-error"){
-    stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables", call.=FALSE)
-  }
-    
-  Data$ind <- as.factor(Data$ind)
-  Data$FacA <- as.factor(Data$FacA)
-  Data$time <- as.numeric(Data$time)
-  Data$y <- as.numeric(Data$y)
   return(Data)
 }

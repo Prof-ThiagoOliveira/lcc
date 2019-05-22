@@ -16,38 +16,52 @@
 
 ##' @title Internal function to prepare the \code{ciCompute} function.
 ##'
-##' @description This is an internally called function used to prepare the \code{\link[lcc]{ciCompute}} function.
+##' @description This is an internally called function used to prepare
+##'   the \code{\link[lcc]{ciCompute}} function.
 ##'
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-ciBuilder<-function(model, nboot, q_f, q_r, covar = covar,  pdmat, var.class,
-                     weights.form, show.warnings, tk, diffbeta,
-                     ldb, tk.plot, tk.plot2, ci, percentileMet,
-                     alpha, components,lme.control, method.init){
-  Models<- bootstrapSamples(nboot = nboot, model = model, q_f = q_f, q_r = q_r, covar = covar,
-                        pdmat = pdmat, var.class = var.class, weights.form = weights.form,
-                        show.warnings = show.warnings,
-                        lme.control = lme.control, method.init = method.init)
+ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar,  pdmat,
+                    var.class, weights.form, show.warnings, tk,
+                    diffbeta, ldb, tk.plot, tk.plot2, ci, percentileMet,
+                    alpha, components,lme.control, method.init){
+  Models<- bootstrapSamples(nboot = nboot, model = model, q_f = q_f,
+                            q_r = q_r, interaction = interaction,
+                            covar = covar, pdmat = pdmat, var.class =
+                                                            var.class,
+                            weights.form = weights.form,
+                            show.warnings = show.warnings,
+                            lme.control = lme.control, method.init =
+                                                         method.init)
   if(components==FALSE){
-    LCC_Boot<-lccBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)
+    LCC_Boot <- lccBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas,
+                             ldb=ldb, nboot = nboot, tk = tk,
+                             q_f = q_f)
     if(ldb == 1) {
       rho <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
                          tk = tk, diffbeta = as.numeric(diffbeta[[1]]))
-      CI<-lcc_intervals(rho = rho, tk.plot = tk.plot, tk.plot2 = tk.plot2,
-              ldb = ldb, model = model, ci = ci, percentileMet = percentileMet,
-              LCC_Boot = LCC_Boot, alpha = alpha)
+      CI<-lcc_intervals(rho = rho, tk.plot = tk.plot, tk.plot2 =
+                                                        tk.plot2,
+                        ldb = ldb, model = model, ci = ci,
+                        percentileMet = percentileMet,
+                        LCC_Boot = LCC_Boot, alpha = alpha)
       CI.LCC<-CI$CI.LCC
     } else{
       rho <- list()
-      for(i in 1:ldb)  rho[[i]] <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
-                                               tk = tk, diffbeta = as.numeric(diffbeta[[i]]))
+      for(i in 1:ldb)  rho[[i]] <- lccWrapper(model = model, q_f = q_f,
+                                              n.delta = 1, tk = tk,
+                                              diffbeta =
+
+  as.numeric(diffbeta[[i]]))
       rho.ret <- data.frame(do.call(cbind.data.frame, rho))
-      CI<-lcc_intervals(rho = rho.ret, tk.plot = tk.plot, tk.plot2 = tk.plot2,
-             ldb = ldb, model = model, ci = ci, percentileMet = percentileMet,
-             LCC_Boot = LCC_Boot, alpha = alpha)
+      CI<-lcc_intervals(rho = rho.ret, tk.plot = tk.plot,
+                        tk.plot2 = tk.plot2, ldb = ldb,
+                        model = model, ci = ci,
+                        percentileMet = percentileMet,
+                        LCC_Boot = LCC_Boot, alpha = alpha)
     }
   }else{
     LCC_Boot<-lccBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)

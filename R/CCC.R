@@ -14,9 +14,11 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to compute the sampled concordance correlation values.
+##' @title Internal function to compute the sampled concordance
+##'   correlation values.
 ##'
-##' @description This is an internally called functions used to compute the sampled concordance correlation values.
+##' @description This is an internally called functions used to compute
+##'   the sampled concordance correlation values.
 ##'
 ##' @usage NULL
 ##'

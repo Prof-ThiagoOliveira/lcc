@@ -4,7 +4,8 @@
 \alias{ciBuilder}
 \title{Internal function to prepare the \code{ciCompute} function.}
 \description{
-This is an internally called function used to prepare the \code{\link[lcc]{ciCompute}} function.
+This is an internally called function used to prepare
+  the \code{\link[lcc]{ciCompute}} function.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

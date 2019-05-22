@@ -24,6 +24,8 @@
 ##'
 ##' @importFrom grid grid.newpage
 ##'
+##' @importFrom gridExtra marrangeGrob
+##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
@@ -40,11 +42,12 @@ if(ci==FALSE){
     Plot<-ggplot(data_plot, aes(y=LCC, x=Time))+
       geom_path(data=data_plot, colour=arg$colour, size=arg$size)+
       geom_point(data=data_plot2, aes(y=CCC, x=Time), shape=arg$shape)+
-      scale_y_continuous(limits = arg$LCC_scale_y_continuous)+
+      scale_y_continuous(limits = arg$scale_y_continuous)+
       ggtitle(paste(levels(model$data$FacA)[2], "vs.", levels(model$data$FacA)[1]))+
-      labs(list(x = arg$xlab, y = arg$LCC_ylab))+
+      labs(x = paste0(arg$xlab))+
+      labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))
-      if(arg$LCC_scale_y_continuous[2]==1){
+      if(arg$scale_y_continuous[2]==1){
         Plot<-Plot+geom_hline(yintercept = 1, linetype="dashed")
       }
     print(Plot)
@@ -62,11 +65,12 @@ if(ci==FALSE){
       Plot[[i]]<-ggplot(data_plot[[i]], aes(y=LCC, x=Time))+
         geom_line(data=data_plot[[i]], colour=arg$colour, size=arg$size)+
         geom_point(data=data_plot2[[i]], aes(y=CCC, x=Time), shape=arg$shape)+
-        scale_y_continuous(limits = arg$LCC_scale_y_continuous)+
+        scale_y_continuous(limits = arg$scale_y_continuous)+
         ggtitle(paste(levels(model$data$FacA)[i+1], "vs.", levels(model$data$FacA)[1]))+
-        labs(list(x = arg$xlab, y = arg$LCC_ylab))+
+        labs(x = paste0(arg$xlab))+
+        labs(y = paste0(arg$ylab))+
         theme(plot.title = element_text(hjust = 0.5))
-        if(arg$LCC_scale_y_continuous[2]==1){
+        if(arg$scale_y_continuous[2]==1){
           Plot[[i]]<-Plot[[i]]+geom_hline(yintercept = 1, linetype="dashed")
         }
     }
@@ -84,9 +88,9 @@ if(ci==FALSE){
                                      layout.pos.col = matchidx$col))
     }
     }else{
-          for(i in 1:numPlots){
-          print(Plot[[i]])
-      }
+      all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+      ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1, top = " ")
+      print(ml)
     }
   }
 }else{
@@ -106,11 +110,12 @@ if(ldb == 1) {
     geom_point(data=data_plot2, aes(y=CCC, x=Time), shape=arg$shape)+
     geom_ribbon(data=data_plot,aes(ymin=lower_rho,ymax=upper_rho),
                 fill="grey70", alpha=0.3,show.legend = TRUE)+
-    scale_y_continuous(limits = arg$LCC_scale_y_continuous)+
+    scale_y_continuous(limits = arg$scale_y_continuous)+
     ggtitle(paste(levels(model$data$FacA)[2], "vs.", levels(model$data$FacA)[1]))+
-    labs(list(x = arg$xlab, y = arg$LCC_ylab))+
+    labs(x = paste0(arg$xlab))+
+    labs(y = paste0(arg$ylab))+
     theme(plot.title = element_text(hjust = 0.5))
-    if(arg$LCC_scale_y_continuous[2]==1){
+    if(arg$scale_y_continuous[2]==1){
       Plot<-Plot+geom_hline(yintercept = 1, linetype="dashed")
     }
     print(Plot)
@@ -134,11 +139,12 @@ if(ldb == 1) {
       geom_point(data=data_plot2[[i]], aes(y=CCC, x=Time), shape=arg$shape)+
       geom_ribbon(data=data_plot[[i]],aes(ymin=lower_rho,ymax=upper_rho),
                   fill="grey70", alpha=0.3,show.legend = TRUE)+
-      scale_y_continuous(limits = arg$LCC_scale_y_continuous)+
+      scale_y_continuous(limits = arg$scale_y_continuous)+
       ggtitle(paste(levels(model$data$FacA)[i+1], "vs.", levels(model$data$FacA)[1]))+
-      labs(list(x = arg$xlab, y = arg$LCC_ylab))+
+      labs(x = paste0(arg$xlab))+
+      labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))
-      if(arg$LCC_scale_y_continuous[2]==1){
+      if(arg$scale_y_continuous[2]==1){
         Plot[[i]]<-Plot[[i]]+geom_hline(yintercept = 1, linetype="dashed")
       }
   }
@@ -155,10 +161,10 @@ if(ldb == 1) {
     print(Plot[[i]], vp = viewport(layout.pos.row = matchidx$row,
                                    layout.pos.col = matchidx$col))
         }
-      }else{
-             for(i in 1:numPlots){
-               print(Plot[[i]])
-        }
+  }else{
+     all_plots <- lapply(1:numPlots, function(x) Plot[[x]])
+     ml <- gridExtra::marrangeGrob(all_plots, nrow = 1, ncol = 1, top = " ")
+      print(ml)
       }
     }
   }

@@ -22,12 +22,27 @@
 ##'
 ##' @importFrom nlme lme
 ##'
-##' @import gdata
+##' @importFrom gdata rename.vars
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-init<-function(var.class, weights.form, REML, qf, qr, pdmat){
+init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset, resp, subject, method, time){
+  resp<-resp
+  subject<-subject
+  method<-method
+  time<-time
+  Data <- data.frame(dataset)
+  Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
+    to = c("y", "ind", "FacA", "time"),
+    info = FALSE), TRUE)
+  if(class(Data)=="try-error"){
+    stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables", call.=FALSE)
+  }
+  if(is.factor(Data$ind)==FALSE) stop("Please, 'subject' variable should be factor", call.=FALSE)
+  if(is.factor(Data$FacA)==FALSE) stop("Please, 'method' variable should be factor", call.=FALSE)  
+  if(is.numeric(Data$time)==FALSE) stop("Please, 'time' variable should be numeric", call.=FALSE)
+  if(is.numeric(Data$y)==FALSE) stop("Please, 'resp' variable should be numeric", call.=FALSE)
     if(!is.function(pdmat)) {
       if(is.character(pdmat)) {
         if(substr(pdmat, nchar(pdmat) - 1, nchar(pdmat)) == "()") {

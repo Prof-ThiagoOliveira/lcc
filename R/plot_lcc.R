@@ -14,9 +14,11 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the sampled concordance correlation coefficient.
+##' @title Internal function to estimate the sampled concordance
+##'   correlation coefficient.
 ##'
-##' @description This is an internally called function used to estimate the sampled concordance correlation coefficient.
+##' @description This is an internally called function used to estimate
+##'   the sampled concordance correlation coefficient.
 ##'
 ##' @usage NULL
 ##'
@@ -56,9 +58,11 @@ CCC_lin<-function(dataset, resp, subject, method, time){
   return(CCC.Lin)
 }
 
-##' @title Internal function to prepare the \code{plotBuilder_lcc} function.
+##' @title Internal function to prepare the \code{plotBuilder_lcc}
+##'   function.
 ##'
-##' @description This is an internally called function used to prepare the \code{\link[lcc]{plotBuilder_lcc}} function.
+##' @description This is an internally called function used to prepare
+##'   the \code{\link[lcc]{plotBuilder_lcc}} function.
 ##'
 ##' @usage NULL
 ##'
@@ -79,4 +83,3 @@ plot_lcc <- function(rho,ENV.LCC, tk.plot, tk.plot2,ldb, model,
                  model = model, ci=TRUE, arg = arg)
   }
 }
-

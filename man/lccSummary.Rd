@@ -2,9 +2,12 @@
 % Please edit documentation in R/lccSummary.R
 \name{lccSummary}
 \alias{lccSummary}
-\title{Internal function to summarize fitted and sampled values for \code{lcc} objects}
+\title{Internal function to summarize fitted and sampled values for
+  \code{lcc} objects}
 \description{
-This is an internally called function used to summarize fitted and sampled values, and the concordance correlation coefficient between them for \code{lcc} objects.
+This is an internally called function used to summarize
+  fitted and sampled values, and the concordance correlation
+  coefficient between them for \code{lcc} objects.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

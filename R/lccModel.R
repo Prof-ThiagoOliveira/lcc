@@ -22,7 +22,7 @@
 ##' @usage NULL
 ##'
 ##' @importFrom nlme lmeControl pdSymm
-##' 
+##'
 ##' @importFrom stats model.matrix
 ##'
 ##' @references
@@ -33,22 +33,22 @@
 ##'Pinheiro, J.C., and Bates, D.M. (2000) Mixed-Effects Models in S and S-PLUS, \emph{Springer}.
 ##'
 ##' @keywords internal
-lccModel <- function(dataset, resp, subject, method, time, qf, qr, covar,
-                      var.class = NULL, weights.form,
-                      lme.control = NULL, method.init, pdmat) {
+lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, covar,var.class = NULL, weights.form, lme.control = NULL, method.init, pdmat) {
   if(is.null(lme.control)) lme.control <- lmeControl()
 
   Data <- dataBuilder(dataset = dataset, resp = resp, subject = subject,
                        method = method, time = time)
   Poly<-with(Data,poly(time, degree = qf, raw = TRUE))
-  fixed <- model.matrix( ~ FacA * Poly, Data)
+  if(interaction == TRUE){
+    fixed <- model.matrix( ~ FacA * Poly, Data)
+    }else{
+    fixed <- model.matrix( ~ FacA + Poly, Data)
+    }
   Data$fixed <- fixed
   if (length(covar) > 0) {
     pos <- pmatch(covar, names(Data))
     if (any(nap <- is.na(pos))) {
-      stop(sprintf(ngettext(length(nap), "unrecognized 'covar' variable named %s ignored",
-                               "unrecognized 'covar' variable named %s ignored"),
-                      paste(sQuote(covar[nap]), collapse = ", ")), call. = FALSE)
+      stop(sprintf(ngettext(length(nap), "unrecognized 'covar' variable named %s ignored", "unrecognized 'covar' variable named %s ignored"), paste(sQuote(covar[nap]), collapse = ", ")), call. = FALSE)
       pos <- pos[!nap]
       covar <- covar[!nap]
     }
@@ -60,7 +60,11 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, covar,
     }
     Data_covar<-do.call(cbind.data.frame, COVAR)
     Data_covar<-as.matrix(Data_covar)
-    fixed <- model.matrix( ~ FacA * Poly, Data)
+    if(interaction == TRUE){
+      fixed <- model.matrix( ~ FacA * Poly, Data)
+    }else{
+      fixed <- model.matrix( ~ FacA + Poly, Data)
+    }
     fixed <- cbind(fixed, Data_covar)
     Data$fixed <- fixed
     }
@@ -106,13 +110,14 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, covar,
   warning.count <- 0
   if(class(model.lme) == "try-error") {
     warning.count <- 1
+    mes <- message(model.lme)
   } else if(is.character(model.lme$apVar) == TRUE) {
     warning.count <- 1
-  }
+    mes <- model.lme$apVar
+  } else {mes = NULL}
   lcc.fit <- list("model" = model.lme, "summary" = summary(model.lme),
                   "q_f" = qf, "data" = Data, "wcount" = warning.count,
-                  "lme.control" = lme.control)
+                  "lme.control" = lme.control,  "message" = mes)
   class(lcc.fit) <- "lcc.fit"
   return(lcc.fit)
 }
-

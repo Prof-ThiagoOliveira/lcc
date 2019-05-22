@@ -13,13 +13,17 @@ time_lcc(time, from, to, n)
 
 \item{to}{the end (maximal) value of time variable.}
 
-\item{n}{an integer specifying the desired length of the sequence. Generally, \code{n} between 30 and 50 is adequate.}
+\item{n}{an integer specifying the desired length of the
+sequence. Generally, \code{n} between 30 and 50 is adequate.}
 }
 \description{
-An list specifying control arguments to generate a regular sequence for the time variable returned by the function \code{time_lcc}, which is used to constructed the LCC, LPC and LA curves and its simultaneous confidence intervals. Default is \code{NULL}.
+An list specifying control arguments to generate a
+  regular sequence for the time variable returned by the function
+  \code{time_lcc}, which is used to constructed the LCC, LPC and LA
+  curves and its simultaneous confidence intervals. Default is
+  \code{NULL}.
 }
 \examples{
- 
 data(hue)
 attach(hue)
 time_lcc(time=Time, from=min(Time), to=max(Time), n=30)
