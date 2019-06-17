@@ -144,9 +144,12 @@
 ##'
 ##' @return an object of class lcc. The output is a list with the
 ##'   following components: \item{model}{summary of the polynomial
-##'   mixed-effects regression model.} \item{Summary.lcc}{summary of the
-##'   fitted and sampled values, and the concordance correlation
-##'   coefficient between them as goodness of fit (gof)}
+##'   mixed-effects regression model.} \item{Summary.lcc}{fitted values
+##'   for the  LCC  or LCC, LPC and LA (if \code{components=TRUE});
+##'   concordance correlation coefficient (CCC) between methods for each
+##'   level of \code{time} as sampled values, and the CCC between
+##'   mixed-effects model predicted values and observed values from data
+##'   as goodness of fit (gof)}
 ##'   \item{dataset}{the input dataset.}
 ##'
 ##' @author Thiago de Paula Oliveira,
@@ -285,16 +288,16 @@ lcc <- function(dataset, resp, subject, method, time,
   lme.control <- model.info$lme.control
   MethodREML<-model.info$method.init
   tk <- sort(unique(model.info$data$time))
-  lev.lab <- levels(model.info$data$FacA)
-  lev.facA <- length(lev.lab)
-  lev.lab<-unique(merge(rep("FacA",q_f),lev.lab))
+  lev.lab <- levels(model.info$data$method)
+  lev.method <- length(lev.lab)
+  lev.lab<-unique(merge(rep("method",q_f),lev.lab))
   lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
   fx <- fixef(model)
   pat <- list()
-  for(i in 2:lev.facA) pat[[i-1]] <- grep(lev.lab$newcol[i], names(fx))
+  for(i in 2:lev.method) pat[[i-1]] <- grep(lev.lab$newcol[i], names(fx))
   beta1 <- fx[-unlist(pat)]
   betas <- list()
-  for(i in 2:lev.facA) betas[[i-1]] <- - fx[pat[[i-1]]]
+  for(i in 2:lev.method) betas[[i-1]] <- - fx[pat[[i-1]]]
   lcc.int_full<-lccInternal(model = model, q_f = q_f, q_r=q_r,
                             interaction = interaction, tk = tk, covar =
                                                                   covar,

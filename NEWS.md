@@ -58,4 +58,14 @@ was used to solve this problem.
 
 * Fixed issue when y-axis labels is changed.
 
-* A new parameter called interaction was included in the lcc() function. This parameter allows to estimate or not the interaction effect among predictors variables in the fixed part of the linear predictor.  
+* A new parameter called interaction was included in the lcc() function. This parameter allows to estimate or not the interaction effect among predictors variables in the fixed part of the linear predictor.
+
+# lcc 1.0.3
+
+# Bug fixes and minor improvements
+
+* Added a counter for the bootstrap number (lccBootstrap line 90)
+
+* The got (goodness of fittenes) result was changed for CCC between fitted values (mixed effect model) and original observations rather than fitted LCC and sampled CCC. This make more sense because the model goodness of fit have a high impact in the LCC.
+
+* Fixed issue in ciCompute function to get the correct confidence intervals for the LA statistics. Versions before 1.0.3 the CI for the LA is computed using the logit transformation and versions equal or above 1.0.3 the we are using the arcsin(sqrt(x)) rather than logit.

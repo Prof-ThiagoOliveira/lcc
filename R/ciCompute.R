@@ -32,8 +32,14 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
   ZFisher<-function(x){
     1/2*log((1+x)/(1-x))
   }
-  Logit<-function(x){
-    log(x/(1-x))
+  ZFisher_inv <- function(x) {
+    (exp(2*x)-1)/(exp(2*X)+1)
+  }
+  Arcsin<-function(x){
+    asin(sqrt(x))
+  }
+  Arcsin_inv <- function(x) {
+    sign(x)*sin(x)^2
   }
     if(ldb == 1) {
     LCC_IC <- matrix(0, ncol=length(LCC_Boot), nrow=length(LCC_Boot[[1]]))
@@ -56,7 +62,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
     for(i in 1:length(SE)){
     ENV.LCC[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
      }
-    ENV.LCC<-(exp(2*ENV.LCC)-1)/(exp(2*ENV.LCC)+1)
+    ENV.LCC<-ZFisher_inv(ENV.LCC)
     }
     LPC_IC <- matrix(0, ncol=length(LPC_Boot), nrow=length(LPC_Boot[[1]]))
     if(percentileMet=="TRUE"){
@@ -78,7 +84,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
       for(i in 1:length(SE)){
         ENV.LPC[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
       }
-      ENV.LPC<-(exp(2*ENV.LPC)-1)/(exp(2*ENV.LPC)+1)
+      ENV.LPC<-ZFisher_inv(ENV.LPC)
     }
     Cb_IC <- matrix(0, ncol=length(Cb_Boot), nrow=length(Cb_Boot[[1]]))
     if(percentileMet=="TRUE"){
@@ -91,7 +97,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
     } else{
       for(i in 1:length(Cb_Boot)) {
         if(is.null(Cb_Boot[[i]])==FALSE){
-          Cb_IC[,i] <- Logit(Cb_Boot[[i]])
+          Cb_IC[,i] <- Arcsin(Cb_Boot[[i]])
         }else(cat(i,"\n"))
       }
       SE<-apply(Cb_IC, 1, sd)
@@ -100,7 +106,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
       for(i in 1:length(SE)){
         ENV.Cb[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
       }
-      ENV.Cb<-exp(ENV.Cb)/(1+exp(ENV.Cb))
+      ENV.Cb<- Arcsin_inv(ENV.Cb)
     }
     CI.LCC<-list("rho"=rho,"ENV.LCC"=ENV.LCC,"LPC"=rho.pearson,"ENV.LPC"=ENV.LPC,
                  "Cb"= Cb, "ENV.Cb" = ENV.Cb)
@@ -130,7 +136,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
         for(k in 1:length(SE_LCC[[i]])){
           ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*SE_LCC[[i]][k])
         }
-        ENV.LCC[[i]]<-(exp(2*ENV.LCC[[i]])-1)/(exp(2*ENV.LCC[[i]])+1)
+        ENV.LCC[[i]]<-ZFisher_inv(ENV.LCC[[i]])
       }
     }
     LPC_IC<-list(NA)
@@ -158,7 +164,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
         for(k in 1:length(SE_LPC[[i]])){
           ENV.LPC[[i]][,k]<-c(mean_LPC[[i]][k], mean_LPC[[i]][k])-c(qnorm(1-alpha/2)*SE_LPC[[i]][k],qnorm(alpha/2)*SE_LPC[[i]][k])
         }
-        ENV.LPC[[i]]<-(exp(2*ENV.LPC[[i]])-1)/(exp(2*ENV.LPC[[i]])+1)
+        ENV.LPC[[i]]<- ZFisher_inv(ENV.LPC[[i]])
       }
     }
     Cb_IC<-list(NA)
@@ -177,7 +183,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
       } else {
         for(j in 1:length(Cb_Boot)) {
           if(is.null(Cb_Boot[[j]])==FALSE){
-            Cb_IC[[i]][,j] <- Logit(Cb_Boot[[j]][[i]])
+            Cb_IC[[i]][,j] <- Arcsin(Cb_Boot[[j]][[i]])
           }else(cat(i,"\n"))
         }
         SE_Cb[[i]]<-apply(Cb_IC[[i]], 1, sd)
@@ -186,7 +192,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model, ci,
         for(k in 1:length(SE_Cb[[i]])){
           ENV.Cb[[i]][,k]<-c(mean_Cb[[i]][k], mean_Cb[[i]][k])-c(qnorm(1-alpha/2)*SE_Cb[[i]][k],qnorm(alpha/2)*SE_Cb[[i]][k])
         }
-        ENV.Cb[[i]]<-exp(ENV.Cb[[i]])/(1+exp(ENV.Cb[[i]]))
+        ENV.Cb[[i]]<- Arcsin_inv(ENV.Cb[[i]])
       }
     }
     CI.LCC<-list("rho"=rho,"ENV.LCC"=ENV.LCC,

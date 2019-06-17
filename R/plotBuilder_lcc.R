@@ -43,7 +43,7 @@ if(ci==FALSE){
       geom_path(data=data_plot, colour=arg$colour, size=arg$size)+
       geom_point(data=data_plot2, aes(y=CCC, x=Time), shape=arg$shape)+
       scale_y_continuous(limits = arg$scale_y_continuous)+
-      ggtitle(paste(levels(model$data$FacA)[2], "vs.", levels(model$data$FacA)[1]))+
+      ggtitle(paste(levels(model$data$method)[2], "vs.", levels(model$data$method)[1]))+
       labs(x = paste0(arg$xlab))+
       labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))
@@ -66,7 +66,7 @@ if(ci==FALSE){
         geom_line(data=data_plot[[i]], colour=arg$colour, size=arg$size)+
         geom_point(data=data_plot2[[i]], aes(y=CCC, x=Time), shape=arg$shape)+
         scale_y_continuous(limits = arg$scale_y_continuous)+
-        ggtitle(paste(levels(model$data$FacA)[i+1], "vs.", levels(model$data$FacA)[1]))+
+        ggtitle(paste(levels(model$data$method)[i+1], "vs.", levels(model$data$method)[1]))+
         labs(x = paste0(arg$xlab))+
         labs(y = paste0(arg$ylab))+
         theme(plot.title = element_text(hjust = 0.5))
@@ -111,7 +111,7 @@ if(ldb == 1) {
     geom_ribbon(data=data_plot,aes(ymin=lower_rho,ymax=upper_rho),
                 fill="grey70", alpha=0.3,show.legend = TRUE)+
     scale_y_continuous(limits = arg$scale_y_continuous)+
-    ggtitle(paste(levels(model$data$FacA)[2], "vs.", levels(model$data$FacA)[1]))+
+    ggtitle(paste(levels(model$data$method)[2], "vs.", levels(model$data$method)[1]))+
     labs(x = paste0(arg$xlab))+
     labs(y = paste0(arg$ylab))+
     theme(plot.title = element_text(hjust = 0.5))
@@ -140,7 +140,7 @@ if(ldb == 1) {
       geom_ribbon(data=data_plot[[i]],aes(ymin=lower_rho,ymax=upper_rho),
                   fill="grey70", alpha=0.3,show.legend = TRUE)+
       scale_y_continuous(limits = arg$scale_y_continuous)+
-      ggtitle(paste(levels(model$data$FacA)[i+1], "vs.", levels(model$data$FacA)[1]))+
+      ggtitle(paste(levels(model$data$method)[i+1], "vs.", levels(model$data$method)[1]))+
       labs(x = paste0(arg$xlab))+
       labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))

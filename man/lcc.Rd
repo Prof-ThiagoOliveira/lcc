@@ -125,9 +125,12 @@ the control argument for the \code{lme} function.}
 \value{
 an object of class lcc. The output is a list with the
   following components: \item{model}{summary of the polynomial
-  mixed-effects regression model.} \item{Summary.lcc}{summary of the
-  fitted and sampled values, and the concordance correlation
-  coefficient between them as goodness of fit (gof)}
+  mixed-effects regression model.} \item{Summary.lcc}{fitted values
+  for the  LCC  or LCC, LPC and LA (if \code{components=TRUE});
+  concordance correlation coefficient (CCC) between methods for each
+  level of \code{time} as sampled values, and the CCC between
+  mixed-effects model predicted values and observed values from data
+  as goodness of fit (gof)}
   \item{dataset}{the input dataset.}
 }
 \description{

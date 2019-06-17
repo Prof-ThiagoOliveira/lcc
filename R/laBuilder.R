@@ -56,7 +56,7 @@ laBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon,
       v<-sqrt((tGt+sig2_epsilon*gd)/(tGt+sig2_epsilon*gdl))
       u<-sqrt(S2)/((tGt+sig2_epsilon*gd)*(tGt+sig2_epsilon*gdl))^(1/4)
       LA <- list(2 / (v+v^(-1)+u^2), NA)
-    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
       gdl<-list()

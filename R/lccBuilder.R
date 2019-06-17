@@ -51,7 +51,7 @@ lccBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon, delta, deltal
       gd <- g(delta,tk)
       gdl <- g(deltal,tk)
       rho <-list(tGt / (tGt + 0.5 * (sig2_epsilon * (gd + gdl) + S2)),NA)
-    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
       gdl<-list()

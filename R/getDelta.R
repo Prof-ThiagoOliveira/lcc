@@ -41,7 +41,7 @@ getDelta <- function(model) {
       if(attr(varcomp$modelStruct$varStruct, "formula")==~time){
         delta=deltal <- varcomp$modelStruct$varStruct
         g <- function(x, tk) exp(2*x*tk)
-      } else{if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+      } else{if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
         components2 <- as.numeric(varcomp$modelStruct$varStruct)
         delta=components2[1]
         deltal <- components2[-1]

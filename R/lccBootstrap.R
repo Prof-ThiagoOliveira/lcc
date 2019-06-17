@@ -24,14 +24,14 @@
 ##' @keywords internal
 
 dataBootstrap<-function(model){
-N<-length(levels(model$data$ind))
+N<-length(levels(model$data$subject))
 Dataset<-model$data
-ind<-NULL
-sample_data<-sample(as.character(unique(model$data$ind)),N,replace=TRUE)
+subject<-NULL
+sample_data<-sample(as.character(unique(model$data$subject)),N,replace=TRUE)
 Frame<-list(NA)
 for(i in 1:N){
-  Frame[[i]]<-subset(Dataset, ind==sample_data[i])
-  Frame[[i]]$ind<-c(rep(i,length(Frame[[i]][,1])))
+  Frame[[i]]<-subset(Dataset, subject==sample_data[i])
+  Frame[[i]]$subject<-c(rep(i,length(Frame[[i]][,1])))
 }
 Boot_Dataset<-do.call(rbind.data.frame, Frame)
 return(Boot_Dataset)
@@ -55,28 +55,28 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar, var.class
   warnings <- 0
   for(i in 1:nboot){
     Dataset_boot[[i]]<-dataBootstrap(model=model)
-    lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="y", 
-      subject="ind", covar = covar,method="FacA", time="time", 
-      qf=q_f, qr=q_r, interaction = interaction, pdmat = pdmat, 
-      var.class = var.class, weights.form = weights.form, 
+    lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
+      subject="subject", covar = covar,method="method", time="time",
+      qf=q_f, qr=q_r, interaction = interaction, pdmat = pdmat,
+      var.class = var.class, weights.form = weights.form,
       lme.control = lme.control, method.init = method.init)
     x<-NULL
     y<-NULL
     if(lccModel.fit$wcount == 1) {
       Boot_model[[i]] <- model
       tk <- sort(unique(Boot_model[[i]]$data$time))
-      lev.lab <- levels(Boot_model[[i]]$data$FacA)
+      lev.lab <- levels(Boot_model[[i]]$data$method)
       lev.facA <- length(lev.lab)
-      lev.lab<-unique(merge(rep("FacA",q_f),lev.lab))
+      lev.lab<-unique(merge(rep("method",q_f),lev.lab))
       lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
       fx <- fixef(Boot_model[[i]])
       if(show.warnings) cat("Estimation problem on bootstrap sample", i, "\n")
     } else {
       Boot_model[[i]] <- lccModel.fit$model
       tk <- sort(unique(Boot_model[[i]]$data$time))
-      lev.lab <- levels(Boot_model[[i]]$data$FacA)
+      lev.lab <- levels(Boot_model[[i]]$data$method)
       lev.facA <- length(lev.lab)
-      lev.lab<-unique(merge(rep("FacA",q_f),lev.lab))
+      lev.lab<-unique(merge(rep("method",q_f),lev.lab))
       lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
       fx <- fixef(Boot_model[[i]])
     }
@@ -87,6 +87,7 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar, var.class
     betas <- list()
     for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
     Diff[[i]]<-betas
+    cat("Sample number: ", i, "\n")
   }
   lcc.bootstrap <- list("Boot_Model" = Boot_model, "Diffbetas"=Diff)
   class(lcc.bootstrap) <- "lcc.bootstrap"

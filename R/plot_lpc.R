@@ -26,12 +26,14 @@
 ##'
 ##' @keywords internal
 Pearson<-function(dataset, resp, subject, method, time){
-  y<-NULL
-  FacA<-NULL
-  ind<-NULL
-  Data<-dataBuilder(dataset = dataset, resp=resp, subject=subject, method=method, time=time)
-  Data<-subset(Data,select = c(y, FacA, time, ind))
-  Data_s<-split(Data, Data$FacA)
+  #  resp<-NULL
+  #  method<-NULL
+  #  subject<-NULL
+  #  Data<-dataBuilder(dataset = dataset, resp=resp, subject=subject,
+  # method=method, time=time)
+  Data <- dataset
+  Data<-subset(Data,select = c(resp, method, time, subject))
+  Data_s<-split(Data, Data$method)
 
   P.Lin<-function(Y1,Y2,time){
     data=data.frame(Y1,Y2,time)
@@ -39,8 +41,8 @@ Pearson<-function(dataset, resp, subject, method, time){
     return(Cor)
   }
   Pearson.Lin<-list()
-  for(i in 2:length(levels(Data$FacA))){
-    Pearson.Lin[[i-1]]<-P.Lin(Y1=Data_s[[1]]$y,Y2=Data_s[[i]]$y,time=Data$time)
+  for(i in 2:length(levels(Data$method))){
+    Pearson.Lin[[i-1]]<-P.Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,time=Data$time)
   }
   return(Pearson.Lin)
 }
@@ -56,7 +58,7 @@ Pearson<-function(dataset, resp, subject, method, time){
 ##' @keywords internal
 plot_lpc <- function(LPC,ENV.LPC, tk.plot, tk.plot2,ldb, model,
                      ci, arg) {
-  Pearson<-Pearson(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
+  Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
   if(ci==FALSE){
     plotBuilder_lpc(LPC = LPC, tk.plot = tk.plot,
                      tk.plot2 = tk.plot2, ldb = ldb, Pearson=Pearson,
@@ -68,4 +70,3 @@ plot_lpc <- function(LPC,ENV.LPC, tk.plot, tk.plot2,ldb, model,
                      model = model, ci=TRUE, arg = arg)
   }
 }
-

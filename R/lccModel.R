@@ -40,9 +40,9 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
                        method = method, time = time)
   Poly<-with(Data,poly(time, degree = qf, raw = TRUE))
   if(interaction == TRUE){
-    fixed <- model.matrix( ~ FacA * Poly, Data)
+    fixed <- model.matrix( ~ method * Poly, Data)
     }else{
-    fixed <- model.matrix( ~ FacA + Poly, Data)
+    fixed <- model.matrix( ~ method + Poly, Data)
     }
   Data$fixed <- fixed
   if (length(covar) > 0) {
@@ -61,9 +61,9 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
     Data_covar<-do.call(cbind.data.frame, COVAR)
     Data_covar<-as.matrix(Data_covar)
     if(interaction == TRUE){
-      fixed <- model.matrix( ~ FacA * Poly, Data)
+      fixed <- model.matrix( ~ method * Poly, Data)
     }else{
-      fixed <- model.matrix( ~ FacA + Poly, Data)
+      fixed <- model.matrix( ~ method + Poly, Data)
     }
     fixed <- cbind(fixed, Data_covar)
     Data$fixed <- fixed
@@ -71,13 +71,13 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
 
   if(is.null(var.class)) {
     if(qr == 0) {
-      model.lme <- try(lme(y ~ fixed - 1, Data, random = list(ind = pdSymm(form = ~ 1)),
+      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdSymm(form = ~ 1)),
                        control = lme.control, method = method.init), silent = TRUE)
     } else {
       fmla.rand <- model.matrix( ~ poly(time, degree = qr, raw = TRUE), Data)
       Data$fmla.rand <- fmla.rand
       if(is.function(pdmat)){
-      model.lme <- try(lme(y ~ fixed - 1, Data, random = list(ind = pdmat(form = ~ fmla.rand - 1)),
+      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdmat(form = ~ fmla.rand - 1)),
                        control = lme.control, method = method.init), silent = TRUE)
       }else{
         stop("Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.",call.=FALSE)
@@ -86,11 +86,11 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
   } else {
      .form <- switch(weights.form,
                     "time"        = ~ time,
-                    "method"      = ~ 1 | FacA,
+                    "method"      = ~ 1 | method,
                     "time.ident"  = ~ 1 | time,
-                    "both"        = ~ time | FacA)
+                    "both"        = ~ time | method)
     if(qr == 0) {
-      model.lme <- try(lme(y ~ fixed - 1, Data, random = list(ind = pdSymm(form = ~ 1)),
+      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdSymm(form = ~ 1)),
                            weights = var.class(form = .form),
                            control = lme.control,
                            method = method.init), silent = TRUE)
@@ -98,7 +98,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr, interaction, 
       fmla.rand <- model.matrix( ~ poly(time, degree = qr, raw = TRUE), Data)
       Data$fmla.rand <- fmla.rand
       if(is.function(pdmat)){
-      model.lme <- try(lme(y ~ fixed - 1, Data, random = list(ind = pdmat(form = ~ fmla.rand - 1)),
+      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdmat(form = ~ fmla.rand - 1)),
                            weights = var.class(form = .form),
                            control = lme.control,
                            method = method.init), silent = TRUE)

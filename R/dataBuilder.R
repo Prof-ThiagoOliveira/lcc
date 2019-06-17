@@ -25,7 +25,7 @@
 dataBuilder <- function(dataset, resp, subject, method, time){
   Data <- data.frame(dataset)
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
-                      to = c("y", "ind", "FacA", "time"),
+                      to = c("resp", "subject", "method", "time"),
                       info = FALSE), TRUE)
   return(Data)
 }
