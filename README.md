@@ -3,7 +3,7 @@
 
 # lcc <img src="man/figures/logo.svg" align="right" height = 150/>
 
-<https://img.shields.io/badge/development-active-blue.svg>
+[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
 [![Build
 Status](https://travis-ci.org/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://travis-ci.org/Prof-ThiagoOliveira/lcc)
