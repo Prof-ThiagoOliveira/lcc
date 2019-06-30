@@ -2,8 +2,8 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: ciBuilder.R                                                  #
-# Contains: ciBuilder function                                       #
+# File: ciBuilder.R                                                   #
+# Contains: ciBuilder function                                        #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
@@ -16,52 +16,83 @@
 
 ##' @title Internal function to prepare the \code{ciCompute} function.
 ##'
-##' @description This is an internally called function used to prepare the \code{\link[lcc]{ciCompute}} function.
+##' @description This is an internally called function used to prepare
+##'   the \code{\link[lcc]{ciCompute}} function.
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-ciBuilder<-function(model, nboot, q_f, q_r, covar = covar,  pdmat, var.class,
-                     weights.form, show.warnings, tk, diffbeta,
-                     ldb, tk.plot, tk.plot2, ci, percentileMet,
-                     alpha, components,lme.control, method.init){
-  Models<- bootstrapSamples(nboot = nboot, model = model, q_f = q_f, q_r = q_r, covar = covar,
-                        pdmat = pdmat, var.class = var.class, weights.form = weights.form,
-                        show.warnings = show.warnings,
-                        lme.control = lme.control, method.init = method.init)
+ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
+                    var.class, weights.form, show.warnings, tk,
+                    diffbeta, ldb, tk.plot, tk.plot2, ci, percentileMet,
+                    alpha, components,lme.control, method.init){
+  Models<- bootstrapSamples(nboot = nboot, model = model, q_f = q_f,
+                            q_r = q_r, interaction = interaction,
+                            covar = covar, pdmat = pdmat,
+                            var.class = var.class,
+                            weights.form = weights.form,
+                            show.warnings = show.warnings,
+                            lme.control = lme.control,
+                            method.init = method.init)
   if(components==FALSE){
-    LCC_Boot<-lccBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)
+    LCC_Boot <-
+      lccBootstrap(model_boot = Models$Boot_Model,
+                   diff_boot = Models$Diffbetas,
+                   ldb=ldb, nboot = nboot, tk = tk,
+                   q_f = q_f)
     if(ldb == 1) {
       rho <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
                          tk = tk, diffbeta = as.numeric(diffbeta[[1]]))
-      CI<-lcc_intervals(rho = rho, tk.plot = tk.plot, tk.plot2 = tk.plot2,
-              ldb = ldb, model = model, ci = ci, percentileMet = percentileMet,
-              LCC_Boot = LCC_Boot, alpha = alpha)
+      CI<-lcc_intervals(rho = rho, tk.plot = tk.plot, tk.plot2 =
+                                                        tk.plot2,
+                        ldb = ldb, model = model, ci = ci,
+                        percentileMet = percentileMet,
+                        LCC_Boot = LCC_Boot, alpha = alpha)
       CI.LCC<-CI$CI.LCC
     } else{
       rho <- list()
-      for(i in 1:ldb)  rho[[i]] <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
-                                               tk = tk, diffbeta = as.numeric(diffbeta[[i]]))
+      for(i in 1:ldb)  rho[[i]] <- lccWrapper(model = model, q_f = q_f,
+                                              n.delta = 1, tk = tk,
+                                              diffbeta =
+
+  as.numeric(diffbeta[[i]]))
       rho.ret <- data.frame(do.call(cbind.data.frame, rho))
-      CI<-lcc_intervals(rho = rho.ret, tk.plot = tk.plot, tk.plot2 = tk.plot2,
-             ldb = ldb, model = model, ci = ci, percentileMet = percentileMet,
-             LCC_Boot = LCC_Boot, alpha = alpha)
+      CI<-lcc_intervals(rho = rho.ret, tk.plot = tk.plot,
+                        tk.plot2 = tk.plot2, ldb = ldb,
+                        model = model, ci = ci,
+                        percentileMet = percentileMet,
+                        LCC_Boot = LCC_Boot, alpha = alpha)
     }
   }else{
-    LCC_Boot<-lccBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)
-    LPC_Boot<-lpcBootstrap(model_boot = Models$Boot_Model, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)
-    Cb_Boot<-laBootstrap(model_boot = Models$Boot_Model, diff_boot = Models$Diffbetas, ldb=ldb, nboot = nboot, tk=tk, q_f=q_f)
+    LCC_Boot<-
+      lccBootstrap(model_boot = Models$Boot_Model,
+                   diff_boot = Models$Diffbetas, ldb=ldb,
+                   nboot = nboot, tk=tk, q_f=q_f)
+    LPC_Boot<-
+      lpcBootstrap(model_boot = Models$Boot_Model, ldb=ldb,
+                   nboot = nboot, tk=tk, q_f=q_f)
+    Cb_Boot<-
+      laBootstrap(model_boot = Models$Boot_Model,
+                  diff_boot = Models$Diffbetas, ldb=ldb,
+                  nboot = nboot, tk=tk, q_f=q_f)
     if(ldb == 1) {
-      rho <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
-                         tk = tk, diffbeta = as.numeric(diffbeta[[1]]))
-      rho.pearson<-lpcWrapper(model = model, q_f = q_f, tk = tk, n.delta = 1)
-      Cb<-laWrapper(model = model, q_f = q_f, n.delta = 1,
+      rho <-
+        lccWrapper(model = model, q_f = q_f, n.delta = 1,
+                   tk = tk,
+                   diffbeta = as.numeric(diffbeta[[1]]))
+      rho.pearson<-
+        lpcWrapper(model = model, q_f = q_f, tk = tk, n.delta = 1)
+      Cb<-
+        laWrapper(model = model, q_f = q_f, n.delta = 1,
                       tk = tk, diffbeta = as.numeric(diffbeta[[1]]))
-      CI<-ciCompute(rho = rho, rho.pearson = rho.pearson, Cb = Cb,
+      CI<-
+        ciCompute(rho = rho, rho.pearson = rho.pearson, Cb = Cb,
               tk.plot = tk.plot, tk.plot2 = tk.plot2, alpha = alpha,
-              ldb = ldb, model = model, ci = ci, percentileMet, LCC_Boot = LCC_Boot,
+              ldb = ldb, model = model, ci = ci, percentileMet,
+              LCC_Boot = LCC_Boot,
               LPC_Boot = LPC_Boot, Cb_Boot = Cb_Boot)
     } else{
       rho <- list()
@@ -69,19 +100,24 @@ ciBuilder<-function(model, nboot, q_f, q_r, covar = covar,  pdmat, var.class,
       Cb<-list()
       for(i in 1:ldb){
         rho[[i]] <- lccWrapper(model = model, q_f = q_f, n.delta = 1,
-                                tk = tk, diffbeta = as.numeric(diffbeta[[i]]))
-        rho.pearson[[i]] <- lpcWrapper(model = model, q_f = q_f, n.delta = 1,
-                                        tk = tk)
+                               tk = tk,
+                               diffbeta = as.numeric(diffbeta[[i]]))
+        rho.pearson[[i]] <- lpcWrapper(model = model, q_f = q_f,
+                                       n.delta = 1, tk = tk)
         Cb[[i]]<-laWrapper(model = model, q_f = q_f, n.delta = 1,
-                             tk = tk, diffbeta = as.numeric(diffbeta[[i]]))
+                           tk = tk,
+                           diffbeta = as.numeric(diffbeta[[i]]))
       }
       rho.ret <- data.frame(do.call(cbind.data.frame, rho))
-      rho.pearson.ret <- data.frame(do.call(cbind.data.frame, rho.pearson))
+      rho.pearson.ret <- data.frame(do.call(cbind.data.frame,
+                                            rho.pearson))
       Cb.ret <- data.frame(do.call(cbind.data.frame, Cb))
-      CI<-ciCompute(rho = rho.ret, rho.pearson = rho.pearson.ret, Cb = Cb.ret,
-              tk.plot = tk.plot, tk.plot2 = tk.plot2, alpha = alpha,
-              ldb = ldb, model = model, ci = ci, percentileMet, LCC_Boot = LCC_Boot,
-              LPC_Boot = LPC_Boot, Cb_Boot = Cb_Boot)
+      CI<-ciCompute(rho = rho.ret, rho.pearson = rho.pearson.ret,
+                    Cb = Cb.ret, tk.plot = tk.plot,
+                    tk.plot2 = tk.plot2, alpha = alpha,
+                    ldb = ldb, model = model, ci = ci,
+                    percentileMet, LCC_Boot = LCC_Boot,
+                    LPC_Boot = LPC_Boot, Cb_Boot = Cb_Boot)
     }
   }
   return(invisible(CI))

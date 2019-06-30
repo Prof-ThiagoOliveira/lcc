@@ -22,18 +22,17 @@
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-dataBuilder <- function(dataset, resp, subject, method, time){
+dataBuilder <- function(dataset, resp, subject, method, time, gs = NULL){
   Data <- data.frame(dataset)
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
-                      to = c("y", "ind", "FacA", "time"),
+                      to = c("resp", "subject", "method", "time"),
                       info = FALSE), TRUE)
-  if(class(Data)=="try-error"){
-    stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables", call.=FALSE)
+  if (is.null(gs) == FALSE) {
+      gold <- which.max(levels(Data$method) == gs)
+      others <- seq(1, length(levels(Data$method)))[-gold]
+      Data$method <- factor(Data$method,
+                            levels = levels(Data$method)[c(gold,
+                                                           others)])
   }
-    
-  Data$ind <- as.factor(Data$ind)
-  Data$FacA <- as.factor(Data$FacA)
-  Data$time <- as.numeric(Data$time)
-  Data$y <- as.numeric(Data$y)
   return(Data)
 }

@@ -26,8 +26,8 @@
 ##'
 plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
                     ci, arg) {
-  CCC<-CCC_lin(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
-  Pearson<-Pearson(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
+  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
+  Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
   if(ci==FALSE){
     plotBuilder_la(CCC = CCC, Pearson = Pearson, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, Cb=Cb,
@@ -39,4 +39,3 @@ plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
                  model = model, ci=TRUE, arg = arg)
   }
 }
-

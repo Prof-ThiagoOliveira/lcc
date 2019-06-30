@@ -48,7 +48,7 @@ lpcBuilder<-function(G, tk, q_r, q_f, g, sig2_epsilon,
       gd <- g(delta,tk)
       gdl <- g(deltal,tk)
       rho.pearson <-list(tGt / sqrt((tGt +sig2_epsilon*gd)*(tGt +sig2_epsilon*gdl)), NA)
-    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
       gdl<-list()

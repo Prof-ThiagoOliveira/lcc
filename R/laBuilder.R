@@ -29,7 +29,7 @@ laBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon,
                         delta, deltal, model) {
   Tk_r <- sapply(0:q_r, function(x) tk^x)
   Tk_f <- sapply(0:q_f, function(x) tk^x)
-  S2 <- try((Tk_f %*% (diffbeta))^2, silent = TRUE)
+  S2 <- try((as.matrix(Tk_f[,c(1:(length(diffbeta)))]) %*% (diffbeta))^2, silent = TRUE)
   if(class(S2) == "try-error") {
     stop(print("Please, change the name of factor levels associated with method argument. Example:  levels M1, M2, M3, ..., Mn, with n=0, 1, 2, ..., N."), call. = FALSE)
   }
@@ -56,7 +56,7 @@ laBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon,
       v<-sqrt((tGt+sig2_epsilon*gd)/(tGt+sig2_epsilon*gdl))
       u<-sqrt(S2)/((tGt+sig2_epsilon*gd)*(tGt+sig2_epsilon*gdl))^(1/4)
       LA <- list(2 / (v+v^(-1)+u^2), NA)
-    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
       gdl<-list()

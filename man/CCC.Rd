@@ -2,9 +2,11 @@
 % Please edit documentation in R/CCC.R
 \name{CCC}
 \alias{CCC}
-\title{Internal function to compute the sampled concordance correlation values.}
+\title{Internal function to compute the sampled concordance
+  correlation values.}
 \description{
-This is an internally called functions used to compute the sampled concordance correlation values.
+This is an internally called functions used to compute
+  the sampled concordance correlation values.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

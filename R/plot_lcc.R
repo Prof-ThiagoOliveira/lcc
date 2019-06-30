@@ -14,9 +14,11 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the sampled concordance correlation coefficient.
+##' @title Internal function to estimate the sampled concordance
+##'   correlation coefficient.
 ##'
-##' @description This is an internally called function used to estimate the sampled concordance correlation coefficient.
+##' @description This is an internally called function used to estimate
+##'   the sampled concordance correlation coefficient.
 ##'
 ##' @usage NULL
 ##'
@@ -26,12 +28,14 @@
 ##'
 ##' @keywords internal
 CCC_lin<-function(dataset, resp, subject, method, time){
-  y<-NULL
-  FacA<-NULL
-  ind<-NULL
-  Data<-dataBuilder(dataset = dataset, resp=resp, subject=subject, method=method, time=time)
-  Data<-subset(Data,select = c(y, FacA, time, ind))
-  Data_s<-split(Data, Data$FacA)
+  #  resp<-NULL
+  #  method<-NULL
+  #  subject<-NULL
+  #  Data<-dataBuilder(dataset = dataset, resp=resp, subject=subject,
+  #                    method=method, time=time)
+  Data <- dataset
+  Data<-subset(Data, select = c(resp, method, time, subject))
+  Data_s<-split(Data, Data$method)
 
   Lin<-function(Y1,Y2,time){
     data=data.frame(Y1,Y2,time)
@@ -50,15 +54,17 @@ CCC_lin<-function(dataset, resp, subject, method, time){
     return(CCC)
   }
   CCC.Lin<-list()
-  for(i in 2:length(levels(Data$FacA))){
-    CCC.Lin[[i-1]]<-Lin(Y1=Data_s[[1]]$y,Y2=Data_s[[i]]$y,time=Data$time)
+  for(i in 2:length(levels(Data$method))){
+    CCC.Lin[[i-1]]<-Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,time=Data$time)
   }
   return(CCC.Lin)
 }
 
-##' @title Internal function to prepare the \code{plotBuilder_lcc} function.
+##' @title Internal function to prepare the \code{plotBuilder_lcc}
+##'   function.
 ##'
-##' @description This is an internally called function used to prepare the \code{\link[lcc]{plotBuilder_lcc}} function.
+##' @description This is an internally called function used to prepare
+##'   the \code{\link[lcc]{plotBuilder_lcc}} function.
 ##'
 ##' @usage NULL
 ##'
@@ -67,7 +73,7 @@ CCC_lin<-function(dataset, resp, subject, method, time){
 ##' @keywords internal
 plot_lcc <- function(rho,ENV.LCC, tk.plot, tk.plot2,ldb, model,
                      ci, arg) {
-  CCC<-CCC_lin(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
+  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
   if(ci==FALSE){
     plotBuilder_lcc(rho = rho, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, CCC=CCC,
@@ -79,4 +85,3 @@ plot_lcc <- function(rho,ENV.LCC, tk.plot, tk.plot2,ldb, model,
                  model = model, ci=TRUE, arg = arg)
   }
 }
-

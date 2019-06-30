@@ -4,9 +4,11 @@
 \alias{laBootstrap}
 \title{Internal functions to generate longitudinal accuracy samples.}
 \description{
-This is an internally called functions used to generate longitudinal caccuracy samples.
+This is an internally called functions used to generate
+  longitudinal caccuracy samples.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@usp.br}
 }
 \keyword{internal}

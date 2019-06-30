@@ -2,9 +2,11 @@
 % Please edit documentation in R/plot_lcc.R
 \name{CCC_lin}
 \alias{CCC_lin}
-\title{Internal function to estimate the sampled concordance correlation coefficient.}
+\title{Internal function to estimate the sampled concordance
+  correlation coefficient.}
 \description{
-This is an internally called function used to estimate the sampled concordance correlation coefficient.
+This is an internally called function used to estimate
+  the sampled concordance correlation coefficient.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
