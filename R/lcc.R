@@ -62,7 +62,7 @@
 ##'   random intercept and slope (form \code{~ time|subject}). If
 ##'   \code{qr=qf=q}, with \eqn{q \ge 1}, random effects at subject
 ##'   level are added to all terms of the time polynomial regression
-##'   (form \code{~ time + time^2 + ... + time^q|subject}). Default is
+##'   (form \code{~ poly(time, q, raw = TRUE)|subject}). Default is
 ##'   \code{qr=0}.
 ##'
 ##' @param covar character vector. Name of the covariates to be included

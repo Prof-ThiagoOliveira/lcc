@@ -200,3 +200,42 @@ test_that("Test if confidence interval works",{
   expect_equal(fme4$Summary.lcc$fitted$LCC,
                fme5$Summary.lcc$fitted$LCC, tolerance = 0.05)
 })
+
+#-----------------------------------------------------------------------
+# Testing different gs
+#-----------------------------------------------------------------------
+test_that("Test if gs works",{
+  expect_that(fmegs2<-lcc(dataset = dataset$data, subject = "Fruit",
+                        resp = "Response", method = "Method",
+                        time = "Time", qf = 1, qr = 1, ci=TRUE,
+                        nboot = 1000, components = TRUE,
+                        gs = "1"),is_a("lcc"))
+  expect_that(fmegs3<-lcc(dataset = dataset$data, subject = "Fruit",
+                        resp = "Response", method = "Method",
+                        time = "Time", qf = 1, qr = 1, ci=TRUE,
+                        nboot = 1000, components = TRUE,
+                        gs = "2"),is_a("lcc"))
+  expect_equal(fmegs2$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
+               fmegs3$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
+               tolerance = 0.05)
+})
+#-----------------------------------------------------------------------
+# Testing if interaction works
+#-----------------------------------------------------------------------
+test_that("Test if interaction works",{
+  expect_that(fmeint2<-lcc(dataset = dataset$data, subject = "Fruit",
+                        resp = "Response", method = "Method",
+                        time = "Time", qf = 1, qr = 1, ci=TRUE,
+                        nboot = 1000, components = TRUE,
+                        interaction = FALSE,
+                        gs = "1"),is_a("lcc"))
+  expect_that(fmeint3<-lcc(dataset = dataset$data, subject = "Fruit",
+                        resp = "Response", method = "Method",
+                        time = "Time", qf = 1, qr = 1, ci=TRUE,
+                        nboot = 1000, components = TRUE,
+                        interaction = FALSE,
+                        gs = "2"),is_a("lcc"))
+  expect_equal(fmeint2$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
+               fmeint3$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
+               tolerance = 0.05)
+  })

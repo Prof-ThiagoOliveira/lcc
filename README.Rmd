@@ -88,7 +88,7 @@ manual.
 # Longitudinal Concordance Correlation App
 
 We hope you learn more about the LCC using the [LCC
-App](https://prof-thiagooliveira.shinyapps.io/shiny/).  We develop this
+App](https://prof-thiagooliveira.shinyapps.io/lccApp/).  We develop this
 application to facilitate understanding of how each parameter can
 affects the LCC estimate over time. Have fun!
 
