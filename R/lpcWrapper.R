@@ -9,18 +9,21 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to to prepare the \code{lpcBuilder} function
+##' @title Internal function to to prepare the \code{lpcBuilder}
+##'   function
 ##'
-##' @description This is an internally called function used to prepare the \code{\link[lcc]{lpcBuilder}} function.
+##' @description This is an internally called function used toprepare
+##'   the \code{\link[lcc]{lpcBuilder}} function.
 ##'
 ##' @usage NULL
 ##'
-##' @details returns a vector or list containing the longitudinal Pearson correlation estimates.
+##' @details returns a vector or list containing the longitudinal
+##'   Pearson correlation estimates.
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'

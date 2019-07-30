@@ -4,10 +4,12 @@
 \alias{laBuilder}
 \title{Internal function to estimate the longitudinal accuracy.}
 \description{
-This is an internally called function used to estimate the longitudinal accuracy (LA).
+This is an internally called function used to estimate
+  the longitudinal accuracy (LA).
 }
 \details{
-returns a vector or list containing the longitudinal accuracy estimates.
+returns a vector or list containing the longitudinal
+  accuracy estimates.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

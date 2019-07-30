@@ -2,12 +2,15 @@
 % Please edit documentation in R/lccWrapper.R
 \name{lccWrapper}
 \alias{lccWrapper}
-\title{Internal function to to prepare the \code{lccBuilder} function}
+\title{Internal function to to prepare the \code{lccBuilder}
+  function}
 \description{
-This is an internally called function used to prepare the \code{\link[lcc]{lccBuilder}} function.
+This is an internally called function used to prepare
+  the \code{\link[lcc]{lccBuilder}} function.
 }
 \details{
-returns a vector or list containing the longitudinal concordance correlation estimates.
+returns a vector or list containing the longitudinal
+  concordance correlation estimates.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

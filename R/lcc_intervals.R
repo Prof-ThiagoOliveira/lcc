@@ -2,21 +2,23 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: lcc_intervals.R                                                      #
+# File: lcc_intervals.R                                               #
 # Contains: lcc_intervals  function                                   #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
 
-##' @title Internal functions to compute the non-parametric confidence intervals for LCC.
+##' @title Internal functions to compute the non-parametric confidence
+##'   intervals for LCC.
 ##'
-##' @description This is an internally called functions used to compute the non-parametric confidence intervals for LCC.
+##' @description This is an internally called functions used to compute
+##'   the non-parametric confidence intervals for LCC.
 ##'
 ##' @usage NULL
 ##'
@@ -25,8 +27,8 @@
 ##' @importFrom stats quantile sd qnorm
 ##'
 ##' @keywords internal
-lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci, percentileMet,
-                 LCC_Boot, alpha){
+lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
+                        percentileMet, LCC_Boot, alpha){
   ZFisher<-function(x){
     1/2*log((1+x)/(1-x))
   }
@@ -49,7 +51,8 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci, percentileMet,
     mean<-apply(LCC_IC, 1, mean)
     ENV.LCC<-matrix(NA, nrow = 2, ncol = length(SE))
     for(i in 1:length(SE)){
-      ENV.LCC[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
+      ENV.LCC[,i]<-c(mean[i], mean[i])-
+        c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
     }
     ENV.LCC<-(exp(2*ENV.LCC)-1)/(exp(2*ENV.LCC)+1)
   }
@@ -60,14 +63,16 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci, percentileMet,
     SE_LCC<-list()
     mean_LCC<-list()
     for(i in 1:ldb){
-      LCC_IC[[i]] <- matrix(0, ncol=length(LCC_Boot), nrow=length(LCC_Boot[[1]][[i]]))
+      LCC_IC[[i]] <- matrix(0, ncol=length(LCC_Boot),
+                            nrow=length(LCC_Boot[[1]][[i]]))
       if(percentileMet=="TRUE"){
        for(j in 1:length(LCC_Boot)) {
         if(is.null(LCC_Boot[[j]])==FALSE){
           LCC_IC[[i]][,j] <- LCC_Boot[[j]][[i]]
         }else(cat(i,"\n"))
       }
-      ENV.LCC[[i]] <- apply(LCC_IC[[i]], 1, quantile, probs=c(alpha/2,1-alpha/2))
+       ENV.LCC[[i]] <- apply(LCC_IC[[i]], 1, quantile,
+                             probs=c(alpha/2,1-alpha/2))
       }else{
         for(j in 1:length(LCC_Boot)) {
           if(is.null(LCC_Boot[[j]])==FALSE){
@@ -78,7 +83,8 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci, percentileMet,
         mean_LCC[[i]]<-apply(LCC_IC[[i]], 1, mean)
         ENV.LCC[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_LCC[[i]]))
         for(k in 1:length(SE_LCC[[i]])){
-          ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*SE_LCC[[i]][k])
+          ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-
+            c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*SE_LCC[[i]][k])
         }
         ENV.LCC[[i]]<-(exp(2*ENV.LCC[[i]])-1)/(exp(2*ENV.LCC[[i]])+1)
         }
@@ -87,4 +93,3 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci, percentileMet,
   }
  return(CI.LCC)
 }
-

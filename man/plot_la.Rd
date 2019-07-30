@@ -2,9 +2,11 @@
 % Please edit documentation in R/plot_la.R
 \name{plot_la}
 \alias{plot_la}
-\title{Internal function to prepare the \code{plotBuilder_la} function.}
+\title{Internal function to prepare the \code{plotBuilder_la}
+  function.}
 \description{
-This is an internally called functions used to prepare the \code{\link[lcc]{plotBuilder_la}} function.
+This is an internally called functions used to prepare
+  the \code{\link[lcc]{plotBuilder_la}} function.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

@@ -2,12 +2,15 @@
 % Please edit documentation in R/lccBuilder.R
 \name{lccBuilder}
 \alias{lccBuilder}
-\title{Internal function to estimate the longitudinal concordance correlation.}
+\title{Internal function to estimate the longitudinal concordance
+  correlation.}
 \description{
-This is an internally called function used to estimate the longitudinal concordance correlation (LCC).
+This is an internally called function used to estimate
+  the longitudinal concordance correlation (LCC).
 }
 \details{
-returns a vector or list containing the longitudinal concordance correlation estimates.
+returns a vector or list containing the longitudinal
+  concordance correlation estimates.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

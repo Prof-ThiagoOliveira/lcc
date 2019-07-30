@@ -2,11 +2,14 @@
 % Please edit documentation in R/lccBootstrap.R
 \name{dataBootstrap}
 \alias{dataBootstrap}
-\title{Internal functions to generate bootstrap samples based on dataset.}
+\title{Internal functions to generate bootstrap samples based on
+  dataset.}
 \description{
-This is an internally called functions used to generate bootstrap samples.
+This is an internally called functions used to generate
+  bootstrap samples.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@usp.br}
 }
 \keyword{internal}

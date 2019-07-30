@@ -2,11 +2,14 @@
 % Please edit documentation in R/lccBootstrap.R
 \name{lccBootstrap}
 \alias{lccBootstrap}
-\title{Internal functions to generate longitudinal concordance correlation samples.}
+\title{Internal functions to generate longitudinal concordance
+  correlation samples.}
 \description{
-This is an internally called functions used to generate longitudinal concordance correlation samples.
+This is an internally called functions used to generate
+  longitudinal concordance correlation samples.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@usp.br}
 }
 \keyword{internal}

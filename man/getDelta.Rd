@@ -4,9 +4,13 @@
 \alias{getDelta}
 \title{Internal function to extract variance components estimate.}
 \description{
-This is an internally called function used to extract variance components estimate of \eqn{\Sigma} matrix based on specified structure.
+This is an internally called function used to extract
+  variance components estimate of \eqn{\Sigma} matrix based on
+  specified structure.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br} and Rafael de Andrade Moral, \email{rafael_moral@yahoo.com.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@usp.br} and Rafael de Andrade Moral,
+  \email{rafael_moral@yahoo.com.br}
 }
 \keyword{internal}

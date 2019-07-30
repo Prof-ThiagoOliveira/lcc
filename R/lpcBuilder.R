@@ -9,16 +9,19 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the longitudinal Pearson correlation.
+##' @title Internal function to estimate the longitudinal Pearson
+##'   correlation.
 ##'
-##' @description This is an internally called function used to estimate the longitudinal Pearson correlation (LPC).
+##' @description This is an internally called function used to estimate
+##'   the longitudinal Pearson correlation (LPC).
 ##'
-##' @details returns a vector or list containing the longitudinal Pearson correlation estimates.
+##' @details returns a vector or list containing the longitudinal
+##'   Pearson correlation estimates.
 ##'
 ##' @usage NULL
 ##'
@@ -47,14 +50,17 @@ lpcBuilder<-function(G, tk, q_r, q_f, g, sig2_epsilon,
     if(attr(varcomp$modelStruct$varStruct, "formula")==~time){
       gd <- g(delta,tk)
       gdl <- g(deltal,tk)
-      rho.pearson <-list(tGt / sqrt((tGt +sig2_epsilon*gd)*(tGt +sig2_epsilon*gdl)), NA)
-    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+      rho.pearson <-list(tGt / sqrt((tGt +sig2_epsilon*gd)*
+                                      (tGt +sig2_epsilon*gdl)), NA)
+    } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
       gdl<-list()
       for(i in 1:ldb2){
         gdl[[i]] <- g(deltal[i],tk)
-        rho.pearson[[i]] <- as.numeric(unlist(tGt / sqrt((tGt + sig2_epsilon*gd)*(tGt + sig2_epsilon*gdl[[i]]))))
+        rho.pearson[[i]] <-
+          as.numeric(unlist(tGt / sqrt((tGt + sig2_epsilon*gd)*
+                                         (tGt + sig2_epsilon*gdl[[i]]))))
       }
     }else{print("method not implemented yet")}
     }

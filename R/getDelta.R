@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -17,9 +17,13 @@
 ##'
 ##' @usage NULL
 ##'
-##' @description This is an internally called function used to extract variance components estimate of \eqn{\Sigma} matrix based on specified structure.
+##' @description This is an internally called function used to extract
+##'   variance components estimate of \eqn{\Sigma} matrix based on
+##'   specified structure.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br} and Rafael de Andrade Moral, \email{rafael_moral@@yahoo.com.br}
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@usp.br} and Rafael de Andrade Moral,
+##'   \email{rafael_moral@@yahoo.com.br}
 ##'
 ##' @keywords internal
 getDelta <- function(model) {
@@ -31,7 +35,8 @@ getDelta <- function(model) {
   } else {
     var.f <- class(varcomp$modelStruct$varStruct)[1]
     if(var.f == "varIdent") {
-      components2 <- c(1, exp(as.numeric(varcomp$modelStruct$varStruct))^2)
+      components2 <-
+        c(1, exp(as.numeric(varcomp$modelStruct$varStruct))^2)
       delta <- 1
       deltal <- components2[-1]
       g2 <- function(x) x
@@ -41,7 +46,7 @@ getDelta <- function(model) {
       if(attr(varcomp$modelStruct$varStruct, "formula")==~time){
         delta=deltal <- varcomp$modelStruct$varStruct
         g <- function(x, tk) exp(2*x*tk)
-      } else{if(attr(varcomp$modelStruct$varStruct, "formula")==~time | FacA){
+      } else{if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
         components2 <- as.numeric(varcomp$modelStruct$varStruct)
         delta=components2[1]
         deltal <- components2[-1]

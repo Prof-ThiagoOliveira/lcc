@@ -9,14 +9,16 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to compute the sampled concordance correlation values.
+##' @title Internal function to compute the sampled concordance
+##'   correlation values.
 ##'
-##' @description This is an internally called functions used to compute the sampled concordance correlation values.
+##' @description This is an internally called functions used to compute
+##'   the sampled concordance correlation values.
 ##'
 ##' @usage NULL
 ##'

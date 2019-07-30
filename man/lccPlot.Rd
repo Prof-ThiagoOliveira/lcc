@@ -4,40 +4,59 @@
 \alias{lccPlot}
 \title{Plot an lcc object}
 \usage{
-lccPlot(obj, control, ...)
+lccPlot(obj, type, control, ...)
 }
 \arguments{
-\item{obj}{an object inheriting from class "lcc", representing a fitted lcc model.}
+\item{obj}{an object inheriting from class "lcc", representing a
+fitted lcc model.}
 
-\item{control}{a list of control values or character strings returned by the function \code{\link{plotControl}}. Defaults to an empty list.  The list may contain the following components:
-\describe{
-\item{\code{shape}:}{draw points considering a shape parameter. Possible shape values are the numbers 0 to 25, and 32 to 127; see \code{\link[ggplot2]{aes_linetype_size_shape}}. Default is \code{1}.}
+\item{type}{character string. If \code{type = "lcc"}, the output is
+the LCC plot; if \code{type = "lpc"}, the output is the LPC plot;
+and if \code{type = "la"} the output is the LA plot. Types "lpc"
+and "la" are available only if \code{components = TRUE}.}
 
-\item{\code{colour}:}{specification for lines color. Default is \code{"black"}.}
+\item{control}{a list of control values or character strings
+  returned by the function \code{\link{plotControl}}. Defaults to an
+  empty list.  The list may contain the following components:
+  \describe{ \item{\code{shape}:}{draw points considering a shape
+  parameter. Possible shape values are the numbers 0 to 25, and 32
+  to 127; see
+  \code{\link[ggplot2]{aes_linetype_size_shape}}. Default is
+  \code{1}.}
 
-\item{\code{size}:}{specification for lines size. Should be specified with a numerical value (in millimetres); see \code{\link[ggplot2]{aes_linetype_size_shape}}. Default is \code{0.5}.}
+\item{\code{colour}:}{specification for lines color. Default is
+\code{"black"}.}
 
-\item{\code{xlab}:}{title for the \code{x} axis.  Default is \code{"Time"}.}
+\item{\code{size}:}{specification for lines size. Should be
+specified with a numerical value (in millimetres); see
+\code{\link[ggplot2]{aes_linetype_size_shape}}. Default is
+\code{0.5}.}
 
-\item{\code{LCC_ylab}:}{title for the \code{y} axis related with LCC. Default is \code{"LCC"}.}
+\item{\code{xlab}:}{title for the \code{x} axis.  Default is
+\code{"Time"}.}
 
-\item{\code{LPC_ylab}:}{title for the \code{y} axis related with LPC. Default is \code{"LPC"}.}
+\item{\code{ylab}:}{title for the \code{y} axis. Default is "LCC",
+"LPC", or "LA"}
 
-\item{\code{LA_ylab}:}{title for the \code{y} axis related with LA. Default is \code{"LA"}.}
+\item{\code{scale_y_continuous}:}{numeric vector of length two
+providing limits of the scale. Default is
+\code{c(0,1)}.}
 
-\item{\code{LCC_scale_y_continuous}:}{numeric vector of length two providing limits of the scale related to LCC. Default is \code{c(0,1)}.}
-
-\item{\code{LPC_scale_y_continuous}:}{numeric vector of length two providing limits of the scale related to LPC. Default is \code{c(0,1)}.}
-
-\item{\code{LA_scale_y_continuous}:}{numeric vector of length two providing limits of the scale related to LA. Default is \code{c(0,1)}.}
-
-\item{\code{all.plot}:}{\code{viewport} functions for the \code{lcc} class. If \code{TRUE}, the default, returns an object created by the \code{\link[grid]{viewport}} function with multiple plots on a single page. If \code{FALSE} returns a single \code{\link[ggplot2]{ggplot}} object by different pages.}
-}}
+\item{\code{all.plot}:}{\code{viewport} functions for the \code{lcc}
+class. If \code{TRUE}, the default, returns an object created by the
+\code{\link[grid]{viewport}} function with multiple plots on a
+single page. If \code{FALSE} returns a single
+\code{\link[ggplot2]{ggplot}} object by different pages using the
+\code{\link[gridExtra]{marrangeGrob}} function.}}}
 
 \item{...}{not used.}
 }
 \description{
-A plot of predictions versus the time covariate is generated. Predicted values are joined by lines while sampled observations are represented by circles. If the argument \code{components=TRUE} is considered in the \code{lcc} object, single plots of each statistics are returned on differents pages.
+A plot of predictions versus the time covariate is
+  generated. Predicted values are joined by lines while sampled
+  observations are represented by circles. If the argument
+  \code{components=TRUE} is considered in the \code{lcc} object,
+  single plots of each statistics are returned on differents pages.
 }
 \examples{
 
@@ -47,13 +66,40 @@ data(hue)
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2,
          components=TRUE)
-lccPlot(fm1)
-         
+lccPlot(fm1, type="lcc")
+lccPlot(fm1, type="lpc")
+lccPlot(fm1, type="la")
+
+## Using the key (+) to constructing sophisticated graphics
+lccPlot(fm1, type="lcc") +
+ scale_y_continuous(limits=c(-1, 1)) +
+ labs(title="My title",
+ y ="Longitudinal Concordance Correlation",
+ x = "Time (Days)")
+
+## Runing all.plots = FALSE and saving plots as pdf
+\dontrun{
+data(simulated_hue_block)
+attach(simulated_hue_block)
+fm2<-lcc(dataset = simulated_hue_block, subject = "Fruit",
+         resp = "Hue", method = "Method",time = "Time",
+         qf = 2, qr = 1, components = TRUE, covar = c("Block"),
+         time_lcc = list(n=50, from=min(Time), to=max(Time)))
+ggsave("myplots.pdf",
+       lccPlot(fm2, type="lcc", control=list(all.plot=FALSE)))
+}
+
 }
 \references{
-Lin, L. A Concordance Correlation Coefficient to Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268, 1989.
+Lin, L. A Concordance Correlation Coefficient to
+  Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,
+  1989.
 
-Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal Concordance Correlation Function Based on Variance Components: An Application in Fruit Color Analysis. \emph{Journal of Agricultural, Biological, and Environmental Statistics}, v. 23, n. 2, 233–254, 2018.
+Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
+  Concordance Correlation Function Based on Variance Components: An
+  Application in Fruit Color Analysis. \emph{Journal of
+  Agricultural, Biological, and Environmental Statistics}, v. 23,
+  n. 2, 233–254, 2018.
 }
 \seealso{
 \code{\link[lcc]{lcc}}.

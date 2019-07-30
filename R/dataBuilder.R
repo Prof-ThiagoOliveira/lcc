@@ -2,38 +2,39 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: dataBuilder.R                                                #
-# Contains: dataBuilder function                                     #
+# File: dataBuilder.R                                                 #
+# Contains: dataBuilder function                                      #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal function to prepare the dataset for \code{lcc} objects
+##' @title Internal function to prepare the dataset for \code{lcc}
+##' objects
 ##'
-##' @description This is an internally called function used to prepare the dataset for \code{lcc} objects
+##' @description This is an internally called function used to prepare
+##'   the dataset for \code{lcc} objects
 ##'
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-dataBuilder <- function(dataset, resp, subject, method, time){
+dataBuilder <- function(dataset, resp, subject, method, time, gs = NULL){
   Data <- data.frame(dataset)
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
-                      to = c("y", "ind", "FacA", "time"),
+                      to = c("resp", "subject", "method", "time"),
                       info = FALSE), TRUE)
-  if(class(Data)=="try-error"){
-    stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables", call.=FALSE)
+  if (is.null(gs) == FALSE) {
+      gold <- which.max(levels(Data$method) == gs)
+      others <- seq(1, length(levels(Data$method)))[-gold]
+      Data$method <- factor(Data$method,
+                            levels = levels(Data$method)[c(gold,
+                                                           others)])
   }
-    
-  Data$ind <- as.factor(Data$ind)
-  Data$FacA <- as.factor(Data$FacA)
-  Data$time <- as.numeric(Data$time)
-  Data$y <- as.numeric(Data$y)
   return(Data)
 }

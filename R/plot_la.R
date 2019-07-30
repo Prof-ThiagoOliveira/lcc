@@ -9,14 +9,16 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 18/06/2018                                             #
+# Last update: 29/07/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to prepare the \code{plotBuilder_la} function.
+##' @title Internal function to prepare the \code{plotBuilder_la}
+##'   function.
 ##'
-##' @description This is an internally called functions used to prepare the \code{\link[lcc]{plotBuilder_la}} function.
+##' @description This is an internally called functions used to prepare
+##'   the \code{\link[lcc]{plotBuilder_la}} function.
 ##'
 ##' @usage NULL
 ##'
@@ -26,17 +28,18 @@
 ##'
 plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
                     ci, arg) {
-  CCC<-CCC_lin(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
-  Pearson<-Pearson(dataset=model$data, resp="y", subject="ind", method="FacA", time="time")
+  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
+               method="method", time="time")
+  Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject",
+                   method="method", time="time")
   if(ci==FALSE){
     plotBuilder_la(CCC = CCC, Pearson = Pearson, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, Cb=Cb,
                  model = model, ci=FALSE, arg = arg)
 
   }else{
-    plotBuilder_la(CCC = CCC, Pearson = Pearson, ENV.Cb = ENV.Cb, tk.plot = tk.plot,
-                 tk.plot2 = tk.plot2, ldb = ldb, Cb=Cb,
-                 model = model, ci=TRUE, arg = arg)
+    plotBuilder_la(CCC = CCC, Pearson = Pearson, ENV.Cb = ENV.Cb,
+                   tk.plot = tk.plot, tk.plot2 = tk.plot2, ldb = ldb,
+                   Cb=Cb, model = model, ci=TRUE, arg = arg)
   }
 }
-

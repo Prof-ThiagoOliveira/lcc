@@ -4,10 +4,13 @@
 \alias{plotBuilder_la}
 \title{Internal function to produces a longitudinal accuracy plot.}
 \description{
-This is an internally called function used to produces a longitudinal accuracy plot from fitted ans sampled values with or not non-parametric confidence intervals.
+This is an internally called function used to produces
+  a longitudinal accuracy plot from fitted ans sampled values with
+  or not non-parametric confidence intervals.
 }
 \details{
-returns a inital plot for the longitudinal accuracy correlation.
+returns a inital plot for the longitudinal accuracy
+  correlation.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

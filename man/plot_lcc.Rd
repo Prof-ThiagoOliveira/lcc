@@ -2,9 +2,11 @@
 % Please edit documentation in R/plot_lcc.R
 \name{plot_lcc}
 \alias{plot_lcc}
-\title{Internal function to prepare the \code{plotBuilder_lcc} function.}
+\title{Internal function to prepare the \code{plotBuilder_lcc}
+  function.}
 \description{
-This is an internally called function used to prepare the \code{\link[lcc]{plotBuilder_lcc}} function.
+This is an internally called function used to prepare
+  the \code{\link[lcc]{plotBuilder_lcc}} function.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

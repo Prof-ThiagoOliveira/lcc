@@ -2,9 +2,11 @@
 % Please edit documentation in R/dataBuilder.R
 \name{dataBuilder}
 \alias{dataBuilder}
-\title{Internal function to prepare the dataset for \code{lcc} objects}
+\title{Internal function to prepare the dataset for \code{lcc}
+objects}
 \description{
-This is an internally called function used to prepare the dataset for \code{lcc} objects
+This is an internally called function used to prepare
+  the dataset for \code{lcc} objects
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

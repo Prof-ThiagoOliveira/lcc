@@ -2,11 +2,14 @@
 % Please edit documentation in R/lccBootstrap.R
 \name{bootstrapSamples}
 \alias{bootstrapSamples}
-\title{Internal functions to estimate fixed effects and variance components.}
+\title{Internal functions to estimate fixed effects and variance
+  components.}
 \description{
-This is an internally called functions used to estimate fixed effects and variance components for each bootstrap sample.
+This is an internally called functions used to estimate
+  fixed effects and variance components for each bootstrap sample.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@usp.br}
 }
 \keyword{internal}

@@ -2,12 +2,15 @@
 % Please edit documentation in R/ciCompute.R
 \name{ciCompute}
 \alias{ciCompute}
-\title{Internal function to compute the non-parametric bootstrap interval.}
+\title{Internal function to compute the non-parametric bootstrap
+  interval.}
 \description{
-This is an internally called function used to compute the non-parametric bootstrap interval.
+This is an internally called function used to compute
+  the non-parametric bootstrap interval.
 }
 \details{
-returns a matrix or list of matrix containing the non-parametric bootstrap interval.
+returns a matrix or list of matrix containing the
+  non-parametric bootstrap interval.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

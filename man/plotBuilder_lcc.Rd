@@ -2,12 +2,16 @@
 % Please edit documentation in R/plotBuilder_lcc.R
 \name{plotBuilder_lcc}
 \alias{plotBuilder_lcc}
-\title{Internal function to produces a longitudinal concordance correlation plot.}
+\title{Internal function to produces a longitudinal concordance
+  correlation plot.}
 \description{
-This is an internally called function used to produces a longitudinal concordance correlation plot from fitted ans sampled values with or not non-parametric confidence intervals.
+This is an internally called function used to produces
+  a longitudinal concordance correlation plot from fitted ans
+  sampled values with or not non-parametric confidence intervals.
 }
 \details{
-returns a inital plot for the longitudinal concordance correlation.
+returns a inital plot for the longitudinal concordance
+  correlation.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}

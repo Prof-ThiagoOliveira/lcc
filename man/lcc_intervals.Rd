@@ -2,9 +2,11 @@
 % Please edit documentation in R/lcc_intervals.R
 \name{lcc_intervals}
 \alias{lcc_intervals}
-\title{Internal functions to compute the non-parametric confidence intervals for LCC.}
+\title{Internal functions to compute the non-parametric confidence
+  intervals for LCC.}
 \description{
-This is an internally called functions used to compute the non-parametric confidence intervals for LCC.
+This is an internally called functions used to compute
+  the non-parametric confidence intervals for LCC.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
