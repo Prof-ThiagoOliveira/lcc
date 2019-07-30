@@ -9,7 +9,11 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
+<<<<<<< HEAD
 # Last update: 29/07/2019                                             #
+=======
+# Last update: 13/02/2019                                             #
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -263,9 +267,13 @@ lcc <- function(dataset, resp, subject, method, time,
                 percentileMet = FALSE, alpha = 0.05, nboot = 5000,
                 show.warnings = FALSE, components=FALSE, REML = TRUE,
                 lme.control = NULL) {
+<<<<<<< HEAD
   #---------------------------------------------------------------------
   # The init function is used to check the declared arguments
   #---------------------------------------------------------------------
+=======
+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   Init<-init(var.class = var.class, weights.form = weights.form,
              REML = REML, qf = qf, qr = qr, pdmat = pdmat,
              dataset = dataset, resp = resp, subject = subject,
@@ -273,9 +281,12 @@ lcc <- function(dataset, resp, subject, method, time,
   pdmat<-Init$pdmat
   MethodREML<-Init$MethodREML
   var.class<-Init$var.class
+<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Getting relevant model information
   #---------------------------------------------------------------------
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   model.info <- try(lccModel(dataset = dataset, resp = resp,
                              subject = subject, pdmat = pdmat,
                              method = method, time = time, qf = qf,
@@ -285,9 +296,12 @@ lcc <- function(dataset, resp, subject, method, time,
                              weights.form = weights.form,
                              lme.control = lme.control,
                              method.init = MethodREML))
+<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Verifying convergence
   #---------------------------------------------------------------------
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(model.info$wcount == "1") {
     opt <- options(show.error.messages=FALSE)
     on.exit(options(opt))
@@ -308,17 +322,23 @@ lcc <- function(dataset, resp, subject, method, time,
   lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
   fx <- fixef(model)
   pat <- list()
+<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Obtaining the fixed effect parameters by method to calculate the
   # systematic differences of expected values between methods.
   #---------------------------------------------------------------------
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   for(i in 2:lev.method) pat[[i-1]] <- grep(lev.lab$newcol[i], names(fx))
   beta1 <- fx[-unlist(pat)]
   betas <- list()
   for(i in 2:lev.method) betas[[i-1]] <- - fx[pat[[i-1]]]
+<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Internal function for calculations and graphs
   #---------------------------------------------------------------------
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   lcc.int_full<-lccInternal(model = model, q_f = q_f, q_r=q_r,
                             interaction = interaction, tk = tk,
                             covar = covar,
@@ -331,6 +351,10 @@ lcc <- function(dataset, resp, subject, method, time,
                                                              components,
                             lme.control = lme.control, method.init =
                                                          MethodREML)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]],
             "dataset" = dataset, "plot_info" = lcc.int_full[-1])
   class(lcc)<-"lcc"
@@ -403,6 +427,7 @@ summary.lcc <- function(object, type, ...){
   class(ret)<-"summary.lcc"
   return(ret)
 }
+<<<<<<< HEAD
 
 ##' Reports whether x is a lcc object
 ##' @rdname is.lcc
@@ -410,3 +435,5 @@ summary.lcc <- function(object, type, ...){
 ##' @keywords internal
 ##' @export
 is.lcc <- function(x) inherits(x, "lcc")
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa

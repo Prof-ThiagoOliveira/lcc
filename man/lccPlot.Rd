@@ -70,6 +70,7 @@ lccPlot(fm1, type="lcc")
 lccPlot(fm1, type="lpc")
 lccPlot(fm1, type="la")
 
+<<<<<<< HEAD
 ## Using the key (+) to constructing sophisticated graphics
 lccPlot(fm1, type="lcc") +
  scale_y_continuous(limits=c(-1, 1)) +
@@ -77,6 +78,8 @@ lccPlot(fm1, type="lcc") +
  y ="Longitudinal Concordance Correlation",
  x = "Time (Days)")
 
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
 ## Runing all.plots = FALSE and saving plots as pdf
 \dontrun{
 data(simulated_hue_block)
@@ -88,7 +91,10 @@ fm2<-lcc(dataset = simulated_hue_block, subject = "Fruit",
 ggsave("myplots.pdf",
        lccPlot(fm2, type="lcc", control=list(all.plot=FALSE)))
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
 }
 \references{
 Lin, L. A Concordance Correlation Coefficient to

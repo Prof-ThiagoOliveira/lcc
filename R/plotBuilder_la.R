@@ -42,8 +42,12 @@ if(ci==FALSE){
       geom_line(data=data_plot, colour=arg$colour, size=arg$size)+
       geom_point(data=data_plot2, aes(y=Cb, x=Time), shape=arg$shape)+
       scale_y_continuous(limits = arg$scale_y_continuous)+
+<<<<<<< HEAD
       ggtitle(paste(levels(model$data$method)[2], "vs.",
                     levels(model$data$method)[1]))+
+=======
+      ggtitle(paste(levels(model$data$method)[2], "vs.", levels(model$data$method)[1]))+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
       labs(x = paste0(arg$xlab))+
       labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))
@@ -65,6 +69,7 @@ if(ci==FALSE){
       Time<-data_plot[[i]]$Time
 
       Plot[[i]]<-ggplot(data_plot[[i]], aes(y=LA, x=Time))+
+<<<<<<< HEAD
         geom_line(data=data_plot[[i]], colour=arg$colour,
                   size=arg$size)+
         geom_point(data=data_plot2[[i]], aes(y=Cb, x=Time),
@@ -72,12 +77,22 @@ if(ci==FALSE){
         scale_y_continuous(limits = arg$scale_y_continuous)+
         ggtitle(paste(levels(model$data$method)[i+1], "vs.",
                       levels(model$data$method)[1]))+
+=======
+        geom_line(data=data_plot[[i]], colour=arg$colour, size=arg$size)+
+        geom_point(data=data_plot2[[i]], aes(y=Cb, x=Time), shape=arg$shape)+
+        scale_y_continuous(limits = arg$scale_y_continuous)+
+        ggtitle(paste(levels(model$data$method)[i+1], "vs.", levels(model$data$method)[1]))+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
         labs(x = paste0(arg$xlab))+
         labs(y = paste0(arg$ylab))+
         theme(plot.title = element_text(hjust = 0.5))
       if(arg$scale_y_continuous[2]==1){
+<<<<<<< HEAD
         Plot[[i]]<-Plot[[i]]+geom_hline(yintercept = 1,
                                         linetype="dashed")
+=======
+        Plot[[i]]<-Plot[[i]]+geom_hline(yintercept = 1, linetype="dashed")
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
       }
     }
     numPlots = length(Plot)
@@ -121,8 +136,12 @@ if(ldb == 1) {
     geom_ribbon(data=data_plot,aes(ymin=lower_LA,ymax=upper_LA),
                 fill="grey70", alpha=0.3,show.legend = TRUE)+
     scale_y_continuous(limits = arg$scale_y_continuous)+
+<<<<<<< HEAD
     ggtitle(paste(levels(model$data$method)[2], "vs.",
                   levels(model$data$method)[1]))+
+=======
+    ggtitle(paste(levels(model$data$method)[2], "vs.", levels(model$data$method)[1]))+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
     labs(x = paste0(arg$xlab))+
     labs(y = paste0(arg$ylab))+
     theme(plot.title = element_text(hjust = 0.5))
@@ -154,8 +173,12 @@ if(ldb == 1) {
       geom_ribbon(data=data_plot[[i]],aes(ymin=lower_LA,ymax=upper_LA),
                   fill="grey70", alpha=0.3,show.legend = TRUE)+
       scale_y_continuous(limits = arg$scale_y_continuous)+
+<<<<<<< HEAD
       ggtitle(paste(levels(model$data$method)[i+1], "vs.",
                     levels(model$data$method)[1]))+
+=======
+      ggtitle(paste(levels(model$data$method)[i+1], "vs.", levels(model$data$method)[1]))+
+>>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
       labs(x = paste0(arg$xlab))+
       labs(y = paste0(arg$ylab))+
       theme(plot.title = element_text(hjust = 0.5))
