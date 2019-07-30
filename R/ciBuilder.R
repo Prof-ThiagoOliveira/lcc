@@ -29,13 +29,10 @@ ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                     var.class, weights.form, show.warnings, tk,
                     diffbeta, ldb, tk.plot, tk.plot2, ci, percentileMet,
                     alpha, components,lme.control, method.init){
-<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Computing the bootstrap samples for calculate the confidence
   # intervals
   #---------------------------------------------------------------------
-=======
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   Models<- bootstrapSamples(nboot = nboot, model = model, q_f = q_f,
                             q_r = q_r, interaction = interaction,
                             covar = covar, pdmat = pdmat,
@@ -44,12 +41,9 @@ ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                             show.warnings = show.warnings,
                             lme.control = lme.control,
                             method.init = method.init)
-<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Computing the lcc or lcc, lpc and la bootstrap confidence intervals
   #---------------------------------------------------------------------
-=======
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(components==FALSE){
     LCC_Boot <-
       lccBootstrap(model_boot = Models$Boot_Model,
@@ -83,12 +77,9 @@ ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                         LCC_Boot = LCC_Boot, alpha = alpha)
     }
   }else{
-<<<<<<< HEAD
     #-------------------------------------------------------------------
     # If components = TRUE
     #-------------------------------------------------------------------
-=======
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
     LCC_Boot<-
       lccBootstrap(model_boot = Models$Boot_Model,
                    diff_boot = Models$Diffbetas, ldb=ldb,

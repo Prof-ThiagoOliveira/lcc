@@ -39,7 +39,6 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
   ZFisher<-function(x){
     1/2*log((1+x)/(1-x))
   }
-<<<<<<< HEAD
   #---------------------------------------------------------------------
   # Inverse of Z-Fisher
   #---------------------------------------------------------------------
@@ -55,14 +54,6 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
   #---------------------------------------------------------------------
   # Arcsin inverse transformation
   #---------------------------------------------------------------------
-=======
-  ZFisher_inv <- function(x) {
-    (exp(2*x)-1)/(exp(2*x)+1)
-  }
-  Arcsin<-function(x){
-    asin(sqrt(x))
-  }
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   Arcsin_inv <- function(x) {
     sign(x)*sin(x)^2
   }

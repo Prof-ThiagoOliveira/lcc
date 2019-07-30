@@ -48,12 +48,8 @@ Pearson<-function(dataset, resp, subject, method, time){
   }
   Pearson.Lin<-list()
   for(i in 2:length(levels(Data$method))){
-<<<<<<< HEAD
     Pearson.Lin[[i-1]]<-P.Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,
                               time=Data$time)
-=======
-    Pearson.Lin[[i-1]]<-P.Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,time=Data$time)
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   }
   return(Pearson.Lin)
 }
@@ -71,12 +67,8 @@ Pearson<-function(dataset, resp, subject, method, time){
 ##' @keywords internal
 plot_lpc <- function(LPC,ENV.LPC, tk.plot, tk.plot2,ldb, model,
                      ci, arg) {
-<<<<<<< HEAD
   Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject",
                    method="method", time="time")
-=======
-  Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(ci==FALSE){
     plotBuilder_lpc(LPC = LPC, tk.plot = tk.plot,
                      tk.plot2 = tk.plot2, ldb = ldb, Pearson=Pearson,

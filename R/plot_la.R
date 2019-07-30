@@ -28,15 +28,10 @@
 ##'
 plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
                     ci, arg) {
-<<<<<<< HEAD
   CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                method="method", time="time")
   Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject",
                    method="method", time="time")
-=======
-  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
-  Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(ci==FALSE){
     plotBuilder_la(CCC = CCC, Pearson = Pearson, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, Cb=Cb,

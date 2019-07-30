@@ -28,19 +28,12 @@
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @keywords internal
-<<<<<<< HEAD
 lccBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon, delta,
                        deltal, model) {
   Tk_r <- sapply(0:q_r, function(x) tk^x)
   Tk_f <- sapply(0:q_f, function(x) tk^x)
   S2 <- try((as.matrix(Tk_f[,c(1:(length(diffbeta)))]) %*% (diffbeta))^2,
             silent = TRUE)
-=======
-lccBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon, delta, deltal, model) {
-  Tk_r <- sapply(0:q_r, function(x) tk^x)
-  Tk_f <- sapply(0:q_f, function(x) tk^x)
-  S2 <- try((as.matrix(Tk_f[,c(1:(length(diffbeta)))]) %*% (diffbeta))^2, silent = TRUE)
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(class(S2) == "try-error") {
     stop(print("Please, change the name of factor levels associated with method argument. Example:  levels M1, M2, M3, ..., Mn, with n=0, 1, 2, ..., N."),
          call. = FALSE)

@@ -34,12 +34,8 @@ lccSummary<-function(model, q_f, diffbeta, tk,
                       ldb, ci, components){
   if(components==FALSE){
     if(ci==FALSE){
-<<<<<<< HEAD
       CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                    method="method", time="time")
-=======
-    CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
     if(ldb==1){
         LCC.data<-data.frame("Time"=tk.plot,"LCC"=rho)
         names(LCC.data)<-
@@ -52,12 +48,8 @@ lccSummary<-function(model, q_f, diffbeta, tk,
                            levels(model$data$method)[2],
                            " vs. ", levels(model$data$method)[1]))
         GF<-CCC(predict(model), model$data$resp)
-<<<<<<< HEAD
         plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data,
                         "gof" = GF)
-=======
-        plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data, "gof" = GF)
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
     }else{
       LCC.data<-list()
       for(i in 1:ldb) {
@@ -219,16 +211,11 @@ lccSummary<-function(model, q_f, diffbeta, tk,
         GF<-CCC(predict(model), model$data$resp)
         plot.data<-list("fitted"=fit,"sampled" = CCC.data, "gof" = GF)
       }else{
-<<<<<<< HEAD
         CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                      method="method", time="time")
         Pearson<-Pearson(dataset=model$data, resp="resp",
                          subject="subject", method="method",
                          time="time")
-=======
-        CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
-        Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
         LA<-list()
         CCC.data<-list()
         LCC.data<-list()

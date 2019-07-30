@@ -67,12 +67,8 @@ CCC_lin<-function(dataset, resp, subject, method, time){
   }
   CCC.Lin<-list()
   for(i in 2:length(levels(Data$method))){
-<<<<<<< HEAD
     CCC.Lin[[i-1]]<-Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,
                         time=Data$time)
-=======
-    CCC.Lin[[i-1]]<-Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,time=Data$time)
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   }
   return(CCC.Lin)
 }
@@ -90,12 +86,8 @@ CCC_lin<-function(dataset, resp, subject, method, time){
 ##' @keywords internal
 plot_lcc <- function(rho,ENV.LCC, tk.plot, tk.plot2,ldb, model,
                      ci, arg) {
-<<<<<<< HEAD
   CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                method="method", time="time")
-=======
-  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject", method="method", time="time")
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
   if(ci==FALSE){
     plotBuilder_lcc(rho = rho, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, CCC=CCC,

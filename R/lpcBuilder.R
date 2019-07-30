@@ -50,12 +50,8 @@ lpcBuilder<-function(G, tk, q_r, q_f, g, sig2_epsilon,
     if(attr(varcomp$modelStruct$varStruct, "formula")==~time){
       gd <- g(delta,tk)
       gdl <- g(deltal,tk)
-<<<<<<< HEAD
       rho.pearson <-list(tGt / sqrt((tGt +sig2_epsilon*gd)*
                                       (tGt +sig2_epsilon*gdl)), NA)
-=======
-      rho.pearson <-list(tGt / sqrt((tGt +sig2_epsilon*gd)*(tGt +sig2_epsilon*gdl)), NA)
->>>>>>> 0defa447a19649cc6f57a67efad6946bd7b187aa
     } else {if(attr(varcomp$modelStruct$varStruct, "formula")==~time | method){
       gd <- g(delta,tk)
       ldb2 <- length(deltal)
