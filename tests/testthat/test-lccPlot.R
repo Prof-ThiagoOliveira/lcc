@@ -217,3 +217,4 @@ test_that("Scales",{
                               control=list(scale_y_continuous = c)),
                       tmp3)
 })
+

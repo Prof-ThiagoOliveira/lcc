@@ -210,14 +210,16 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                          "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
                          "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
                          "tk.plot2" = tk.plot2, "ldb" = ldb,
-                         "ci" = ci, "components" = components, "nd"=nd)
+                         "ci" = ci, "components" = components, "nd"=nd,
+                         "alpha" = alpha, "nboot" = nboot)
     }else{
       internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
                          "rho.pearson" = CI$LPC, "Cb"=CI$Cb,
                          "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
                          "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
                          "tk.plot2" = tk.plot2, "ldb" = ldb,
-                         "ci" = ci, "components" = components, "nd"=nd)
+                         "ci" = ci, "components" = components, "nd"=nd,
+                         "alpha" = alpha, "nboot" = nboot)
       }
     }
   }else{
@@ -241,14 +243,16 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                          "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
                          "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
                          "tk.plot2" = tk.plot2, "ldb" = ldb, "ci" = ci,
-                         "components" = components, "nd"=nd)
+                         "components" = components, "nd"=nd,
+                         "alpha" = alpha, "nboot" = nboot)
     }else{
       internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
                          "rho.pearson" = CI$LPC, "Cb"=CI$Cb,
                          "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
                          "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
                          "tk.plot2" = tk.plot2, "ldb" = ldb, "ci" = ci,
-                         "components" = components, "nd"=nd)
+                         "components" = components, "nd"=nd,
+                         "alpha" = alpha, "nboot" = nboot)
       }
     }
   }
