@@ -26,10 +26,14 @@
 ##'
 ##' @return an object inheriting from class \code{summary.lcc}
 ##'   including: \item{fitted}{the fitted values extracted from the
-##'   \code{lcc} object.} \item{sampled}{the sampled values extracted
-##'   from the \code{lcc} object.} \item{gof}{the goodness of fit measurement 
+##'   \code{lcc} object.} \item{gof}{the goodness of fit measurement 
 ##'   is calculated using the concordance correlation coefficient between 
 ##'   fitted and observed values. Value of 1 denote perfect concordance.}
+##'   \item{AIC}{the Akaike Information Criterion corresponding to object.}
+##'   \item{BIC}{the Bayesian Information Criterion corresponding to object.}
+##'   \item{logLik}{If \code{REML=FALSE}, returns the log-likelihood value 
+##'   of the linear mixed-effects model; otherwise, the restricted 
+##'   log-likelihood is returned}
 ##'
 ##' @param object an object inheriting from class
 ##'   \code{\link[lcc]{lcc}}, representing a fitted longitudinal

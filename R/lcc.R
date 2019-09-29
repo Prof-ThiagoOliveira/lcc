@@ -442,8 +442,11 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
-##' print(fm1)
+##'          method = "Method", time = "Time", qf = 2, qr = 2,
+##'          components = TRUE)
+##' fitted(fm1)
+##' fitted(fm1, type="lpc")
+##' fitted(fm1, type="la")
 ##' 
 ##' @importFrom stats AIC BIC 
 ##' @export
