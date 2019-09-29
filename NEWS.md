@@ -69,3 +69,7 @@ was used to solve this problem.
 * The got (goodness of fittenes) result was changed for CCC between fitted values (mixed effect model) and original observations rather than fitted LCC and sampled CCC. This make more sense because the model goodness of fit have a high impact in the LCC.
 
 * Fixed issue in ciCompute function to get the correct confidence intervals for the LA statistics. Versions before 1.0.3 the CI for the LA is computed using the logit transformation and versions equal or above 1.0.3 the we are using the arcsin(sqrt(x)) rather than logit.
+
+* Created functions print.lcc and fitted.lcc
+
+* Updated the summary.lcc output (cleaner and more informative)
