@@ -53,8 +53,7 @@ was used to solve this problem.
             return(rho[[1]])
          }else(return(rho[[n.delta]])))
    ```
-* We include the parameter 'type' in the lccPlot() function. Now the user can choice among lcc, lpc, and la as plot output. This allowed we reduce the number of parameters in the control list. Now we have only the parameters 'ylab' rather than 'LCC_ylab', 'LPC_ylab', and 'LA_ylab'. In the same way,  we replace the parameters 'LCC_scale_y_continuous',
-'LPC_scale_y_continuous', and 'LA_scale_y_continuous' by 'scale_y_continuous'.
+* We include the parameter 'type' in the lccPlot() function. Now the user can choice among lcc, lpc, or la as plot output.
 
 * Fixed issue when y-axis labels is changed.
 
@@ -73,3 +72,5 @@ was used to solve this problem.
 * Created functions print.lcc and fitted.lcc
 
 * Updated the summary.lcc output (cleaner and more informative)
+
+*
