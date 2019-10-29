@@ -221,6 +221,5 @@ lccPlot<-function(obj, type = "lcc", control = list(), ...){
         }
        }
     }
-  class(lccPlot)<-"lccplot"
   return(invisible(lccplot))
 }

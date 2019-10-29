@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 06/10/2019                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -161,8 +161,9 @@
 ##'   \email{thiago.paula.oliveira@@usp.br}, Rafael de Andrade Moral,
 ##'   John Hinde, Silvio Sandoval Zocchi, Clarice Garcia Borges Demetrio
 ##'
-##' @seealso \code{\link[lcc]{summary.lcc}}, \code{\link[lcc]{lccPlot}},
-##'   \code{\link[nlme]{lmeControl}}
+##' @seealso \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
+##'   \code{\link{print.lcc}}, \code{\link{lccPlot}},
+##'   \code{\link{plot.lcc}}, \code{\link[nlme]{lmeControl}}
 ##'
 ##' @references Lin, L. A Concordance Correlation Coefficient to
 ##'   Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,
@@ -179,8 +180,9 @@
 ##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
+##' print(fm1)
 ##' summary(fm1)
 ##' summary(fm1, type="model")
 ##' lccPlot(fm1)
@@ -188,19 +190,19 @@
 ##' @examples
 ##' ## Estimating longitudinal Pearson correlation and longitudinal
 ##' #accuracy
-##' fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2,
-##'          components = TRUE)
+##' fm2 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2,
+##'            components = TRUE)
 ##' summary(fm2)
 ##' lccPlot(fm2)
 ##'
 ##' @examples
 ##' \dontrun{
 ##' ## A grid of points as the Time variable for prediction
-##' fm3<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2,
-##'          components = TRUE, time_lcc = list(from = min(hue$Time),
-##'          to = max(hue$Time), n=40))
+##' fm3 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2,
+##'            components = TRUE, time_lcc = list(from = min(hue$Time),
+##'            to = max(hue$Time), n=40))
 ##' summary(fm3)
 ##' lccPlot(fm3)
 ##' }
@@ -208,20 +210,25 @@
 ##' @examples
 ##' ## Including an exponential variance function using time as a
 ##' #covariate.
-##' fm4<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2,
-##'          components = TRUE, time_lcc = list(from = min(hue$Time),
-##'          to = max(hue$Time), n=40), var.class=varExp,
-##'          weights.form="time")
-##' summary(fm4)
+##' fm4 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2,
+##'            components = TRUE, time_lcc = list(from = min(hue$Time),
+##'            to = max(hue$Time), n=40), var.class=varExp,
+##'            weights.form="time")
+##' summary(fm4,  type="model")
+##' fitted(fm4)
+##' fitted(fm4, type = "lpc")
+##' fitted(fm4, type = "la")
 ##' lccPlot(fm4)
+##' lccPlot(fm4, type = "lpc")
+##' lccPlot(fm4, type = "la")
 ##'
 ##' @examples
 ##' \dontrun{
 ##' ## Non-parametric confidence interval with 500 bootstrap samples
-##' fm5<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2,
-##'          ci = TRUE, nboot = 500)
+##' fm5 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2,
+##'            ci = TRUE, nboot = 500)
 ##' summary(fm5)
 ##' lccPlot(fm5)
 ##' }
@@ -231,10 +238,10 @@
 ##' \dontrun{
 ##' data(simulated_hue)
 ##' attach(simulated_hue)
-##' fm6<-lcc(dataset = simulated_hue, subject = "Fruit",
-##'          resp = "Hue", method = "Method", time = "Time",
-##'          qf = 2, qr = 1, components = TRUE,
-##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))
+##' fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+##'            resp = "Hue", method = "Method", time = "Time",
+##'            qf = 2, qr = 1, components = TRUE,
+##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
 ##' summary(fm6)
 ##' lccPlot(fm6)
 ##' detach(simulated_hue)
@@ -246,10 +253,10 @@
 ##' \dontrun{
 ##' data(simulated_hue_block)
 ##' attach(simulated_hue_block)
-##' fm7<-lcc(dataset = simulated_hue_block, subject = "Fruit",
-##'          resp = "Hue", method = "Method",time = "Time",
-##'          qf = 2, qr = 1, components = TRUE, covar = c("Block"),
-##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))
+##' fm7 <- lcc(dataset = simulated_hue_block, subject = "Fruit",
+##'            resp = "Hue", method = "Method",time = "Time",
+##'            qf = 2, qr = 1, components = TRUE, covar = c("Block"),
+##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
 ##' summary(fm7)
 ##' lccPlot(fm7)
 ##' detach(simulated_hue_block)
@@ -346,23 +353,26 @@ is.lcc <- function(x) inherits(x, "lcc")
 
 ##' @rdname print.lcc
 ##' @method print lcc
-##' @title  Print an lcc object
-##' @description Print information about the linear mixed-effects fit represented 
-##'   by an object of class \code{\link[lcc]{lcc}}. The returned object 
-##'   has a \code{\link[base]{print}} method.
+##' @title Print an lcc object
+##' @usage \method{print}{lcc}(x, digits, ...)
+##' @aliases print.lcc
+##' @description Print information about the longitudinal concordance
+##'   correlation represented by an object of class
+##'   \code{\link[lcc]{lcc}}. The returned object has a
+##'   \code{\link[base]{print}} method.
 ##'
 ##' @return an object inheriting from class \code{print.lcc}.
 ##'
 ##' @param x an object inheriting from class
 ##'   \code{\link[lcc]{lcc}}, representing a fitted longitudinal
 ##'   concordance correlation function.
-##'   
-##' @param digits a non-null value for \code{digits} specifies the minimum 
-##'   number of significant digits to be printed in values. The 
+##'
+##' @param digits a non-null value for \code{digits} specifies the minimum
+##'   number of significant digits to be printed in values. The
 ##'   default, \code{NULL}.
-##'   
+##'
 ##' @param ... not used.
-##' 
+##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}
@@ -373,25 +383,23 @@ is.lcc <- function(x) inherits(x, "lcc")
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(fm1)
-##' 
-##' @importFrom stats AIC BIC 
+##'
+##' @importFrom stats AIC BIC
 ##' @export
 print.lcc <- function(x, digits = NULL, ...){
-  cat( "Longitudinal concordance correlation model fit by ")
+  cat("Longitudinal concordance correlation model fit by ")
   cat( if(x[1]$model$method == "REML") "REML\n" else "maximum likelihood\n")
-#  cat(" Data:", deparse(x[1]$model$call$data ), "\n")
-  print(data.frame(AIC = AIC(x[1]$model),
-                   BIC = BIC(x[1]$model),
-                   logLik = c(x[1]$model$logLik),
-                   row.names = " "), digits = digits, ...)
-  cat("  Fixed Effects:", "\n")
-  print(fixef(x[1]$model), digits = digits, ...)
+  AIC <- AIC(x[1]$model)
+  BIC <- BIC(x[1]$model)
+  logLik <- c(x[1]$model$logLik)
+  print(data.frame(AIC, BIC, logLik, row.names = " "), digits = digits, ...)
   cat("\n")
-  dd <- x[1]$model$dims
-  print(summary(x[1]$model$modelStruct), sigma = x[1]$model$sigma, digits = digits, ...)
+  print(x$Summary.lcc$fitted, digits =  digits,  ...)
+  dd <- x$model$dims
+  Ngrps <- dd$ngrps[1:dd$Q]
+  cat("\n")
   cat("Number of Observations:", dd[["N"]])
   cat("\nNumber of Groups: ")
-  Ngrps <- dd$ngrps[1:dd$Q]
   if ((lNgrps <- length(Ngrps)) == 1) {	# single nesting
     cat(Ngrps,"\n")
   } else {				# multiple nesting
@@ -410,55 +418,58 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' @rdname fitted.lcc
 ##' @method fitted lcc
 ##' @title  Extract lcc Fitted Values
-##' @description Fitted values from object of class \code{lcc} 
-##'   returned by modeling functions. 
+##' @usage
+##' \method{fitted}{lcc}(object, type, digits, ...)
+##' @aliases fitted.lcc
+##' @description Fitted values from object of class \code{lcc}
+##'   returned by modeling functions.
 ##'
-##' @return A data frame with columns given by methods, time, and 
+##' @return A data frame with columns given by methods, time, and
 ##'   fitted values.
 ##'
-##' @param object an object inheriting from class \code{lcc}, 
+##' @param object an object inheriting from class \code{lcc},
 ##'   representing a fitted longitudinal concordance correlation model.
-##'   
+##'
 ##' @param type an optional character string specifying the type of
-##'   output to be returned. If \code{type="lcc"}, prints the fitted 
+##'   output to be returned. If \code{type="lcc"}, prints the fitted
 ##'   longitudinal concordance correlation. If
-##'   \code{type="lpc"}, prints the fitted longitudinal Pearson 
-##'   correlation. If \code{type="la"}, prints the fitted longitudinal 
+##'   \code{type="lpc"}, prints the fitted longitudinal Pearson
+##'   correlation. If \code{type="la"}, prints the fitted longitudinal
 ##'   accuracy. Defaults to \code{type="lcc"}.
-##'   
-##' @param digits a non-null value for \code{digits} specifies the minimum 
-##'   number of significant digits to be printed in values. The 
+##'
+##' @param digits a non-null value for \code{digits} specifies the minimum
+##'   number of significant digits to be printed in values. The
 ##'   default, \code{NULL}.
-##'   
-##' @param ... some methods for this generic require additional arguments. 
+##'
+##' @param ... some methods for this generic require additional arguments.
 ##'   None are used in this method.
-##' 
+##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
-##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}, 
-##'   \code{link[lcc]{lccPlot}}
+##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}},
+##'   \code{\link[lcc]{lccPlot}}
 ##' @examples
 ##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2,
-##'          components = TRUE)
+##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2,
+##'            components = TRUE)
 ##' fitted(fm1)
 ##' fitted(fm1, type="lpc")
 ##' fitted(fm1, type="la")
-##' 
-##' @importFrom stats AIC BIC 
+##'
+##' @importFrom stats AIC BIC
 ##' @export
 fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
   if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
   if(missing(type)) type="lcc"
-  if(object$plot_info$components == FALSE & type == "lpc" | 
+  if(object$plot_info$components == FALSE & type == "lpc" |
      object$plot_info$components == FALSE & type == "la"){
-    stop(paste0("It is necessary to include components = TRUE in the 
+    stop(paste0("It is necessary to include components = TRUE in the
   lcc() function to calculate the fitted values for type ", type))
-  } 
+  }
   if(type == "lcc" | type == "lpc" | type == "la"){
     pr <- switch(type,
                  "lcc" = cat( "Fitted longitudinal concordance correlation function", "\n"),
@@ -470,6 +481,3 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
     stop("Available 'type' are 'lcc',  'lpc', or 'la'", call.=FALSE)
   }
 }
-
-
-

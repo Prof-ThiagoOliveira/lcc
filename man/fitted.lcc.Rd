@@ -4,46 +4,49 @@
 \alias{fitted.lcc}
 \title{Extract lcc Fitted Values}
 \usage{
-\method{fitted}{lcc}(object, type = "lcc", digits = NULL, ...)
+\method{fitted}{lcc}(object, type, digits, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc}, 
+\item{object}{an object inheriting from class \code{lcc},
 representing a fitted longitudinal concordance correlation model.}
 
 \item{type}{an optional character string specifying the type of
-output to be returned. If \code{type="lcc"}, prints the fitted 
+output to be returned. If \code{type="lcc"}, prints the fitted
 longitudinal concordance correlation. If
-\code{type="lpc"}, prints the fitted longitudinal Pearson 
-correlation. If \code{type="la"}, prints the fitted longitudinal 
+\code{type="lpc"}, prints the fitted longitudinal Pearson
+correlation. If \code{type="la"}, prints the fitted longitudinal
 accuracy. Defaults to \code{type="lcc"}.}
 
-\item{digits}{a non-null value for \code{digits} specifies the minimum 
-number of significant digits to be printed in values. The 
+\item{digits}{a non-null value for \code{digits} specifies the minimum
+number of significant digits to be printed in values. The
 default, \code{NULL}.}
 
-\item{...}{some methods for this generic require additional arguments. 
+\item{...}{some methods for this generic require additional arguments.
 None are used in this method.}
 }
 \value{
-A data frame with columns given by methods, time, and 
+A data frame with columns given by methods, time, and
   fitted values.
 }
 \description{
-Fitted values from object of class \code{lcc} 
+Fitted values from object of class \code{lcc}
   returned by modeling functions.
 }
 \examples{
 data(hue)
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
-fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
-print(fm1)
+fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2,
+           components = TRUE)
+fitted(fm1)
+fitted(fm1, type="lpc")
+fitted(fm1, type="la")
 
 }
 \seealso{
-\code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}, 
-  \code{link[lcc]{lccPlot}}
+\code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}},
+  \code{\link[lcc]{lccPlot}}
 }
 \author{
 Thiago de Paula Oliveira,

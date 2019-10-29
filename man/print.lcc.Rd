@@ -4,15 +4,15 @@
 \alias{print.lcc}
 \title{Print an lcc object}
 \usage{
-\method{print}{lcc}(x, digits = NULL, ...)
+\method{print}{lcc}(x, digits, ...)
 }
 \arguments{
 \item{x}{an object inheriting from class
 \code{\link[lcc]{lcc}}, representing a fitted longitudinal
 concordance correlation function.}
 
-\item{digits}{a non-null value for \code{digits} specifies the minimum 
-number of significant digits to be printed in values. The 
+\item{digits}{a non-null value for \code{digits} specifies the minimum
+number of significant digits to be printed in values. The
 default, \code{NULL}.}
 
 \item{...}{not used.}
@@ -21,9 +21,10 @@ default, \code{NULL}.}
 an object inheriting from class \code{print.lcc}.
 }
 \description{
-Print information about the linear mixed-effects fit represented 
-  by an object of class \code{\link[lcc]{lcc}}. The returned object 
-  has a \code{\link[base]{print}} method.
+Print information about the longitudinal concordance
+  correlation represented by an object of class
+  \code{\link[lcc]{lcc}}. The returned object has a
+  \code{\link[base]{print}} method.
 }
 \examples{
 data(hue)

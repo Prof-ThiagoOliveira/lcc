@@ -69,8 +69,14 @@ was used to solve this problem.
 
 * Fixed issue in ciCompute function to get the correct confidence intervals for the LA statistics. Versions before 1.0.3 the CI for the LA is computed using the logit transformation and versions equal or above 1.0.3 the we are using the arcsin(sqrt(x)) rather than logit.
 
-* Created functions print.lcc and fitted.lcc
-
 * Updated the summary.lcc output (cleaner and more informative)
 
-*
+# New functions
+
+* print.lcc: print information about the longitudinal concordance correlation.
+
+* fitted.lcc: fitted values from object of class lcc returned by modeling functions.
+
+* plot.lcc: diagnostic plots for conditional error and random effects from the linear mixed-effects fit are obtained.
+
+* print.summary.lcc: information summarizing the fitted longitudinal concordance correlation is printed.

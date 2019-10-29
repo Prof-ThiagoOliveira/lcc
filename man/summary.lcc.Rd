@@ -4,7 +4,7 @@
 \alias{summary.lcc}
 \title{Summarize an lcc object}
 \usage{
-\method{summary}{lcc}(object, type, ...)
+\method{summary}{lcc}(object, type, adjustSigma, verbose, ...)
 }
 \arguments{
 \item{object}{an object inheriting from class
@@ -16,18 +16,34 @@ output to be returned. If \code{type="model"}, prints the summary
 of the polynomial mixed-effects regression model. If
 \code{type="lcc"}, prints the summary of the fitted and sampled
 values for LCC, LPC, and LA as well as the concordance correlation
-coefficient between fitted LCC values and observed values as
-goodness of fit (gof) measurement. Defaults to \code{type="lcc"}.}
+coefficient between fitted values from the model and observed
+values as goodness of fit (gof) measurement. Defaults to
+\code{type="lcc"}.}
 
-\item{...}{not used.}
+\item{adjustSigma}{an optional logical value used when \code{type =
+model}. If TRUE and the estimation method used to obtain object
+was maximum likelihood, the residual standard error is multiplied
+by \code{sqrt(nobs/(nobs - npar))}.  See
+\code{\link[nlme]{summary.lme}} for more information.  Default is
+TRUE.}
+
+\item{verbose}{an optional logical value used to control the amount
+of output in the \code{print.summary.lme} method when
+\code{type = model} is used. Defaults to FALSE.}
+
+\item{...}{additional arguments affecting the summary produced.}
 }
 \value{
 an object inheriting from class \code{summary.lcc}
   including: \item{fitted}{the fitted values extracted from the
-  \code{lcc} object.} \item{sampled}{the sampled values extracted
-  from the \code{lcc} object.} \item{gof}{the goodness of fit measurement 
-  is calculated using the concordance correlation coefficient between 
+  \code{lcc} object.} \item{gof}{the goodness of fit (gof) measurement
+  is calculated using the concordance correlation coefficient between
   fitted and observed values. Value of 1 denote perfect concordance.}
+  \item{AIC}{the Akaike Information Criterion corresponding to object.}
+  \item{BIC}{the Bayesian Information Criterion corresponding to object.}
+  \item{logLik}{If \code{REML=FALSE}, returns the log-likelihood value
+  of the linear mixed-effects model; otherwise, the restricted
+  log-likelihood is returned}
 }
 \description{
 Additional information about the fit of longitudinal
@@ -46,21 +62,11 @@ fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 summary(fm1, type="model")
 summary(fm1, type="lcc")
 }
-\references{
-Lin, L. A Concordance Correlation Coefficient to
-  Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,
-  1989.
-
-Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
-  Concordance Correlation Function Based on Variance Components: An
-  Application in Fruit Color Analysis. \emph{Journal of
-  Agricultural, Biological, and Environmental Statistics}, v. 23,
-  n. 2, 233–254, 2018.
-}
 \seealso{
-\code{\link[lcc]{lcc}}.
+\code{\link{AIC}}, \code{\link{BIC}},
+\code{print.summary.lcc},  \code{\link[lcc]{lcc}}
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@usp.br}, Rafael de Andrade Moral
+  \email{thiago.paula.oliveira@usp.br}
 }

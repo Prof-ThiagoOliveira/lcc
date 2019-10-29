@@ -151,45 +151,51 @@ The \code{lcc} function gives fitted values and
 data(hue)
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
-fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
+fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
+print(fm1)
 summary(fm1)
 summary(fm1, type="model")
 lccPlot(fm1)
 
 ## Estimating longitudinal Pearson correlation and longitudinal
 #accuracy
-fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2,
-         components = TRUE)
+fm2 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2,
+           components = TRUE)
 summary(fm2)
 lccPlot(fm2)
 
 \dontrun{
 ## A grid of points as the Time variable for prediction
-fm3<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2,
-         components = TRUE, time_lcc = list(from = min(hue$Time),
-         to = max(hue$Time), n=40))
+fm3 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2,
+           components = TRUE, time_lcc = list(from = min(hue$Time),
+           to = max(hue$Time), n=40))
 summary(fm3)
 lccPlot(fm3)
 }
 
 ## Including an exponential variance function using time as a
 #covariate.
-fm4<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2,
-         components = TRUE, time_lcc = list(from = min(hue$Time),
-         to = max(hue$Time), n=40), var.class=varExp,
-         weights.form="time")
-summary(fm4)
+fm4 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2,
+           components = TRUE, time_lcc = list(from = min(hue$Time),
+           to = max(hue$Time), n=40), var.class=varExp,
+           weights.form="time")
+summary(fm4,  type="model")
+fitted(fm4)
+fitted(fm4, type = "lpc")
+fitted(fm4, type = "la")
 lccPlot(fm4)
+lccPlot(fm4, type = "lpc")
+lccPlot(fm4, type = "la")
 
 \dontrun{
 ## Non-parametric confidence interval with 500 bootstrap samples
-fm5<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2,
-         ci = TRUE, nboot = 500)
+fm5 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2,
+           ci = TRUE, nboot = 500)
 summary(fm5)
 lccPlot(fm5)
 }
@@ -198,10 +204,10 @@ lccPlot(fm5)
 \dontrun{
 data(simulated_hue)
 attach(simulated_hue)
-fm6<-lcc(dataset = simulated_hue, subject = "Fruit",
-         resp = "Hue", method = "Method", time = "Time",
-         qf = 2, qr = 1, components = TRUE,
-         time_lcc = list(n=50, from=min(Time), to=max(Time)))
+fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+           resp = "Hue", method = "Method", time = "Time",
+           qf = 2, qr = 1, components = TRUE,
+           time_lcc = list(n=50, from=min(Time), to=max(Time)))
 summary(fm6)
 lccPlot(fm6)
 detach(simulated_hue)
@@ -212,10 +218,10 @@ detach(simulated_hue)
 \dontrun{
 data(simulated_hue_block)
 attach(simulated_hue_block)
-fm7<-lcc(dataset = simulated_hue_block, subject = "Fruit",
-         resp = "Hue", method = "Method",time = "Time",
-         qf = 2, qr = 1, components = TRUE, covar = c("Block"),
-         time_lcc = list(n=50, from=min(Time), to=max(Time)))
+fm7 <- lcc(dataset = simulated_hue_block, subject = "Fruit",
+           resp = "Hue", method = "Method",time = "Time",
+           qf = 2, qr = 1, components = TRUE, covar = c("Block"),
+           time_lcc = list(n=50, from=min(Time), to=max(Time)))
 summary(fm7)
 lccPlot(fm7)
 detach(simulated_hue_block)
@@ -234,8 +240,9 @@ Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
   n. 2, 233–254, 2018.
 }
 \seealso{
-\code{\link[lcc]{summary.lcc}}, \code{\link[lcc]{lccPlot}},
-  \code{\link[nlme]{lmeControl}}
+\code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
+  \code{\link{print.lcc}}, \code{\link{lccPlot}},
+  \code{\link{plot.lcc}}, \code{\link[nlme]{lmeControl}}
 }
 \author{
 Thiago de Paula Oliveira,
