@@ -106,9 +106,9 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                     alpha = alpha, components = components,
                     lme.control = lme.control,
                     method.init = method.init)
-   ENV.LCC<-CI$ENV.LCC
-   ENV.LPC<-CI$ENV.LPC
-   ENV.Cb<-CI$ENV.Cb
+      ENV.LCC<-CI$ENV.LCC
+      ENV.LPC<-CI$ENV.LPC
+      ENV.Cb<-CI$ENV.Cb
       summary.lcc<-lccSummary(q_f = q_f, diffbeta = diffbeta, tk = tk,
                               tk.plot = tk.plot, tk.plot2 = tk.plot2,
                               rho = CI$rho, rho.pearson = CI$LPC,
@@ -188,74 +188,51 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                               ci = TRUE, components = components)
    }
   }
-
+  #=====================================================================
+  internal_lcc<-list("Summary.lcc"=summary.lcc,
+                     "tk.plot" = tk.plot, "tk.plot2" = tk.plot2,
+                     "ldb" = ldb,  "ci" = ci, "components" = components,
+                     "nd"=nd, "qf" = q_f, "qr" = q_r,
+                     "interaction" = interaction, "covar" = covar)
+  #=====================================================================
   if(ldb == 1){
     if(ci==FALSE){
-      if(components == FALSE){
-        internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=rho,
-                           "tk.plot" = tk.plot, "tk.plot2" = tk.plot2,
-                           "ldb" = ldb, "ci" = ci,
-                           "components" = components, "nd"=nd)
-      }else{
-        internal_lcc<-list("Summary.lcc"=summary.lcc,
-                           "rho"=rho, "rho.pearson" = rho.pearson,
-                           "Cb"=Cb, "tk.plot" = tk.plot,
-                           "tk.plot2" = tk.plot2, "ldb" = ldb,
-                           "ci" = ci, "components" = components,
-                           "nd"=nd)
-  }
-  }else{
-    if(components == FALSE){
-      internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
-                         "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
-                         "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
-                         "tk.plot2" = tk.plot2, "ldb" = ldb,
-                         "ci" = ci, "components" = components, "nd"=nd,
-                         "alpha" = alpha, "nboot" = nboot)
+      internal_lcc$rho <- rho
+      if(components == TRUE){
+        internal_lcc$rho.pearson <- rho.pearson
+        internal_lcc$Cb <- Cb
+      }
     }else{
-      internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
-                         "rho.pearson" = CI$LPC, "Cb"=CI$Cb,
-                         "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
-                         "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
-                         "tk.plot2" = tk.plot2, "ldb" = ldb,
-                         "ci" = ci, "components" = components, "nd"=nd,
-                         "alpha" = alpha, "nboot" = nboot)
+      internal_lcc$rho <- CI$rho
+      internal_lcc$ENV.LCC <- CI$ENV.LCC
+      internal_lcc$ENV.LPC <- CI$ENV.LPC
+      internal_lcc$ENV.LA <- CI$ENV.Cb
+      internal_lcc$alpha <- alpha
+      internal_lcc$nboot <- nboot
+      if(components == TRUE){
+        internal_lcc$rho.pearson <- CI$LPC
+        internal_lcc$Cb <- CI$Cb
       }
     }
   }else{
     if(ci==FALSE){
-      if(components == FALSE){
-        internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=rho.ret,
-                           "tk.plot" = tk.plot, "tk.plot2" = tk.plot2,
-                           "ldb" = ldb, "ci" = ci,
-                           "components" = components, "nd"=nd)
-      }else{
-        internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=rho.ret,
-                           "rho.pearson" = rho.pearson.ret,
-                           "Cb"=Cb.ret, "tk.plot" = tk.plot,
-                           "tk.plot2" = tk.plot2, "ldb" = ldb,
-                           "ci" = ci, "components" = components,
-                           "nd"=nd)
-    }
-  }else{
-    if(components == FALSE){
-      internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
-                         "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
-                         "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
-                         "tk.plot2" = tk.plot2, "ldb" = ldb, "ci" = ci,
-                         "components" = components, "nd"=nd,
-                         "alpha" = alpha, "nboot" = nboot)
+      internal_lcc$rho <- rho.ret
+      if(components == TRUE){
+        internal_lcc$rho.pearson <- rho.pearson.ret
+        internal_lcc$Cb <- Cb.ret
+      }
     }else{
-      internal_lcc<-list("Summary.lcc"=summary.lcc, "rho"=CI$rho,
-                         "rho.pearson" = CI$LPC, "Cb"=CI$Cb,
-                         "ENV.LCC"=CI$ENV.LCC, "ENV.LPC" = CI$ENV.LPC,
-                         "ENV.LA" = CI$ENV.Cb, "tk.plot" = tk.plot,
-                         "tk.plot2" = tk.plot2, "ldb" = ldb, "ci" = ci,
-                         "components" = components, "nd"=nd,
-                         "alpha" = alpha, "nboot" = nboot)
+      internal_lcc$rho <- CI$rho
+      internal_lcc$ENV.LCC <- CI$ENV.LCC
+      internal_lcc$ENV.LPC <- CI$ENV.LPC
+      internal_lcc$ENV.LA <- CI$ENV.Cb
+      internal_lcc$alpha <- alpha
+      internal_lcc$nboot <- nboot
+      if(components == TRUE){
+        internal_lcc$rho.pearson <- CI$LPC
+        internal_lcc$Cb <- CI$Cb
       }
     }
   }
-
   return(invisible(internal_lcc))
 }

@@ -26,6 +26,8 @@
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
 ##'
+##' @importFrom utils txtProgressBar setTxtProgressBar capture.output
+##'
 ##' @keywords internal
 
 dataBootstrap<-function(model){
@@ -64,6 +66,9 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
   Boot_model<-list(NA)
   Diff<-list(NA)
   warnings <- 0
+  pb <- txtProgressBar(
+    title = "Processing the bootstrap confidence intervals",
+    style = 3, min = 0, max = nboot)
   for(i in 1:nboot){
     Dataset_boot[[i]]<-dataBootstrap(model=model)
     lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
@@ -81,7 +86,7 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
       lev.lab<-unique(merge(rep("method",q_f),lev.lab))
       lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
       fx <- fixef(Boot_model[[i]])
-      if(show.warnings) cat("Estimation problem on bootstrap sample", i, "\n")
+      if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
     } else {
       Boot_model[[i]] <- lccModel.fit$model
       tk <- sort(unique(Boot_model[[i]]$data$time))
@@ -98,12 +103,17 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
     betas <- list()
     for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
     Diff[[i]]<-betas
-    cat("Sample number: ", i, "\n")
+    #-------------------------------------------------------------------
+    # print
+    #-------------------------------------------------------------------
+    #cat("Sample number: ", i, "\n")
+    setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
+                                         "% done"))
   }
+  cat("\n", "  Convergence error in", warnings, "out of",
+                             nboot, "bootstrap samples.", "\n")
   lcc.bootstrap <- list("Boot_Model" = Boot_model, "Diffbetas"=Diff)
   class(lcc.bootstrap) <- "lcc.bootstrap"
-  cat("Convergence error in", warnings, "out of", nboot,
-      "bootstrap samples.", "\n")
   return(lcc.bootstrap)
 }
 

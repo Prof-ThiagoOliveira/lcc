@@ -80,3 +80,17 @@ was used to solve this problem.
 * plot.lcc: diagnostic plots for conditional error and random effects from the linear mixed-effects fit are obtained.
 
 * print.summary.lcc: information summarizing the fitted longitudinal concordance correlation is printed.
+
+* residuals.lcc: extract the residulas from the model used to estimate the longitudinal concordance correlation function.
+
+* vcov.lcc: Returns the variance-covariance matrix of a fitted lcc model object.
+
+* getVarCov.lcc: returns the variance-covariance matrix of a fitted lcc model object.
+
+* AIC.lcc and BIC.lcc: calculate the Akaike's 'An Information Criterion' or the BIC or SBC (Schwarz's Bayesian criterion) for an object of class lcc.
+
+* ranef.lcc: the estimated random effects 
+
+* coef.lcc: the fixed effects estimated and corresponding random effects estimates are obtained at subject levels.
+
+* logLik: extract fitted log-likelihood

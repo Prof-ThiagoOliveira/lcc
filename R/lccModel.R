@@ -19,14 +19,16 @@
 ##' @description This is an internally called function used to fits a
 ##'   linear mixed-effects model; see \code{\link[nlme]{lme}}.
 ##'
+##' @usage NULL
+##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
-##'
-##' @usage NULL
 ##'
 ##' @importFrom nlme lmeControl pdSymm
 ##'
 ##' @importFrom stats model.matrix
+##'
+##' @importFrom utils capture.output
 ##'
 ##' @references Laird, N.M. and Ware, J.H. (1982) Random-Effects Models
 ##'   for Longitudinal Data, \emph{Biometrics}, 38, 963–974.
@@ -84,16 +86,23 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
 
   if(is.null(var.class)) {
     if(qr == 0) {
-      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdSymm(form = ~ 1)),
-                       control = lme.control, method = method.init), silent = TRUE)
+      model.lme <-
+        try(lme(resp ~ fixed - 1, Data,
+                random = list(subject = pdSymm(form = ~ 1)),
+                control = lme.control,
+                method = method.init), silent = TRUE)
     } else {
       fmla.rand <- model.matrix( ~ poly(time, degree = qr, raw = TRUE), Data)
       Data$fmla.rand <- fmla.rand
       if(is.function(pdmat)){
-      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdmat(form = ~ fmla.rand - 1)),
-                       control = lme.control, method = method.init), silent = TRUE)
+        model.lme <-
+          try(lme(resp ~ fixed - 1, Data,
+                  random = list(subject = pdmat(form = ~ fmla.rand - 1)),
+                  control = lme.control, method = method.init),
+              silent = TRUE)
       }else{
-        stop("Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.",call.=FALSE)
+        stop("Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.",
+             call.=FALSE)
       }
     }
   } else {
@@ -111,19 +120,22 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
       fmla.rand <- model.matrix( ~ poly(time, degree = qr, raw = TRUE), Data)
       Data$fmla.rand <- fmla.rand
       if(is.function(pdmat)){
-      model.lme <- try(lme(resp ~ fixed - 1, Data, random = list(subject = pdmat(form = ~ fmla.rand - 1)),
-                           weights = var.class(form = .form),
-                           control = lme.control,
-                           method = method.init), silent = TRUE)
+        model.lme <-
+          try(lme(resp ~ fixed - 1, Data,
+                  random = list(subject = pdmat(form = ~ fmla.rand - 1)),
+                  weights = var.class(form = .form),
+                  control = lme.control,
+                  method = method.init), silent = TRUE)
       }else{
-        stop("Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.", call.=FALSE)
+        stop("Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.",
+             call.=FALSE)
       }
     }
   }
   warning.count <- 0
   if(class(model.lme) == "try-error") {
     warning.count <- 1
-    mes <- message(model.lme)
+    mes <- paste(capture.output(cat(model.lme[1])), collapse = " ")
   } else if(is.character(model.lme$apVar) == TRUE) {
     warning.count <- 1
     mes <- model.lme$apVar
