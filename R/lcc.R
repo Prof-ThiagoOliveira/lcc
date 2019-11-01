@@ -163,7 +163,10 @@
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
 ##'   \code{\link{print.lcc}}, \code{\link{lccPlot}},
-##'   \code{\link{plot.lcc}}, \code{\link[nlme]{lmeControl}}
+##'   \code{\link{plot.lcc}}, \code{\link{coef.lcc}},
+##'   \code{\link{ranef.lcc}}, \code{\link{vcov.lcc}},
+##'   \code{\link{getVarCov.lcc}}, \code{\link{residuals.lcc}},
+##'    \code{\link{AIC.lcc}}
 ##'
 ##' @references Lin, L. A Concordance Correlation Coefficient to
 ##'   Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,
