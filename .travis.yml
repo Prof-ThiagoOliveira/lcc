@@ -7,12 +7,19 @@ cache: packages
 r:
     - release
 
+install: travis_wait mvn install
+
 addons:
    apt:
      packages:
        - r-cran-ggplot2
        - r-cran-nlme
        - r-cran-gdata
+       - r-cran-hnp
+       - r-cran-utils
+       - r-cran-stats
+       - r-cran-grid
+       - r-cran-gridExtra
 
 r_build_args: --no-build-vignettes
 r_check_args: --no-vignettes
