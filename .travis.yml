@@ -8,8 +8,7 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install libxml2-dev
 
-r:
-    - release
+r: devel
 
 install: travis_wait mvn install
 
@@ -29,4 +28,8 @@ notifications:
      on_failure: change
      
 after_success:
-    - Rscript -e 'covr::codecov()'
+    - travis_wait Rscript -e 'library(covr); codecov()'
+
+branches:
+  only:
+    - master
