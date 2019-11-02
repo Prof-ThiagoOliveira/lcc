@@ -1,57 +1,35 @@
-----------------------------------------------------------------
-# Travis-CI configuration for R packages
-#
-# REFERENCES:
-# * Travis CI: https://docs.travis-ci.com/user/languages/r
-# * covr: https://github.com/jimhester/covr
-#
-# Validate your .travis.yml file at http://lint.travis-ci.org/
-#----------------------------------------------------------------
+
+## https://docs.travis-ci.com/user/languages/r/
+
 language: r
 sudo: false
+r: devel
 cache: packages
-warnings_are_errors: false
-r_check_args: --as-cran
-latex: false
 
-matrix:
-  include:
-    - os: linux
-      r: oldrel
-    - os: linux
-      r: release
-    - os: linux
-      r: devel
-      env:
-        - R_KEEP_PKG_SOURCE=yes
-        - _R_S3_METHOD_LOOKUP_BASEENV_AFTER_GLOBALENV_=true
-        - _R_S3_METHOD_LOOKUP_USE_TOPENV_AS_DEFENV_=true
-        - _R_CHECK_CONNECTIONS_LEFT_OPEN_=true
-        - _R_CHECK_LENGTH_1_CONDITION_=true
-        - _R_CHECK_LENGTH_1_LOGIC2_=true
-    - os: osx
-      r: oldrel
-    - os: osx
-      r: release
-    - os: linux
-      r: release
-      r_check_args: --no-build-vignettes --no-codoc --no-examples --no-tests --no-manual --ignore-vignettes
-      r_packages:
-        - covr
-        - r-cran-ggplot2
-        - r-cran-nlme
-        - r-cran-gdata
-      after_success:
-        - Rscript -e 'covr::codecov(quiet=FALSE)'
-      env: NB='w/ covr' ## Just a label
+## this saves time; it also stops us from getting R CMD check warnings
+## (which get promoted to errors/build failures unless we specify
+## "warnings_are_errors: false" here ...)
+r_build_args: "--no-build-vignettes"
 
-branches:
-  only:
-    - master
+r_packages:
+   - covr
+   - r-cran-ggplot2
+   - r-cran-nlme
+   - r-cran-gdata
+
+## need travis_wait because checks take 10+ minutes ...
+after_success:
+  - travis_wait Rscript -e 'library(covr); codecov()'
 
 notifications:
   email:
     on_success: change
     on_failure: change
+
+branches:
+  only:
+    - master
+
+
 
 
