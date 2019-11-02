@@ -38,23 +38,12 @@ matrix:
       r_check_args: --no-build-vignettes --no-codoc --no-examples --no-tests --no-manual --ignore-vignettes
       r_packages:
         - covr
+        - r-cran-ggplot2
+        - r-cran-nlme
+        - r-cran-gdata
       after_success:
         - Rscript -e 'covr::codecov(quiet=FALSE)'
       env: NB='w/ covr' ## Just a label
-
-addons:
-   apt:
-     packages:
-       - r-cran-ggplot2
-       - r-cran-nlme
-       - r-cran-gdata
-
-
-r_build_args: --no-build-vignettes
-r_check_args: --no-vignettes
-
-after_success:
-    - travis_wait Rscript -e 'library(covr); codecov()'
 
 branches:
   only:
