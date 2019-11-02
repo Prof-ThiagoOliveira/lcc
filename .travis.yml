@@ -1,17 +1,46 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-language: R
+----------------------------------------------------------------
+# Travis-CI configuration for R packages
+#
+# REFERENCES:
+# * Travis CI: https://docs.travis-ci.com/user/languages/r
+# * covr: https://github.com/jimhester/covr
+#
+# Validate your .travis.yml file at http://lint.travis-ci.org/
+#----------------------------------------------------------------
+language: r
 sudo: false
 cache: packages
+warnings_are_errors: false
+r_check_args: --as-cran
+latex: false
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y install libxml2-dev
-  - sudo apt-get install maven
-
-r: devel
-
-install: travis_wait mvn install
+matrix:
+  include:
+    - os: linux
+      r: oldrel
+    - os: linux
+      r: release
+    - os: linux
+      r: devel
+      env:
+        - R_KEEP_PKG_SOURCE=yes
+        - _R_S3_METHOD_LOOKUP_BASEENV_AFTER_GLOBALENV_=true
+        - _R_S3_METHOD_LOOKUP_USE_TOPENV_AS_DEFENV_=true
+        - _R_CHECK_CONNECTIONS_LEFT_OPEN_=true
+        - _R_CHECK_LENGTH_1_CONDITION_=true
+        - _R_CHECK_LENGTH_1_LOGIC2_=true
+    - os: osx
+      r: oldrel
+    - os: osx
+      r: release
+    - os: linux
+      r: release
+      r_check_args: --no-build-vignettes --no-codoc --no-examples --no-tests --no-manual --ignore-vignettes
+      r_packages:
+        - covr
+      after_success:
+        - Rscript -e 'covr::codecov(quiet=FALSE)'
+      env: NB='w/ covr' ## Just a label
 
 addons:
    apt:
@@ -20,17 +49,20 @@ addons:
        - r-cran-nlme
        - r-cran-gdata
 
+
 r_build_args: --no-build-vignettes
 r_check_args: --no-vignettes
 
-notifications:
-   email:
-     on_success: change
-     on_failure: change
-     
 after_success:
     - travis_wait Rscript -e 'library(covr); codecov()'
 
 branches:
   only:
     - master
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+
