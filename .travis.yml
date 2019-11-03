@@ -3,19 +3,25 @@
 
 language: r
 sudo: false
-r: devel
-cache: packages
+matrix:
+  include:
+    - name: "Roxygen check"
+      r: release
+      r_packages:
+        - devtools
+        - covr
+        - r-cran-ggplot2
+        - r-cran-nlme
+        - r-cran-gdata
+      cache: packages
+    - r: 3.4
+    - r: 3.5
+    - r: release
 
 ## this saves time; it also stops us from getting R CMD check warnings
 ## (which get promoted to errors/build failures unless we specify
 ## "warnings_are_errors: false" here ...)
 r_build_args: "--no-build-vignettes"
-
-r_packages:
-   - covr
-   - r-cran-ggplot2
-   - r-cran-nlme
-   - r-cran-gdata
 
 ## need travis_wait because checks take 10+ minutes ...
 after_success:
