@@ -3,6 +3,7 @@
 
 language: r
 sudo: false
+install: travis_wait 40 mvn install
 matrix:
   include:
     - name: "Roxygen check"
