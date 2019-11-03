@@ -17,6 +17,9 @@ matrix:
         - utils
         - grid
       cache: packages
+      script:
+        - R CMD build .
+        - travis_wait 30 R CMD check *.tar.gz
     - r: 3.4
     - r: 3.5
     - r: release
@@ -28,7 +31,7 @@ r_build_args: "--no-build-vignettes"
 
 ## need travis_wait because checks take 10+ minutes ...
 after_success:
-  - travis_wait 40 Rscript -e 'library(covr); codecov()'
+  - travis_wait 30 Rscript coverage.R
 
 notifications:
   email:
