@@ -3,7 +3,6 @@
 
 language: r
 sudo: false
-install: travis_wait 40 mvn install
 matrix:
   include:
     - name: "Roxygen check"
@@ -29,7 +28,7 @@ r_build_args: "--no-build-vignettes"
 
 ## need travis_wait because checks take 10+ minutes ...
 after_success:
-  - travis_wait Rscript -e 'library(covr); codecov()'
+  - travis_wait 40 Rscript -e 'library(covr); codecov()'
 
 notifications:
   email:
