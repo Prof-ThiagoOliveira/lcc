@@ -55,12 +55,13 @@ is.lcc <- function(x) inherits(x, "lcc")
 ##'   \email{thiago.paula.oliveira@@usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}
 ##' @examples
-##' data(hue)
+##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(fm1)
+##' }
 ##'
 ##' @importFrom stats AIC BIC
 ##' @export
@@ -133,12 +134,14 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
+##' \dontrun{
 ##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2,
 ##'            components = TRUE)
 ##' fitted(fm1)
 ##' fitted(fm1, type="lpc")
 ##' fitted(fm1, type="la")
+##' }
 ##'
 ##' @importFrom stats AIC BIC
 ##' @export
@@ -207,13 +210,14 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##'   \code{\link[lcc]{lcc}}
 ##'
 ##' @examples
-##'
-##' data(hue)
+##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(summary(fm1, type="model"))
+##' }
+##'
 ##' @export
 
 print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
@@ -762,10 +766,12 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' coef(fm1)
+##' }
+##'
 ##' @export
 
 coef.lcc <- function(object, ...) {
@@ -820,11 +826,12 @@ coef.lcc <- function(object, ...) {
 ##' @importFrom stats vcov
 ##'
 ##' @examples
-##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' vcov(fm1)
+##' }
+##'
 ##' @export
 
 vcov.lcc <- function(object, ...) {
@@ -879,10 +886,12 @@ vcov.lcc <- function(object, ...) {
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' getVarCov(fm1)
+##' }
+##'
 ##' @export
 
 getVarCov.lcc <- function(obj, type = "random.effects", ...) {
@@ -941,10 +950,12 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' getVarCov(fm1)
+##' }
+##'
 ##' @export
 
 residuals.lcc <- function(object, type = "response", ...) {
@@ -1023,7 +1034,6 @@ AIC.lcc <- function(object, ..., k = 2) {
 ##'
 ##' @examples
 ##' \dontrun{
-##' data(simulated_hue)
 ##' attach(simulated_hue)
 ##' fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
 ##'            resp = "Hue", method = "Method", time = "Time",
@@ -1096,11 +1106,11 @@ BIC.lcc <- function (object, ...)
 ##' @importFrom nlme ranef
 ##'
 ##' @examples
-##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' ranef(fm1)
+##' }
 ##' @export
 
 ranef.lcc <- function(object, ...) {
@@ -1153,10 +1163,12 @@ ranef.lcc <- function(object, ...) {
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' logLik(fm1)
+##' }
+##'
 ##' @export
 
 logLik.lcc <- function(object, ..., REML) {
@@ -1194,10 +1206,11 @@ logLik.lcc <- function(object, ..., REML) {
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' predict(fm1)
+##' }
 ##'
 ##' @export
 
@@ -1271,6 +1284,7 @@ predict.lcc <- function(object, ...) {
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
 ##'
 ##' @examples
+##' \dontrun{
 ##' ## Testing random effects
 ##' fm1.aov <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'                method = "Method", time = "Time", qf = 2, qr = 1)
@@ -1290,6 +1304,7 @@ predict.lcc <- function(object, ...) {
 ##' # Comparing the 3 lcc models
 ##' fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
 ##' anova(fm1.aov, fm2.aov, fm5.aov)
+##' }
 ##'
 ##' @export
 
@@ -1455,14 +1470,14 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
 ##'   concordance correlation function.
 ##'
 ##' @param verbose an optional logical value used to control the amount
-##'   of printed output. If \code{TRUE}, the calling sequences for each fitted 
-##'   model object are printed with the rest of the output, being omitted 
+##'   of printed output. If \code{TRUE}, the calling sequences for each fitted
+##'   model object are printed with the rest of the output, being omitted
 ##'   if \code{verbose = FALSE}. Defaults to \code{FALSE}.
 ##'
 ##' @param ... further arguments passed to \code{\link{print}}.
 ##'
-##' @details Modified from \code{\link{anova.lme}}. For more details see 
-##' methods for \code{\link{nlme}}. 
+##' @details Modified from \code{\link{anova.lme}}. For more details see
+##' methods for \code{\link{nlme}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
