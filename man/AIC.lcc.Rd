@@ -32,12 +32,17 @@ A numeric value with the corresponding AIC or BIC
   details.
 }
 \examples{
+\dontrun{
+data(simulated_hue)
+attach(simulated_hue)
+fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+           resp = "Hue", method = "Method", time = "Time",
+           qf = 2, qr = 1, components = TRUE,
+           time_lcc = list(n=50, from=min(Time), to=max(Time)))
+AIC(fm6)
+BIC(fm6)
+}
 
-data(hue)
-fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
-AIC(fm1)
-BIC(fm1)
 }
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},

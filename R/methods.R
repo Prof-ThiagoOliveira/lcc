@@ -198,7 +198,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##'
 ##' @param ... further arguments passed to \code{\link{print}}.
 ##'
-##' @importFrom stats AIC BIC
+##' @importFrom stats AIC BIC asOneSidedFormula
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
@@ -217,64 +217,119 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##' @export
 
 print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
-    if(class(x)[1] == "summary.lcc"){
-      cat("Longitudinal concordance correlation model fit by ")
-      cat( if(x$model$method == "REML") "REML\n" else "maximum likelihood\n")
-      AIC <- AIC(x$model)
-      BIC <- BIC(x$model)
-      logLik <- c(x$model$logLik)
-      print(data.frame(AIC, BIC, logLik, row.names = " "), digits = digits, ...)
-      cat("\n")
-      gof <- x$gof
-      cat(paste0(" gof: ", round(gof, 4)), "\n")
-      cat("\n")
-      if(class(x$comp) == "character"){
-        if(is.null(x$info$ENV.LCC)){
-          cat(x$comp, "\n")
-          fitted <- x$fitted
-          print(fitted, digits = digits,  ...)
-        }else{
-          cat(paste0(" Lower and upper bound of ", (1-x$plot_info$alpha)*100,"%"), "bootstrap confidence interval", "\n")
-          cat(" Number of bootstrap samples: ", x$plot_info$nboot, "\n")
-          cat("\n")
-          cat(x$comp, "\n")
-          fitted <- x$fitted
-          print(fitted, digits = digits,  ...)
-        }
+  if(class(x)[2] == "lcc"){
+    cat("Longitudinal concordance correlation model fit by ")
+    cat( if(x$model$method == "REML") "REML\n" else "maximum likelihood\n")
+    AIC <- AIC(x$model)
+    BIC <- BIC(x$model)
+    logLik <- c(x$model$logLik)
+    print(data.frame(AIC, BIC, logLik, row.names = " "), digits = digits, ...)
+    cat("\n")
+    gof <- x$gof
+    cat(paste0(" gof: ", round(gof, 4)), "\n")
+    cat("\n")
+    if(class(x$comp) == "character"){
+      if(is.null(x$info$ENV.LCC)){
+        cat(x$comp, "\n")
+        fitted <- x$fitted
+        print(fitted, digits = digits,  ...)
       }else{
-        summ <- sum(sapply(x$comp, length))
-        if(is.null(x$info$ENV.LCC)){
-          for(i in 1:summ){
-            cat(x$comp[[i]], "\n")
-            fitted <- x$fitted
-            print(fitted[[i]],  digits = digits, ...)
-            cat("\n")
-          }
-        }else{
-          cat(paste0(" Lower and upper bound of ", (1-x$info$alpha)*100,"%"), "bootstrap confidence interval", "\n")
-          cat(" Number of bootstrap samples: ", x$info$nboot, "\n")
-          cat("\n")
-          for(i in 1:summ){
-            cat(x$comp[[i]], ": LCC", "\n")
-            fitted <- x$fitted
-            print(fitted$LCC[[i]],  digits = digits, ...)
-            cat("\n")
-            cat(x$comp[[i]], ": LPC", "\n")
-            print(fitted$LPC[[i]],  digits = digits, ...)
-            cat("\n")
-            cat(x$comp[[i]], ": LA", "\n")
-            print(fitted$LA[[i]],  digits = digits, ...)
-            cat("\n", "\n")
-          }
-        }
+        cat(paste0(" Lower and upper bound of ", (1-x$plot_info$alpha)*100,"%"), "bootstrap confidence interval", "\n")
+        cat(" Number of bootstrap samples: ", x$plot_info$nboot, "\n")
+        cat("\n")
+        cat(x$comp, "\n")
+        fitted <- x$fitted
+        print(fitted, digits = digits,  ...)
       }
     }else{
-      if(class(x)[1] == "summary.lme"){
-        print(summary(x[1]$model),  verbose = verbose)
+      summ <- sum(sapply(x$comp, length))
+      if(is.null(x$info$ENV.LCC)){
+        for(i in 1:summ){
+          cat(x$comp[[i]], "\n")
+          fitted <- x$fitted
+          print(fitted[[i]],  digits = digits, ...)
+          cat("\n")
+        }
       }else{
-        stop("Available only for classes summary.lcc or summary.lme", call.=FALSE)
+        cat(paste0(" Lower and upper bound of ", (1-x$info$alpha)*100,"%"), "bootstrap confidence interval", "\n")
+        cat(" Number of bootstrap samples: ", x$info$nboot, "\n")
+        cat("\n")
+        for(i in 1:summ){
+          cat(x$comp[[i]], ": LCC", "\n")
+          fitted <- x$fitted
+          print(fitted$LCC[[i]],  digits = digits, ...)
+          cat("\n")
+          cat(x$comp[[i]], ": LPC", "\n")
+          print(fitted$LPC[[i]],  digits = digits, ...)
+          cat("\n")
+          cat(x$comp[[i]], ": LA", "\n")
+          print(fitted$LA[[i]],  digits = digits, ...)
+          cat("\n", "\n")
+        }
       }
     }
+  }else{
+    if(class(x)[2] == "model"){
+      dd <- x$dims
+      verbose <- verbose || attr(x, "verbose")
+      cat( "Linear mixed-effects model fit by " )
+      cat( if(x$method == "REML") "REML\n" else "maximum likelihood\n")
+      ##  method <- x$method
+      cat(" Data:", deparse( x$call$data ), "\n")
+      if (!is.null(x$call$subset)) {
+        cat("  Subset:", deparse(asOneSidedFormula(x$call$subset)[[2L]]),"\n")
+      }
+      print(data.frame(AIC = x$AIC, BIC = x$BIC, logLik = c(x$logLik),
+                       row.names = " "), ...)
+      if (verbose) { cat("Convergence at iteration:",x$numIter,"\n") }
+      cat("\n")
+      print(summary(x$modelStruct), sigma = x$sigma,
+            reEstimates = x$coef$random, verbose = verbose, ...)
+      cat("Fixed effects: ")
+      fixF <- x$call$fixed
+      if (inherits(fixF, "formula") || is.call(fixF)) {
+        cat(deparse(x$call$fixed), "\n")
+      } else {
+        cat(deparse(lapply(fixF, function(el) as.name(deparse(el)))), "\n")
+      }
+      ## fixed effects t-table and correlations
+      xtTab <- as.data.frame(x$tTable)
+      wchPval <- match("p-value", names(xtTab))
+      for(i in names(xtTab)[-wchPval]) {
+        xtTab[, i] <- format(zapsmall(xtTab[, i]))
+      }
+      xtTab[,wchPval] <- format(round(xtTab[,wchPval], 4))
+      if (any(wchLv <- (as.double(levels(xtTab[, wchPval])) == 0))) {
+        levels(xtTab[, wchPval])[wchLv] <- "<.0001"
+      }
+      row.names(xtTab) <- dimnames(x$tTable)[[1L]]
+      print(xtTab, ...)
+      if (nrow(x$tTable) > 1) {
+        corr <- x$corFixed
+        class(corr) <- "correlation"
+        print(corr, title = " Correlation:", ...)
+      }
+      cat("\nStandardized Within-Group Residuals:\n")
+      print(x$residuals, ...)
+      cat("\nNumber of Observations:",x$dims[["N"]])
+      cat("\nNumber of Groups: ")
+      Ngrps <- dd$ngrps[1:dd$Q]
+      if ((lNgrps <- length(Ngrps)) == 1) {	# single nesting
+        cat(Ngrps,"\n")
+      } else {				# multiple nesting
+        sNgrps <- 1:lNgrps
+        aux <- rep(names(Ngrps), sNgrps)
+        aux <- split(aux, array(rep(sNgrps, lNgrps),
+                                c(lNgrps, lNgrps))[!lower.tri(diag(lNgrps))])
+        names(Ngrps) <- unlist(lapply(aux, paste, collapse = " %in% "))
+        cat("\n")
+        print(rev(Ngrps), ...)
+      }
+      invisible(x)
+    }else{
+      stop("Available only for classes summary.lcc or summary.lme", call.=FALSE)
+    }
+  }
 }
 
 #-----------------------------------------------------------------------
@@ -334,7 +389,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
 ##'
-##' @importFrom stats AIC BIC
+##' @importFrom stats AIC BIC asOneSidedFormula pt resid
 ##'
 ##' @seealso \code{\link{AIC}}, \code{\link{BIC}},
 ##' \code{print.summary.lcc},  \code{\link[lcc]{lcc}}
@@ -377,14 +432,39 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
       structure(object, type = "lcc",  oClass = class(object),
                 class = c("summary.lcc", type))
     }else {
-    #-------------------------------------------------------------------
-    # Model
-    #-------------------------------------------------------------------
+      #-------------------------------------------------------------------
+      # Model
+      #-------------------------------------------------------------------
       obj <- object[1]$model
-      summary(obj,  adjustSigma = TRUE, verbose = FALSE)
+      ##  variance-covariance estimates for fixed effects
+      fixed <- fixef(obj)
+      stdFixed <- sqrt(diag(as.matrix(obj$varFix)))
+      obj$corFixed <- array(t(obj$varFix/stdFixed)/stdFixed,
+                            dim(obj$varFix), list(names(fixed),names(fixed)))
+      if (adjustSigma && obj$method == "ML")
+        stdFixed <- stdFixed *
+        sqrt(obj$dims$N/(obj$dims$N - length(stdFixed)))
+      ## fixed effects coefficients, std. deviations and t-ratios
+      fDF <- obj$fixDF[["X"]]
+      tVal <- fixed/stdFixed
+      obj$tTable <- cbind(Value = fixed, Std.Error = stdFixed, DF = fDF,
+                          "t-value" = tVal, "p-value" = 2 * pt(-abs(tVal), fDF))
+      ## residuals
+      resd <- resid(obj, type = "pearson")
+      if (length(resd) > 5) {
+        resd <- quantile(resd, na.rm = TRUE) # might have NAs from na.exclude
+        names(resd) <- c("Min","Q1","Med","Q3","Max")
+      }
+      obj$residuals <- resd
+      ## generating the final obj
+      aux <- logLik(obj)
+      obj$BIC <- BIC(aux)
+      obj$AIC <- AIC(aux)
+      structure(obj, verbose = verbose, oClass = class(obj),
+                class = c("summary.lcc", "model", class(object)))
     }
   }else {
-  stop("Available 'type' are lcc or model", call.=FALSE)
+    stop("Available 'type' are lcc or model", call.=FALSE)
   }
 }
 
@@ -689,8 +769,8 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @export
 
 coef.lcc <- function(object, ...) {
-   if (!is.lcc(object))
-      stop("use only with \"lcc\" objects", call. = FALSE)
+  if (!is.lcc(object))
+    stop("use only with \"lcc\" objects", call. = FALSE)
   x <- coef(object$model)
   colnames(x) <- gsub(pattern = "fixed", x = colnames(x),
                       replacement = "Fixed")
@@ -706,6 +786,7 @@ coef.lcc <- function(object, ...) {
                       replacement = "Time")
   colnames(x) <- gsub(pattern = "method", x = colnames(x),
                       replacement = "")
+  class(x) <- c("coef.lcc", "ranef.lcc",  "data.frame")
   x
 }
 
@@ -907,6 +988,7 @@ residuals.lcc <- function(object, type = "response", ...) {
 ##' @importFrom stats na.omit nobs
 ##'
 ##' @export
+
 AIC.lcc <- function(object, ..., k = 2) {
   if (!is.lcc(object))
     stop("use only with \"lcc\" objects", call. = FALSE)
@@ -940,13 +1022,19 @@ AIC.lcc <- function(object, ..., k = 2) {
 ##' @importFrom stats na.omit nobs
 ##'
 ##' @examples
+##' \dontrun{
+##' data(simulated_hue)
+##' attach(simulated_hue)
+##' fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+##'            resp = "Hue", method = "Method", time = "Time",
+##'            qf = 2, qr = 1, components = TRUE,
+##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
+##' AIC(fm6)
+##' BIC(fm6)
+##' }
 ##'
-##' data(hue)
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
-##' AIC(fm1)
-##' BIC(fm1)
 ##' @export
+
 BIC.lcc <- function (object, ...)
 {
   if (!is.lcc(object))
@@ -1027,6 +1115,7 @@ ranef.lcc <- function(object, ...) {
                       replacement = "Random")
   colnames(x) <- gsub(pattern = "poly", x = colnames(x),
                       replacement = "Time")
+  class(x) <- c("ranef.lcc",  "data.frame")
   x
 }
 
@@ -1349,6 +1438,6 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
     attr(aod, "rt") <- rt
     attr(aod, "verbose") <- verbose
   }
-  class(aod) <- c("anova.lme", "data.frame")
+  class(aod) <- c("anova.lcc", "data.frame")
   aod
 }
