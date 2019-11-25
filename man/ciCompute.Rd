@@ -2,8 +2,8 @@
 % Please edit documentation in R/ciCompute.R
 \name{ciCompute}
 \alias{ciCompute}
-\title{Internal function to compute the non-parametric bootstrap
-  interval.}
+\title{Internal Function to Compute the Non-Parametric Bootstrap
+  Interval.}
 \description{
 This is an internally called function used to compute
   the non-parametric bootstrap interval.

@@ -13,7 +13,7 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Specifying graphical control values for \code{lcc} class
+##' @title Specifying Graphical Control Values for \code{lcc} Class
 ##'
 ##' @description The values supplied in the \code{plotControl()} call
 ##'   replace the defaults, and a \code{\link{list}} with all settings

@@ -2,8 +2,8 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Internal function to prepare \code{\link[lcc]{lccModel}}
-  function}
+\title{Internal Function to Prepare \code{\link[lcc]{lccModel}}
+  Function}
 \description{
 This is an internally called function used to verify
   the specification of variance-covariance matrices and likelihood

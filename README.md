@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # lcc <img src="man/figures/logo.svg" align="right" height = 150/>
@@ -70,7 +69,7 @@ Xcode (available on the App Store).
 `lcc` can also be installed by downloading the appropriate files
 directly at the CRAN web site and following the instructions given in
 the section `6.3 Installing Packages` of the [R Installation and
-Administration](http://CRAN.R-project.org) manual.
+Administration](https://CRAN.R-project.org) manual.
 
 # Longitudinal Concordance Correlation App
 

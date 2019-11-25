@@ -2,9 +2,9 @@
 % Please edit documentation in R/lcc.R
 \name{lcc}
 \alias{lcc}
-\title{Longitudinal Concordance Correlation (LCC) estimated by fixed
-  effects aqnd variance components of polynomial mixed-effects
-  regression model}
+\title{Longitudinal Concordance Correlation (LCC) Estimated by Fixed
+  Effects and Variance Components using a Polynomial Mixed-Effects
+  Regression Model}
 \usage{
 lcc(dataset, resp, subject, method, time, interaction, qf,
     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
@@ -160,17 +160,13 @@ lccPlot(fm1)
 
 ## Estimating longitudinal Pearson correlation and longitudinal
 #accuracy
-fm2 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-           method = "Method", time = "Time", qf = 2, qr = 2,
-           components = TRUE)
+fm2 <- update(fm1, components = TRUE)
 summary(fm2)
 lccPlot(fm2)
 
 \dontrun{
 ## A grid of points as the Time variable for prediction
-fm3 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-           method = "Method", time = "Time", qf = 2, qr = 2,
-           components = TRUE, time_lcc = list(from = min(hue$Time),
+fm3 <- update(fm2, time_lcc = list(from = min(hue$Time),
            to = max(hue$Time), n=40))
 summary(fm3)
 lccPlot(fm3)
@@ -178,11 +174,9 @@ lccPlot(fm3)
 
 ## Including an exponential variance function using time as a
 #covariate.
-fm4 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-           method = "Method", time = "Time", qf = 2, qr = 2,
-           components = TRUE, time_lcc = list(from = min(hue$Time),
-           to = max(hue$Time), n=40), var.class=varExp,
-           weights.form="time")
+fm4 <- update(fm2,time_lcc = list(from = min(hue$Time),
+              to = max(hue$Time), n=30), var.class=varExp,
+              weights.form="time")
 summary(fm4,  type="model")
 fitted(fm4)
 fitted(fm4, type = "lpc")
@@ -193,9 +187,7 @@ lccPlot(fm4, type = "la")
 
 \dontrun{
 ## Non-parametric confidence interval with 500 bootstrap samples
-fm5 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-           method = "Method", time = "Time", qf = 2, qr = 2,
-           ci = TRUE, nboot = 500)
+fm5 <- update(fm1, ci = TRUE, nboot = 500)
 summary(fm5)
 lccPlot(fm5)
 }
@@ -227,6 +219,10 @@ lccPlot(fm7)
 detach(simulated_hue_block)
 }
 
+## Testing interaction effect between time and method
+fm8 <- update(fm1, interaction = FALSE)
+anova(fm1, fm8)
+
 }
 \references{
 Lin, L. A Concordance Correlation Coefficient to
@@ -250,7 +246,7 @@ Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
 \author{
 Thiago de Paula Oliveira,
   \email{thiago.paula.oliveira@usp.br}, Rafael de Andrade Moral,
-  John Hinde, Silvio Sandoval Zocchi, Clarice Garcia Borges Demetrio
+  Silvio Sandoval Zocchi, Clarice Garcia Borges Demetrio, John Hinde
 }
 \keyword{ggplot2}
 \keyword{nlme}

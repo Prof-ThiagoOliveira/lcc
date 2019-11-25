@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{vcov.lcc}
 \alias{vcov.lcc}
-\title{Extract variance-covariance matrix}
+\title{Extract Variance-Covariance Matrix of the Fixed Effects}
 \usage{
 \method{vcov}{lcc}(object, ...)
 }

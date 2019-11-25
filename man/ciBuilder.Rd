@@ -2,7 +2,7 @@
 % Please edit documentation in R/ciBuilder.R
 \name{ciBuilder}
 \alias{ciBuilder}
-\title{Internal function to prepare the \code{ciCompute} function.}
+\title{Internal Function to Prepare the \code{ciCompute} Function.}
 \description{
 This is an internally called function used to prepare
   the \code{\link[lcc]{ciCompute}} function.

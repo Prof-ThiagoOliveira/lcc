@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to to prepare the \code{lpcBuilder}
-##'   function
+##' @title Internal Function to Prepare the \code{lpcBuilder}
+##'   Function
 ##'
 ##' @description This is an internally called function used toprepare
 ##'   the \code{\link[lcc]{lpcBuilder}} function.

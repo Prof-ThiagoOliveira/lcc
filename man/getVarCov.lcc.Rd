@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{getVarCov.lcc}
 \alias{getVarCov.lcc}
-\title{Extract variance-covariance matrix}
+\title{Extract Variance Components from a Fitted Model}
 \usage{
 \method{getVarCov}{lcc}(obj, type, ...)
 }

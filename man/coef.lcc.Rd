@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{coef.lcc}
 \alias{coef.lcc}
-\title{Extract model coefficients}
+\title{Extract Model Coefficients}
 \usage{
 \method{coef}{lcc}(object, ...)
 }

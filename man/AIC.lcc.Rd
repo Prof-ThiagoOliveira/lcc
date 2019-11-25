@@ -3,9 +3,9 @@
 \name{AIC.lcc}
 \alias{AIC.lcc}
 \alias{BIC.lcc}
-\title{AIC and BIC information criterion for a \code{lcc} object.}
+\title{Akaike and Bayesian Information Criteria for an \code{lcc} Object.}
 \usage{
-\method{AIC}{lcc}(object, k = 2, ...)
+\method{AIC}{lcc}(object, ..., k = 2)
 
 \method{BIC}{lcc}(object, ...)
 }
@@ -14,12 +14,12 @@
 representing a fitted longitudinal concordance correlation
 function.}
 
+\item{...}{optional arguments passed to the \code{AIC}
+function.}
+
 \item{k}{numeric value, use as penalty coefficient for the number of
 parameters in the fitted model; the default \code{k = 2} is the
 classical AIC.}
-
-\item{...}{optional arguments passed to the \code{AIC}
-function.}
 }
 \description{
 Calculate the Akaike's 'An Information Criterion' or

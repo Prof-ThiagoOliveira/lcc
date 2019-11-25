@@ -59,38 +59,41 @@ was used to solve this problem.
 
 * A new parameter called interaction was included in the lcc() function. This parameter allows to estimate or not the interaction effect among predictors variables in the fixed part of the linear predictor.
 
-# lcc 1.0.3
-
-# Bug fixes and minor improvements
-
-* Added a counter for the bootstrap number (lccBootstrap line 90)
-
-* The got (goodness of fittenes) result was changed for CCC between fitted values (mixed effect model) and original observations rather than fitted LCC and sampled CCC. This make more sense because the model goodness of fit have a high impact in the LCC.
-
-* Fixed issue in ciCompute function to get the correct confidence intervals for the LA statistics. Versions before 1.0.3 the CI for the LA is computed using the logit transformation and versions equal or above 1.0.3 the we are using the arcsin(sqrt(x)) rather than logit.
-
-* Updated the summary.lcc output (cleaner and more informative)
-
-# New functions
-
-* print.lcc: print information about the longitudinal concordance correlation.
-
-* fitted.lcc: fitted values from object of class lcc returned by modeling functions.
-
-* plot.lcc: diagnostic plots for conditional error and random effects from the linear mixed-effects fit are obtained.
-
-* print.summary.lcc: information summarizing the fitted longitudinal concordance correlation is printed.
-
-* residuals.lcc: extract the residulas from the model used to estimate the longitudinal concordance correlation function.
-
-* vcov.lcc: Returns the variance-covariance matrix of a fitted lcc model object.
-
-* getVarCov.lcc: returns the variance-covariance matrix of a fitted lcc model object.
-
-* AIC.lcc and BIC.lcc: calculate the Akaike's 'An Information Criterion' or the BIC or SBC (Schwarz's Bayesian criterion) for an object of class lcc.
-
-* ranef.lcc: the estimated random effects 
-
-* coef.lcc: the fixed effects estimated and corresponding random effects estimates are obtained at subject levels.
-
-* logLik: extract fitted log-likelihood
+  # lcc 1.0.3
+  
+  # Bug fixes and minor improvements
+  
+  * Added a counter for the bootstrap number (lccBootstrap line 90)
+  
+  * The got (goodness of fitness) value was changed. Now we are using the CCC between fitted values from mixed effect model and original observations. This statistic makes more sense as the goodness of fit of the model have a high impact in the LCC estimates.
+  
+  * Fixed issue in ciCompute function to get the correct confidence intervals for the LA statistics. Versions before 1.0.3 the CI for the LA is computed using the logit transformation and versions equal or above 1.0.3 we are using the arcsin(sqrt(x)) rather than logit function.
+  
+  * Updated the summary.lcc output (cleaner and more informative)
+  
+  # New functions
+  
+  * print.lcc: print information about the longitudinal concordance correlation.
+  
+  * fitted.lcc: fitted values from object of class lcc returned by modeling functions.
+  
+  * plot.lcc: diagnostic plots for conditional error and random effects from the linear mixed-effects fit are obtained.
+  
+  * print.summary.lcc: information summarizing the fitted longitudinal concordance correlation is printed.
+  
+  * residuals.lcc: extract the residuals from the model used to estimate the longitudinal concordance correlation function.
+  
+  * vcov.lcc: returns the variance-covariance matrix of a fitted lcc model object.
+  
+  * getVarCov.lcc: returns the variance-covariance matrix of a fitted lcc model object.
+  
+  * AIC.lcc and BIC.lcc: calculate the Akaike's 'An Information Criterion' or the BIC or SBC (Schwarz's Bayesian criterion) for an object of class lcc.
+  
+  * ranef.lcc: the estimated random effects 
+  
+  * coef.lcc: the fixed effects estimated and corresponding random effects estimates are obtained at subject levels.
+  
+  * logLik: extract fitted log-likelihood
+  * anova: Compare likelihoods of fitted models from an lcc object
+ 
+      

@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotBuilder_lcc.R
 \name{plotBuilder_lcc}
 \alias{plotBuilder_lcc}
-\title{Internal function to produces a longitudinal concordance
-  correlation plot.}
+\title{Internal Function to Produces a Longitudinal Concordance
+  Correlation Plot.}
 \description{
 This is an internally called function used to produces
   a longitudinal concordance correlation plot from fitted ans

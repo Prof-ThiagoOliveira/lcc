@@ -13,7 +13,7 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal function to extract variance components estimate.
+##' @title Internal Function to Extract Variance Components Estimates.
 ##'
 ##' @usage NULL
 ##'

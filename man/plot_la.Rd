@@ -2,8 +2,8 @@
 % Please edit documentation in R/plot_la.R
 \name{plot_la}
 \alias{plot_la}
-\title{Internal function to prepare the \code{plotBuilder_la}
-  function.}
+\title{Internal Function to Prepare the \code{plotBuilder_la}
+  Function.}
 \description{
 This is an internally called functions used to prepare
   the \code{\link[lcc]{plotBuilder_la}} function.

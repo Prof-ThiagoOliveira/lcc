@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotControl.R
 \name{plotControl}
 \alias{plotControl}
-\title{Specifying graphical control values for \code{lcc} class}
+\title{Specifying Graphical Control Values for \code{lcc} Class}
 \usage{
 plotControl(plot = TRUE, shape = 1, colour = "black", size = 0.5,
   xlab = "Time", ylab = "LCC", scale_y_continuous = c(0, 1),

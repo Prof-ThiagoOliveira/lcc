@@ -2,8 +2,8 @@
 % Please edit documentation in R/lccSummary.R
 \name{lccSummary}
 \alias{lccSummary}
-\title{Internal function to summarize fitted and sampled values for
-  \code{lcc} objects}
+\title{Internal Function to Summarize Fitted and Sampled Values for
+  \code{lcc} Objects}
 \description{
 This is an internally called function used to summarize
   fitted and sampled values, and the concordance correlation

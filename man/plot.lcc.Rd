@@ -2,10 +2,10 @@
 % Please edit documentation in R/methods.R
 \name{plot.lcc}
 \alias{plot.lcc}
-\title{Plot an \code{lcc} object.}
+\title{Diagnostic Plots of an \code{lcc} Object.}
 \usage{
 \method{plot}{lcc}(x, which = c(1L:6L),
-     caption = list("Relsiduals vs Fitted",
+     caption = list("Residuals vs Fitted",
                     "Residuals vs Time",
                     "Residuals by Subject",
                     "Observed values vs Fitted values",
@@ -13,8 +13,7 @@
                     "Normal Q-Q Plot (Random effects)"),
      sub.caption =  NULL,  main = NULL,
      panel = if(add.smooth) panel.smooth else points,
-     add.smooth = getOption("add.smooth"),
-     ask = prod(par("mfcol")) < length(which) && dev.interactive(),
+     add.smooth = TRUE, ask = TRUE,
      id.n = 3, labels.id = names(residuals(x)),
      label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
      cex.oma.man = 1.25, ...)
@@ -40,7 +39,7 @@ supressed using '""' or \code{NA}.}
 \code{panel.smooth} is used rather than \code{points}.}
 
 \item{add.smooth}{logical indicating if smoother should be added to
-most plots; see also \code{panel} above. Default to \code{TRUE}.}
+most plots; see also \code{panel} above. Defaults to \code{TRUE}.}
 
 \item{ask}{logical; if \code{TRUE}, the default, the user is _ask_ed
 before each plot, see \code{\link[graphics]{par}}.}

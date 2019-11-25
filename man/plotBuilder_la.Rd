@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotBuilder_la.R
 \name{plotBuilder_la}
 \alias{plotBuilder_la}
-\title{Internal function to produces a longitudinal accuracy plot.}
+\title{Internal Function to Produces a Longitudinal Accuracy Plot.}
 \description{
 This is an internally called function used to produces
   a longitudinal accuracy plot from fitted ans sampled values with

@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the longitudinal concordance
-##'   correlation.
+##' @title Internal Function to Estimate the Longitudinal Concordance
+##'   Correlation.
 ##'
 ##' @description This is an internally called function used to estimate
 ##'   the longitudinal concordance correlation (LCC).

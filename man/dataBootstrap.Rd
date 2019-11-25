@@ -2,8 +2,8 @@
 % Please edit documentation in R/lccBootstrap.R
 \name{dataBootstrap}
 \alias{dataBootstrap}
-\title{Internal functions to generate bootstrap samples based on
-  dataset.}
+\title{Internal Functions to Generate Bootstrap Samples Based on
+  Dataset.}
 \description{
 This is an internally called functions used to generate
   bootstrap samples.

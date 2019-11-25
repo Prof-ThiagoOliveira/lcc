@@ -2,8 +2,8 @@
 % Please edit documentation in R/fittedBuilder.R
 \name{fittedBuilder}
 \alias{fittedBuilder}
-\title{Internal function to build fitted values for
-  \code{lcc} objects}
+\title{Internal Function to Build Fitted Values for
+  \code{lcc} Objects}
 \description{
 This is an internally called function used to build
   fitted values.

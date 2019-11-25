@@ -2,7 +2,7 @@
 % Please edit documentation in R/time_lcc.R
 \name{time_lcc}
 \alias{time_lcc}
-\title{Regular sequence for the time variable}
+\title{Regular Sequence for the Time Variable}
 \usage{
 time_lcc(time, from, to, n)
 }

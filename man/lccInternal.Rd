@@ -2,7 +2,7 @@
 % Please edit documentation in R/lcc_internal.R
 \name{lccInternal}
 \alias{lccInternal}
-\title{Internal function to prepare \code{lcc} objects}
+\title{Internal Function to Prepare \code{lcc} Objects}
 \description{
 This is an internally called function used to prepare
   \code{lcc} objects for calculate the longitudinal concordance

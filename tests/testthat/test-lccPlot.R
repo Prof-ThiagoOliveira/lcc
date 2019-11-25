@@ -149,7 +149,7 @@ test_that("Confidence intervals plot",{
   expect_that(fme5<-lcc(dataset = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci = TRUE,
-                        nboot = 20),is_a("lcc"))
+                        nboot = 100),is_a("lcc"))
   tmp5<-tempfile()
   expect_known_output(lccPlot(fme5), tmp5)
   ## Components TRUE
@@ -157,21 +157,21 @@ test_that("Confidence intervals plot",{
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1,
                         components = TRUE, ci = TRUE,
-                        nboot = 20),is_a("lcc"))
+                        nboot = 100),is_a("lcc"))
   tmp6<-tempfile()
   expect_known_output(lccPlot(fme6), tmp6)
   # More than two methods
   expect_that(fme7<-lcc(dataset = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 20),is_a("lcc"))
+                        nboot = 100),is_a("lcc"))
   tmp7<-tempfile()
   expect_known_output(lccPlot(fme7), tmp7)
   # Components TRUE
   expect_that(fme8<-lcc(dataset = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1,
-                        components = TRUE, ci=TRUE, nboot = 20),
+                        components = TRUE, ci=TRUE, nboot = 100),
               is_a("lcc"))
   tmp8<-tempfile()
   expect_known_output(lccPlot(fme8), tmp8)
@@ -217,3 +217,4 @@ test_that("Scales",{
                               control=list(scale_y_continuous = c)),
                       tmp3)
 })
+

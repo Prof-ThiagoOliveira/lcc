@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to produces a longitudinal Perason
-##'   correlation plot.
+##' @title Internal Function to Produces a Longitudinal Perason
+##'   Correlation Plot.
 ##'
 ##' @description This is an internally called function used to produces
 ##'   a longitudinal Perason correlation plot from fitted ans sampled

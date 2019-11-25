@@ -2,8 +2,8 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: fittedBuilder.R                                                         #
-# Contains: fittedBuilder function                                              #
+# File: fittedBuilder.R                                               #
+# Contains: fittedBuilder function                                    #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to build fitted values for
-##'   \code{lcc} objects
+##' @title Internal Function to Build Fitted Values for
+##'   \code{lcc} Objects
 ##'
 ##' @description This is an internally called function used to build
 ##'   fitted values.
@@ -38,7 +38,7 @@ fittedBuilder <- function(object, type){
   if(class(object$Summary.lcc$comp) == "character"){
     if(class(object$Summary.lcc$fitted) == "data.frame"){
       ret <- data.frame(Methods = object$Summary.lcc$comp,
-                        Time = object$Summary.lcc$fitted[,"Time"], 
+                        Time = object$Summary.lcc$fitted[,"Time"],
                         LCC = object$Summary.lcc$fitted[, .name])
       attr(ret, "row.names")
     }else{
@@ -53,11 +53,11 @@ fittedBuilder <- function(object, type){
       rn <- list()
       met <- list()
       for(i in 1:length(object$Summary.lcc$comp)){
-        fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[i]][, .name])  
+        fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[i]][, .name])
         rn[[i]] <- data.frame(Time = object$Summary.lcc$fitted[[i]][,"Time"])
         met[[i]] <- data.frame(Methods = rep(object$Summary.lcc$comp[[i]], nrow(fit[[i]])))
       }
-      ret <- data.frame(do.call(rbind.data.frame, met), do.call(rbind.data.frame, rn), 
+      ret <- data.frame(do.call(rbind.data.frame, met), do.call(rbind.data.frame, rn),
                         do.call(rbind.data.frame, fit))
       attr(ret, "row.names")
     }else{
@@ -66,18 +66,18 @@ fittedBuilder <- function(object, type){
       met <- list()
       if(is.null(object$Summary.lcc$fitted$LCC)){
         for(i in 1:length(object$Summary.lcc$comp)){
-          fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[i]][, .name])  
+          fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[i]][, .name])
           rn[[i]] <- data.frame(Time = object$Summary.lcc$fitted[[i]][,"Time"])
           met[[i]] <- data.frame(Methods = rep(object$Summary.lcc$comp[[i]], nrow(fit[[i]])))
-        }  
+        }
       }else{
         for(i in 1:length(object$Summary.lcc$comp)){
-          fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[.form]][[i]][, .name])  
+          fit[[i]] <- data.frame(LCC = object$Summary.lcc$fitted[[.form]][[i]][, .name])
           rn[[i]] <- data.frame(Time = object$Summary.lcc$fitted[[.form]][[i]][,"Time"])
           met[[i]] <- data.frame(Methods = rep(object$Summary.lcc$comp[[i]], nrow(fit[[i]])))
-        }  
+        }
       }
-      ret <- data.frame(do.call(rbind.data.frame, met), do.call(rbind.data.frame, rn), 
+      ret <- data.frame(do.call(rbind.data.frame, met), do.call(rbind.data.frame, rn),
                         do.call(rbind.data.frame, fit))
       attr(ret, "row.names")
     }

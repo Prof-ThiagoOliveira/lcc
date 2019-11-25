@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.lcc}
 \alias{print.lcc}
-\title{Print an lcc object}
+\title{Print an \code{lcc} Object}
 \usage{
 \method{print}{lcc}(x, digits, ...)
 }
@@ -15,13 +15,13 @@ concordance correlation function.}
 number of significant digits to be printed in values. The
 default, \code{NULL}.}
 
-\item{...}{not used.}
+\item{...}{further arguments passed to \code{{\link{print}}}.}
 }
 \value{
 an object inheriting from class \code{print.lcc}.
 }
 \description{
-Print information about the longitudinal concordance
+Prints information about the longitudinal concordance
   correlation represented by an object of class
   \code{\link[lcc]{lcc}}. The returned object has a
   \code{\link[base]{print}} method.

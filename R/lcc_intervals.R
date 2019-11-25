@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal functions to compute the non-parametric confidence
-##'   intervals for LCC.
+##' @title Internal Functions to Compute the Non-Parametric Confidence
+##'   Intervals for LCC.
 ##'
 ##' @description This is an internally called functions used to compute
 ##'   the non-parametric confidence intervals for LCC.

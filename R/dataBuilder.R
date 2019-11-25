@@ -13,8 +13,8 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal function to prepare the dataset for \code{lcc}
-##' objects
+##' @title Internal Function to Prepare the Dataset for \code{lcc}
+##' Objects
 ##'
 ##' @description This is an internally called function used to prepare
 ##'   the dataset for \code{lcc} objects

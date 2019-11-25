@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotBuilder_lpc.R
 \name{plotBuilder_lpc}
 \alias{plotBuilder_lpc}
-\title{Internal function to produces a longitudinal Perason
-  correlation plot.}
+\title{Internal Function to Produces a Longitudinal Perason
+  Correlation Plot.}
 \description{
 This is an internally called function used to produces
   a longitudinal Perason correlation plot from fitted ans sampled

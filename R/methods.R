@@ -31,10 +31,10 @@ is.lcc <- function(x) inherits(x, "lcc")
 #=======================================================================
 ##' @rdname print.lcc
 ##' @method print lcc
-##' @title Print an lcc object
+##' @title Print an \code{lcc} Object
 ##' @usage \method{print}{lcc}(x, digits, ...)
 ##' @aliases print.lcc
-##' @description Print information about the longitudinal concordance
+##' @description Prints information about the longitudinal concordance
 ##'   correlation represented by an object of class
 ##'   \code{\link[lcc]{lcc}}. The returned object has a
 ##'   \code{\link[base]{print}} method.
@@ -49,7 +49,7 @@ is.lcc <- function(x) inherits(x, "lcc")
 ##'   number of significant digits to be printed in values. The
 ##'   default, \code{NULL}.
 ##'
-##' @param ... not used.
+##' @param ... further arguments passed to \code{{\link{print}}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
@@ -98,7 +98,7 @@ print.lcc <- function(x, digits = NULL, ...){
 #=======================================================================
 ##' @rdname fitted.lcc
 ##' @method fitted lcc
-##' @title  Extract lcc Fitted Values
+##' @title  Extract \code{lcc} Fitted Values
 ##' @usage
 ##' \method{fitted}{lcc}(object, type, digits, ...)
 ##' @aliases fitted.lcc
@@ -123,8 +123,7 @@ print.lcc <- function(x, digits = NULL, ...){
 ##'   number of significant digits to be printed in values. The
 ##'   default, \code{NULL}.
 ##'
-##' @param ... some methods for this generic require additional arguments.
-##'   None are used in this method.
+##' @param ... not used.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
@@ -172,7 +171,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 # Print method for summary.lcc
 #-----------------------------------------------------------------------
 ##' @rdname print.summary.lcc
-##' @title  Print the summary of an lcc object
+##' @title  Print the Summary of an \code{lcc} Object
 ##' @usage
 ##' \method{print}{summary.lcc}(x, verbose, digits, ...)
 ##' @method print summary.lcc
@@ -197,7 +196,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##'   minimum number of significant digits to be printed in values. The
 ##'   default, \code{NULL}.
 ##'
-##' @param ... not used.
+##' @param ... further arguments passed to \code{\link{print}}.
 ##'
 ##' @importFrom stats AIC BIC
 ##'
@@ -283,7 +282,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 #-----------------------------------------------------------------------
 
 ##' @rdname summary.lcc
-##' @title  Summarize an lcc object
+##' @title  Summarize an \code{lcc} Object
 ##' @usage
 ##' \method{summary}{lcc}(object, type, adjustSigma, verbose, ...)
 ##'
@@ -317,7 +316,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##'   values for LCC, LPC, and LA as well as the concordance correlation
 ##'   coefficient between fitted values from the model and observed
 ##'   values as goodness of fit (gof) measurement. Defaults to
-##'   \code{type="lcc"}.
+##'   \code{type="model"}.
 ##'
 ##' @param adjustSigma an optional logical value used when \code{type =
 ##'   model}. If TRUE and the estimation method used to obtain object
@@ -330,7 +329,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##' of output in the \code{print.summary.lme} method when
 ##' \code{type = model} is used. Defaults to FALSE.
 ##'
-##' @param ...  additional arguments affecting the summary produced.
+##' @param ...  not used.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
@@ -356,11 +355,10 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 {
   if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
-  if(missing(type)) type="lcc"
+  if(missing(type)) type <- "model"
   if(type=="model" | type=="lcc"){
     if(type == "lcc"){
       # Object lcc
-      object$call <- object[1]$model$call
       object$fitted <- object$Summary.lcc$fitted
       object$sampled <- object$Summary.lcc$sampled
       object$gof <- object$Summary.lcc$gof
@@ -396,11 +394,11 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 #=======================================================================
 ##' @rdname plot.lcc
 ##' @method plot lcc
-##' @title Plot an \code{lcc} object.
+##' @title Diagnostic Plots of an \code{lcc} Object.
 ##'
 ##' @usage
 ##' \method{plot}{lcc}(x, which = c(1L:6L),
-##'      caption = list("Relsiduals vs Fitted",
+##'      caption = list("Residuals vs Fitted",
 ##'                     "Residuals vs Time",
 ##'                     "Residuals by Subject",
 ##'                     "Observed values vs Fitted values",
@@ -408,8 +406,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##'                     "Normal Q-Q Plot (Random effects)"),
 ##'      sub.caption =  NULL,  main = NULL,
 ##'      panel = if(add.smooth) panel.smooth else points,
-##'      add.smooth = getOption("add.smooth"),
-##'      ask = prod(par("mfcol")) < length(which) && dev.interactive(),
+##'      add.smooth = TRUE, ask = TRUE,
 ##'      id.n = 3, labels.id = names(residuals(x)),
 ##'      label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
 ##'      cex.oma.man = 1.25, ...)
@@ -442,7 +439,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##' @param panel panel function. If \code{add.smooth = TRUE},
 ##'   \code{panel.smooth} is used rather than \code{points}.
 ##' @param add.smooth logical indicating if smoother should be added to
-##'   most plots; see also \code{panel} above. Default to \code{TRUE}.
+##'   most plots; see also \code{panel} above. Defaults to \code{TRUE}.
 ##' @param ask logical; if \code{TRUE}, the default, the user is _ask_ed
 ##'   before each plot, see \code{\link[graphics]{par}}.
 ##' @param id.n number of points to be labelled is the first three
@@ -493,7 +490,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##' @export
 
 plot.lcc <- function(x, which = c(1L:6L),
-           caption = list("Relsiduals vs Fitted",
+           caption = list("Residuals vs Fitted",
                           "Residuals vs Time",
                           "Residuals by Subject",
                           "Observed values vs Fitted values",
@@ -501,13 +498,12 @@ plot.lcc <- function(x, which = c(1L:6L),
                           "Normal Q-Q Plot (Random effects)"),
            sub.caption =  NULL,  main = NULL,
            panel = if(add.smooth) panel.smooth else points,
-           add.smooth = getOption("add.smooth"),
-           ask = prod(par("mfcol")) < length(which) && dev.interactive(),
+           add.smooth = TRUE, ask = TRUE,
            id.n = 3, labels.id = names(residuals(x)),
            label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
            cex.oma.man = 1.25, ...)
   {
-    if (!inherits(x, "lcc"))
+    if (!is.lcc(x))
       stop("use only with \"lcc\" objects", call. = FALSE)
     if(!is.numeric(which) || any(which < 1) || any(which > 6))
       stop("'which' must be in 1:6")
@@ -657,7 +653,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 # coef function
 # =======================================================================
 ##' @rdname coef.lcc
-##' @title Extract model coefficients
+##' @title Extract Model Coefficients
 ##' @usage \method{coef}{lcc}(object, ...)
 ##' @method coef lcc
 ##' @aliases coef.lcc
@@ -693,7 +689,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @export
 
 coef.lcc <- function(object, ...) {
-   if (!inherits(object, "lcc"))
+   if (!is.lcc(object))
       stop("use only with \"lcc\" objects", call. = FALSE)
   x <- coef(object$model)
   colnames(x) <- gsub(pattern = "fixed", x = colnames(x),
@@ -717,7 +713,7 @@ coef.lcc <- function(object, ...) {
 # vcov function
 #=======================================================================
 ##' @rdname vcov.lcc
-##' @title Extract variance-covariance matrix
+##' @title Extract Variance-Covariance Matrix of the Fixed Effects
 ##' @usage \method{vcov}{lcc}(object, ...)
 ##' @method vcov lcc
 ##' @aliases vcov.lcc
@@ -751,7 +747,7 @@ coef.lcc <- function(object, ...) {
 ##' @export
 
 vcov.lcc <- function(object, ...) {
-   if (!inherits(object, "lcc"))
+   if (!is.lcc(object))
       stop("use only with \"lcc\" objects", call. = FALSE)
   x <- vcov(object$model, ...)
   rownames(x) <- colnames(x) <-
@@ -770,7 +766,7 @@ vcov.lcc <- function(object, ...) {
 # getVarCov function
 #=======================================================================
 ##' @rdname getVarCov.lcc
-##' @title Extract variance-covariance matrix
+##' @title Extract Variance Components from a Fitted Model
 ##' @usage \method{getVarCov}{lcc}(obj, type, ...)
 ##' @method getVarCov lcc
 ##' @aliases getVarCov.lcc
@@ -809,7 +805,7 @@ vcov.lcc <- function(object, ...) {
 ##' @export
 
 getVarCov.lcc <- function(obj, type = "random.effects", ...) {
-   if (!inherits(obj, "lcc"))
+   if (!is.lcc(obj))
       stop("use only with \"lcc\" objects", call. = FALSE)
   x <- getVarCov(obj$model, type = type, ...)
   rownames(x) <- colnames(x) <-
@@ -871,7 +867,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##' @export
 
 residuals.lcc <- function(object, type = "response", ...) {
-   if (!inherits(object, "lcc"))
+   if (!is.lcc(object))
       stop("use only with \"lcc\" objects", call. = FALSE)
   residuals(object$model, type = type, ...)
 }
@@ -880,7 +876,7 @@ residuals.lcc <- function(object, type = "response", ...) {
 # AIC and BIC
 #=======================================================================
 ##' @rdname AIC.lcc
-##' @title AIC and BIC information criterion for a \code{lcc} object.
+##' @title Akaike and Bayesian Information Criteria for an \code{lcc} Object.
 ##' @method AIC lcc
 ##' @aliases AIC.lcc
 ##' @description Calculate the Akaike's 'An Information Criterion' or
@@ -908,16 +904,41 @@ residuals.lcc <- function(object, type = "response", ...) {
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
 ##'
+##' @importFrom stats na.omit nobs
+##'
 ##' @export
-AIC.lcc <- function(object, k = 2, ...) {
-   if (!inherits(object, "lcc"))
-      stop("use only with \"lcc\" objects", call. = FALSE)
-  AIC(object$model, k = k, ...)
+AIC.lcc <- function(object, ..., k = 2) {
+  if (!is.lcc(object))
+    stop("use only with \"lcc\" objects", call. = FALSE)
+  ll <- logLik
+  if (!missing(...)) {
+    lls <- lapply(list(object$model, ...), ll)
+    vals <- sapply(lls, function(el) {
+      no <- attr(el, "nobs")
+      c(as.numeric(el), attr(el, "df"), if (is.null(no)) NA_integer_ else no)
+    })
+    val <- data.frame(df = vals[2L, ], ll = vals[1L, ])
+    nos <- na.omit(vals[3L, ])
+    if (length(nos) && any(nos != nos[1L]))
+      warning("models are not all fitted to the same number of observations")
+    val <- data.frame(df = val$df, AIC = -2 * val$ll + k *
+                        val$df)
+    Call <- match.call()
+    Call$k <- NULL
+    row.names(val) <- as.character(Call[-1L])
+    val
+  }
+  else {
+    AIC(object$model)
+  }
 }
 
 ##' @rdname AIC.lcc
 ##' @method BIC lcc
 ##' @aliases BIC.lcc
+##'
+##' @importFrom stats na.omit nobs
+##'
 ##' @examples
 ##'
 ##' data(hue)
@@ -926,17 +947,42 @@ AIC.lcc <- function(object, k = 2, ...) {
 ##' AIC(fm1)
 ##' BIC(fm1)
 ##' @export
-BIC.lcc <- function(object, ...) {
-  if (!inherits(object, "lcc"))
+BIC.lcc <- function (object, ...)
+{
+  if (!is.lcc(object))
     stop("use only with \"lcc\" objects", call. = FALSE)
-  BIC(object$model, ...)
+  ll <- logLik
+  Nobs <- nobs
+  if (!missing(...)) {
+    lls <- lapply(list(object$model, ...), ll)
+    vals <- sapply(lls, function(el) {
+      no <- attr(el, "nobs")
+      c(as.numeric(el), attr(el, "df"), if (is.null(no)) NA_integer_ else no)
+    })
+    val <- data.frame(df = vals[2L, ], ll = vals[1L, ],
+      nobs = vals[3L, ])
+    nos <- na.omit(val$nobs)
+    if (length(nos) && any(nos != nos[1L]))
+      warning("models are not all fitted to the same number of observations")
+    unknown <- is.na(val$nobs)
+    if (any(unknown))
+      val$nobs[unknown] <- sapply(list(object$model, ...)[unknown],
+        function(x) tryCatch(Nobs(x), error = function(e) NA_real_))
+    val <- data.frame(df = val$df, BIC = -2 * val$ll + log(val$nobs) *
+      val$df)
+    row.names(val) <- as.character(match.call()[-1L])
+    val
+  }
+  else {
+   BIC(object$model)
+  }
 }
 
 #=======================================================================
 # ranef
 # =======================================================================
 ##' @rdname ranef.lcc
-##' @title Extract model random effects
+##' @title Extract Model Random Effects
 ##' @usage \method{ranef}{lcc}(object, ...)
 ##' @method ranef lcc
 ##' @aliases ranef.lcc
@@ -970,7 +1016,7 @@ BIC.lcc <- function(object, ...) {
 ##' @export
 
 ranef.lcc <- function(object, ...) {
-  if (!inherits(object, "lcc"))
+  if (!is.lcc(object))
      stop("use only with \"lcc\" objects" , call. = FALSE)
   x <- ranef(object$model)
   colnames(x) <- gsub(pattern = "fmla.", x = colnames(x),
@@ -988,8 +1034,8 @@ ranef.lcc <- function(object, ...) {
 # logLik
 #=======================================================================
 ##' @rdname logLik.lcc
-##' @title Extract fitted log-likelihood
-##' @usage \method{logLik}{lcc}(object, REML, ...)
+##' @title Extract Log-Likelihood of an \code{lcc} Object
+##' @usage \method{logLik}{lcc}(object, ..., REML)
 ##' @method logLik lcc
 ##' @aliases logLik.lcc
 ##'
@@ -1004,7 +1050,7 @@ ranef.lcc <- function(object, ...) {
 ##' @param REML an optional logical value.  If \code{TRUE} the
 ##'   restricted log-likelihood is returned, else, if \code{FALSE}, the
 ##'   log-likelihood is returned.
-##' @param ... not used.
+##' @param ... further arguments passed to \code{\link{logLik}}.
 ##'
 ##' @details See methods for \code{\link{nlme}} objects to get more
 ##'   details.
@@ -1024,8 +1070,285 @@ ranef.lcc <- function(object, ...) {
 ##' logLik(fm1)
 ##' @export
 
-logLik.lcc <- function(object, REML, ...) {
-   if (!inherits(object, "lcc"))
+logLik.lcc <- function(object, ..., REML) {
+   if (!is.lcc(object))
      stop("use only with \"lcc\" objects" , call. = FALSE)
    logLik(object$model,  REML = REML, ...)
+}
+
+#=======================================================================
+# Predict
+#=======================================================================
+##' @rdname predict.lcc
+##' @title Predictions from an \code{lcc} Object
+##' @usage \method{predict}{lcc}(object, ...)
+##' @method predict lcc
+##' @aliases predict.lcc
+##'
+##' @description The predict method for a class \code{lcc}.
+##'
+##' @param object an object inheriting from class \code{lcc},
+##'   representing a fitted longitudinal concordance correlation
+##'   function.
+##'
+##' @param ... further arguments passed to \code{\link{predict.lme}}.
+##'
+##' @details See methods for \code{\link{nlme}} objects to get more
+##'   details.
+##'
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@usp.br}
+##'
+##' @importFrom stats logLik
+##'
+##' @seealso \code{\link[lcc]{lcc}}, \code{\link{fitted.lcc}}
+##'
+##' @examples
+##'
+##' data(hue)
+##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' predict(fm1)
+##'
+##' @export
+
+predict.lcc <- function(object, ...) {
+   if (!is.lcc(object))
+     stop("use only with \"lcc\" objects" , call. = FALSE)
+   predict(object$model, ...)
+}
+
+#=======================================================================
+# ANOVA
+# =======================================================================
+##' @rdname anova.lcc
+##' @title Compare Likelihoods of Fitted Models from an \code{lcc}
+##'   Object
+##' @usage \method{anova}{lcc}(object, ..., test, type, adjustSigma,
+##'   verbose)
+##' @method anova lcc
+##' @aliases anova.lcc
+##'
+##' @description If just one \code{lcc} model object is declared, a data
+##'   frame with the numerator degrees of freedom, denominator degrees
+##'   of freedom, F-values, and P-values for the fixed terms in the
+##'   model. Otherwise, when multiple \code{lcc} fitted objects are
+##'   being compared, a data frame with the degrees of freedom, the
+##'   (restricted) log-likelihood, the Akaike Information Criterion
+##'   (AIC), and the Bayesian Information Criterion (BIC) of each object
+##'   is returned.
+##'
+##' @param object an object inheriting from class \code{lcc} or \code{lme},
+##'   representing a fitted longitudinal concordance correlation
+##'   function.
+##'
+##' @param ... other optional fitted model objects inheriting from
+##'   classes "lcc", or "lme".
+##
+##' @param test an optional logical value controlling whether likelihood
+##'   ratio tests should be used to compare the fitted models
+##'   represented by object and the objects in \code{...}. Defaults to
+##'   TRUE.
+##'
+##' @param type an optional character string specifying the type of sum
+##'   of squares to be used in F-tests for the terms in the model. If
+##'   \code{sequential}, the sequential sum of squares obtained by
+##'   including the terms in the order they appear in the model is used;
+##'   else, if \code{marginal}, the marginal sum of squares obtained by
+##'   deleting a term from the model at a time is used. This argument is
+##'   only used when a single fitted object is passed to the
+##'   function. Partial matching of arguments is used, so only the first
+##'   character needs to be provided. Defaults to \code{sequential}.
+##'
+##' @param adjustSigma an optional logical value. If \code{TRUE} and the
+##'   estimation method used to obtain object was maximum likelihood,
+##'   the residual standard error is multiplied by sqrt(nobs/(nobs -
+##'   npar)), converting it to a REML-like estimate. This argument is
+##'   only used when a single fitted object is passed to the
+##'   function. Default is \code{TRUE}.
+##'
+##' @param verbose an optional logical value. If \code{TRUE}, the
+##'   calling sequences for each fitted model object are printed with
+##'   the rest of the output, being omitted if \code{verbose =
+##'   FALSE}. Defaults to \code{FALSE}.
+##'
+##' @details This function is an adaptation from the
+##'   \code{\link{anova.lme}}. For more details see methods for
+##'   \code{\link{nlme}}.
+##'
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@usp.br}
+##'
+##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
+##'
+##' @examples
+##' data(hue)
+##' # Testing random effects
+##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'          method = "Method", time = "Time", qf = 2, qr = 1)
+##' fm2 <- update(fm1,  qr = 2)
+##' anova(fm1, fm2)
+##'
+##' @examples
+##' # Testing fixed effects
+##' fm3 <- update(fm2,  REML = FALSE)
+##' fm4 <- update(fm2,  REML = FALSE,  qf = 3)
+##' anova(fm3, fm4)
+##'
+##' @importFrom stats formula pchisq pf terms
+##' @importFrom utils head tail
+##'
+##' @examples
+##' # Comparing the 3 lcc models
+##' fm5 <- update(fm2,  var.class = varExp, weights.form = "time")
+##' anova(fm1, fm2, fm5)
+##'
+##' @export
+
+anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "marginal"),
+                       adjustSigma = TRUE, verbose = FALSE)
+{
+  fixSig <- attr(object$model$modelStruct, "fixedSigma")
+  fixSig <- !is.null(fixSig) && fixSig
+  dots <- list(...)
+  if ((rt <- length(dots) + 1L) == 1L) {
+    if (!inherits(object$model, "lme")) {
+      stop("object must inherit from class \"lme\" ")
+    }
+    vFix <- attr(object$model$fixDF, "varFixFact")
+    if (adjustSigma && object$model$method == "ML")
+      vFix <- sqrt(object$model$dims$N/(object$model$dims$N - ncol(vFix))) *
+        vFix
+    c0 <- solve(t(vFix), fixef(object$model))
+    assign <- attr(object$model$fixDF, "assign")
+    nTerms <- length(assign)
+    type <- match.arg(type)
+    Fval <- Pval <- double(nTerms)
+    nDF <- integer(nTerms)
+    dDF <- object$model$fixDF$terms
+    for (i in 1:nTerms) {
+      nDF[i] <- length(assign[[i]])
+      if (type == "sequential") {
+        c0i <- c0[assign[[i]]]
+      }
+      else {
+        c0i <- c(qr.qty(qr(vFix[, assign[[i]], drop = FALSE]),
+                        c0))[1:nDF[i]]
+      }
+      Fval[i] <- sum(c0i^2)/nDF[i]
+      Pval[i] <- 1 - pf(Fval[i], nDF[i], dDF[i])
+    }
+    aod <- data.frame(numDF = nDF, denDF = dDF, `F-value` = Fval,
+                      `p-value` = Pval, check.names = FALSE)
+    rownames(aod) <- names(assign)
+    attr(aod, "rt") <- rt
+  }
+  else {
+    ancall <- sys.call()
+    ancall$verbose <- ancall$test <- ancall$type <- NULL
+    object <- list(object$model, ...)
+    termsClass <- vapply(object, data.class, "")
+    valid.cl <- c("lme", "lcc")
+    if (!all(match(termsClass, valid.cl, 0))) {
+      valid.cl <- paste0("\"", valid.cl, "\"")
+      stop(gettextf("objects must inherit from classes %s, or %s",
+        paste(head(valid.cl, -1), collapse = ", "),
+        tail(valid.cl, 1)), domain = NA)
+    }
+    for (i in 1:length(object)) {
+      if (is.lcc(object[[i]])) {
+        object[[i]] <- object[[i]]$model
+      }else {
+        object[[i]] <- object[[i]]
+      }
+    }
+    getResponseFormula <-
+      function(object)
+      {
+        ## Return the response formula as a one sided formula
+        form <- formula(object)
+        if (!(inherits(form, "formula") && (length(form) == 3))) {
+          stop("'form' must be a two-sided formula")
+        }
+        eval(parse(text = paste("~", deparse(form[[2]]))))
+      }
+    resp <- vapply(object, function(el) deparse(getResponseFormula(el)[[2L]]),
+                   "")
+    subs <- as.logical(match(resp, resp[1L], FALSE))
+    if (!all(subs))
+      warning("some fitted objects deleted because response differs from the first model")
+    if (sum(subs) == 1)
+      stop("first model has a different response from the rest")
+    object <- object[subs]
+    rt <- length(object)
+    termsModel <- lapply(object, function(el) formula(el)[-2])
+    estMeth <- vapply(object, function(el) if (is.null(val <- el[["method"]]))
+      NA_character_
+    else val, "")
+    if (length(uEst <- unique(estMeth[!is.na(estMeth)])) >
+      1) {
+      stop("all fitted objects must have the same estimation method")
+    }
+    estMeth[is.na(estMeth)] <- uEst
+    REML <- uEst == "REML"
+    if (REML) {
+      aux <- vapply(termsModel, function(el) {
+        tt <- terms(el)
+        val <- paste(sort(attr(tt, "term.labels")),
+          collapse = "&")
+        if (attr(tt, "intercept") == 1)
+          paste(val, "(Intercept)", sep = "&")
+        else val
+      }, ".")
+      if (length(unique(aux)) > 1) {
+        warning("fitted objects with different fixed effects. REML comparisons are not meaningful.")
+      }
+    }
+    termsCall <- lapply(object, function(el) {
+      if (is.null(val <- el$call) && is.null(val <- attr(el,
+        "call")))
+        stop("objects must have a \"call\" component or attribute")
+      val
+    })
+    termsCall <- vapply(termsCall, function(el) paste(deparse(el),
+      collapse = ""), "")
+    aux <- lapply(object, logLik, REML)
+    if (length(unique(vapply(aux, attr, 1, "nall"))) > 1) {
+      stop("all fitted objects must use the same number of observations")
+    }
+    dfModel <- vapply(aux, attr, 1, "df")
+    logLik <- vapply(aux, c, 1.1)
+    aod <- data.frame(call = termsCall, Model = 1:rt, df = dfModel,
+      AIC = vapply(aux, AIC, 1), BIC = vapply(aux, BIC,
+        1), logLik = logLik, check.names = FALSE)
+    if (test) {
+      ddf <- diff(dfModel)
+      if (sum(abs(ddf)) > 0) {
+        effects <- rep("", rt)
+        for (i in 2:rt) {
+          if (ddf[i - 1] != 0) {
+            effects[i] <- paste(i - 1, i, sep = " vs ")
+          }
+        }
+        pval <- rep(NA, rt - 1)
+        ldf <- as.logical(ddf)
+        lratio <- 2 * abs(diff(logLik))
+        lratio[!ldf] <- NA
+        pval[ldf] <- pchisq(lratio[ldf], abs(ddf[ldf]),
+          lower.tail = FALSE)
+        aod <- data.frame(aod, Test = effects, L.Ratio = c(NA,
+          lratio), `p-value` = c(NA, pval), check.names = FALSE,
+          stringsAsFactors = TRUE)
+      }
+    }
+    ## local function for complete deparsing
+    c_deparse <- function(...) paste(deparse(..., width.cutoff=500),
+                                     collapse="")
+    row.names(aod) <- vapply(as.list(ancall[-1L]), c_deparse,
+      "")
+    attr(aod, "rt") <- rt
+    attr(aod, "verbose") <- verbose
+  }
+  class(aod) <- c("anova.lme", "data.frame")
+  aod
 }

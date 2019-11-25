@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.lcc}
 \alias{summary.lcc}
-\title{Summarize an lcc object}
+\title{Summarize an \code{lcc} Object}
 \usage{
 \method{summary}{lcc}(object, type, adjustSigma, verbose, ...)
 }
@@ -18,7 +18,7 @@ of the polynomial mixed-effects regression model. If
 values for LCC, LPC, and LA as well as the concordance correlation
 coefficient between fitted values from the model and observed
 values as goodness of fit (gof) measurement. Defaults to
-\code{type="lcc"}.}
+\code{type="model"}.}
 
 \item{adjustSigma}{an optional logical value used when \code{type =
 model}. If TRUE and the estimation method used to obtain object
@@ -31,7 +31,7 @@ TRUE.}
 of output in the \code{print.summary.lme} method when
 \code{type = model} is used. Defaults to FALSE.}
 
-\item{...}{additional arguments affecting the summary produced.}
+\item{...}{not used.}
 }
 \value{
 an object inheriting from class \code{summary.lcc}

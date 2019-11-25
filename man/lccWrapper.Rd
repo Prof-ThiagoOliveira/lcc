@@ -2,8 +2,8 @@
 % Please edit documentation in R/lccWrapper.R
 \name{lccWrapper}
 \alias{lccWrapper}
-\title{Internal function to to prepare the \code{lccBuilder}
-  function}
+\title{Internal Function to Prepare the \code{lccBuilder}
+  Function}
 \description{
 This is an internally called function used to prepare
   the \code{\link[lcc]{lccBuilder}} function.

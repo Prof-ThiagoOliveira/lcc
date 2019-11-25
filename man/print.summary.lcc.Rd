@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.summary.lcc}
 \alias{print.summary.lcc}
-\title{Print the summary of an lcc object}
+\title{Print the Summary of an \code{lcc} Object}
 \usage{
 \method{print}{summary.lcc}(x, verbose, digits, ...)
 }
@@ -19,7 +19,7 @@ of printed output when \code{type = "model"}. Defaults to
 minimum number of significant digits to be printed in values. The
 default, \code{NULL}.}
 
-\item{...}{not used.}
+\item{...}{further arguments passed to \code{\link{print}}.}
 }
 \description{
 Information summarizing the fitted longitudinal

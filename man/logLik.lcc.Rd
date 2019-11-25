@@ -2,20 +2,20 @@
 % Please edit documentation in R/methods.R
 \name{logLik.lcc}
 \alias{logLik.lcc}
-\title{Extract fitted log-likelihood}
+\title{Extract Log-Likelihood of an \code{lcc} Object}
 \usage{
-\method{logLik}{lcc}(object, REML, ...)
+\method{logLik}{lcc}(object, ..., REML)
 }
 \arguments{
 \item{object}{an object inheriting from class \code{lcc},
 representing a fitted longitudinal concordance correlation
 function.}
 
+\item{...}{further arguments passed to \code{\link{logLik}}.}
+
 \item{REML}{an optional logical value.  If \code{TRUE} the
 restricted log-likelihood is returned, else, if \code{FALSE}, the
 log-likelihood is returned.}
-
-\item{...}{not used.}
 }
 \description{
 If \code{REML=TRUE}, the default, returns the

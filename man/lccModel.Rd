@@ -2,8 +2,8 @@
 % Please edit documentation in R/lccModel.R
 \name{lccModel}
 \alias{lccModel}
-\title{Internal function to fits a linear mixed-effects model in the
-  formulation described in Laird and Ware (1982).}
+\title{Internal Function to Fits a Linear Mixed-Effects Model in the
+  Formulation Described in Laird and Ware (1982).}
 \description{
 This is an internally called function used to fits a
   linear mixed-effects model; see \code{\link[nlme]{lme}}.

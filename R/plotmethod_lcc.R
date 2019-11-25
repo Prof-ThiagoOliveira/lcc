@@ -13,7 +13,7 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Plot an lcc object
+##' @title Plot Fitted Curves from an \code{lcc} Object.
 ##'
 ##' @description A plot of predictions versus the time covariate is
 ##'   generated. Predicted values are joined by lines while sampled
@@ -154,7 +154,7 @@ lccPlot<-function(obj, type = "lcc", control = list(), ...){
   ci<-obj$plot_info$ci
   components<-obj$plot_info$components
   if (components == FALSE &  type != "lcc") {
-    stop("'lpc' and 'la' plots only if components is TRUE",
+    stop("'lpc' and 'la' plots are only available if 'components = TRUE' in the 'lcc' call",
          call.= FALSE)
   }
   #---------------------------------------------------------------------

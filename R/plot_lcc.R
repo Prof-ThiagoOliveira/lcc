@@ -14,8 +14,8 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the sampled concordance
-##'   correlation coefficient.
+##' @title Internal Function to Estimate the Sampled Concordance
+##'   Correlation Coefficient.
 ##'
 ##' @description This is an internally called function used to estimate
 ##'   the sampled concordance correlation coefficient.

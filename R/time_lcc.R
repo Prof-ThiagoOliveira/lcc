@@ -14,7 +14,7 @@
 #                                                                     #
 #######################################################################
 
-##' @title Regular sequence for the time variable
+##' @title Regular Sequence for the Time Variable
 ##'
 ##' @description An list specifying control arguments to generate a
 ##'   regular sequence for the time variable returned by the function

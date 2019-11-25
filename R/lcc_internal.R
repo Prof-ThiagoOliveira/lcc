@@ -13,7 +13,7 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal function to prepare \code{lcc} objects
+##' @title Internal Function to Prepare \code{lcc} Objects
 ##'
 ##' @description This is an internally called function used to prepare
 ##'   \code{lcc} objects for calculate the longitudinal concordance

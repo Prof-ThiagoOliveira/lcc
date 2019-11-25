@@ -2,7 +2,7 @@
 % Please edit documentation in R/laWrapper.R
 \name{laWrapper}
 \alias{laWrapper}
-\title{Internal function to to prepare the \code{laBuilder} function}
+\title{Internal Function to Prepare the \code{laBuilder} Function}
 \description{
 This is an internally called function used to prepare the \code{\link[lcc]{laBuilder}} function.
 }

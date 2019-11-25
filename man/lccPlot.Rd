@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotmethod_lcc.R
 \name{lccPlot}
 \alias{lccPlot}
-\title{Plot an lcc object}
+\title{Plot Fitted Curves from an \code{lcc} Object.}
 \usage{
 lccPlot(obj, type, control, ...)
 }

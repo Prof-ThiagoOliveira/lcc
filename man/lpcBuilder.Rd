@@ -2,8 +2,8 @@
 % Please edit documentation in R/lpcBuilder.R
 \name{lpcBuilder}
 \alias{lpcBuilder}
-\title{Internal function to estimate the longitudinal Pearson
-  correlation.}
+\title{Internal Function to Estimate the Longitudinal Pearson
+  Correlation.}
 \description{
 This is an internally called function used to estimate
   the longitudinal Pearson correlation (LPC).

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{fitted.lcc}
 \alias{fitted.lcc}
-\title{Extract lcc Fitted Values}
+\title{Extract \code{lcc} Fitted Values}
 \usage{
 \method{fitted}{lcc}(object, type, digits, ...)
 }
@@ -22,8 +22,7 @@ accuracy. Defaults to \code{type="lcc"}.}
 number of significant digits to be printed in values. The
 default, \code{NULL}.}
 
-\item{...}{some methods for this generic require additional arguments.
-None are used in this method.}
+\item{...}{not used.}
 }
 \value{
 A data frame with columns given by methods, time, and

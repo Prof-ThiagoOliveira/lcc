@@ -14,7 +14,7 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal function to estimate the longitudinal accuracy.
+##' @title Internal Function to Estimate the Longitudinal Accuracy.
 ##'
 ##' @description This is an internally called function used to estimate
 ##'   the longitudinal accuracy (LA).
