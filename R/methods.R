@@ -1440,3 +1440,89 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
   class(aod) <- c("anova.lcc", "data.frame")
   aod
 }
+
+
+##' @rdname print.anova.lcc
+##' @title  Print the Anova of an \code{lcc} Object
+##' @usage
+##' \method{print}{anova.lcc}(x, verbose, ...)
+##' @method print anova.lcc
+##' @aliases print.anova.lcc
+##' @description Method print for the \code{anova.lcc}.
+##'
+##' @param x an object inheriting from class
+##'   \code{\link[lcc]{anova.lcc}}, representing a fitted longitudinal
+##'   concordance correlation function.
+##'
+##' @param verbose an optional logical value used to control the amount
+##'   of printed output. If \code{TRUE}, the calling sequences for each fitted 
+##'   model object are printed with the rest of the output, being omitted 
+##'   if \code{verbose = FALSE}. Defaults to \code{FALSE}.
+##'
+##' @param ... further arguments passed to \code{\link{print}}.
+##'
+##' @details Modified from \code{\link{anova.lme}}. For more details see 
+##' methods for \code{\link{nlme}}. 
+##'
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@usp.br}
+##'
+##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
+##'   \code{\link[lcc]{lcc}}
+##'
+##' @examples
+##'
+##' data(hue)
+##' ## Second degree polynomial model with random intercept, slope and
+##' ## quadratic term
+##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' print(anova(fm1))
+##' @export
+
+print.anova.lcc <- function(x, verbose = attr(x, "verbose"), ...)
+{
+  obj <- x
+  if ((rt <- attr(x,"rt")) == 1) {
+    if (!is.null(lab <- attr(x, "label"))) {
+      cat(lab)
+    }
+    pval <- format(round(x[, "p-value"],4))
+    pval[as.double(pval) == 0] <- "<.0001"
+    x[, "F-value"] <- format(zapsmall(x[, "F-value"]))
+    x[, "p-value"] <- pval
+    print(as.data.frame(x), ...)
+  } else {
+    if (verbose) {
+      cat("Call:\n")
+      objNams <- row.names(x)
+      for(i in 1:rt) {
+        cat(" ",objNams[i],":\n", sep ="")
+        cat(" ",as.character(x[i,"call"]),"\n")
+      }
+      cat("\n")
+    }
+    x <- as.data.frame(x[,-1])
+    for(i in names(x)) {
+      org <- x[[i]]
+      if (i == "p-value") {
+        org <- round(org, 4)
+        xna <- is.na(org)
+        org[!xna] <- format(org[!xna])
+        org[as.double(org) == 0] <- "<.0001"
+        org[xna] <- ""
+      } else {
+        if (match(i, c("AIC", "BIC", "logLik", "L.Ratio"), 0)) {
+          xna <- is.na(org)
+          org <- zapsmall(org)
+          org[xna] <- 0
+          org <- format(org)
+          org[xna] <- ""
+        }
+      }
+      x[[i]] <- org
+    }
+    print(as.data.frame(x), ...)
+  }
+  invisible(obj)
+}
