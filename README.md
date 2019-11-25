@@ -24,11 +24,11 @@ time as covariate, and also allows for inclusion of covariates in the
 linear predictor to control systematic variations in the response
 variable. It was developed by Thiago de Paula Oliveira \[cre, aut\],
 Rafael de Andrade Moral \[aut\], John Hinde \[aut\], Silvio Sandoval
-Zocchi \[aut,ctb\], Clarice Garcia Borges Demétrio \[aut,ctb\].
+Zocchi \[ctb\], Clarice Garcia Borges Demétrio \[ctb\], and John Hinde \[aut\].
 
 It has been available on CRAN since 2018
 (<https://CRAN.R-project.org/package=lcc>). Its last version was updated
-on 2019-04-26. CRAN has lcc’s stable version, which is recommended for
+on 2019-11-25. CRAN has lcc’s stable version, which is recommended for
 most users.
 
 This github page has its version under development. New functions will
