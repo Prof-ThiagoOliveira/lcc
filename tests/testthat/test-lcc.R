@@ -50,9 +50,9 @@ test_that("pdmat" ,{
                        resp = "H_mean", method = "Method",
                        time = "Time", qf = 2, qr = 2, pdmat = "pdIdent"), is_a("lcc"))
 
-  expect_equivalent(fm1,fm2)
-  expect_equivalent(fm1,fm3)
-  expect_equivalent(fm2,fm3)
+  expect_equivalent(fm1$Summary.lcc$fitted,fm2$Summary.lcc$fitted)
+  expect_equivalent(fm1$Summary.lcc$fitted,fm3$Summary.lcc$fitted)
+  expect_equivalent(fm2$Summary.lcc$fitted,fm3$Summary.lcc$fitted)
 })
 
 
@@ -100,7 +100,7 @@ test_that("time_lcc" ,{
                        method = "Method", time = "Time", qf = 2, qr = 2,
                        time_lcc =
                          list(time=seq(0,14,1), from=0, to=14, n=30)),is_a("lcc"))
-  expect_equivalent(fm1,fm2)
+  expect_equivalent(fm1$Summary.lcc$fitted,fm2$Summary.lcc$fitted)
 })
 
 # Testing estimates
@@ -253,16 +253,16 @@ test_that("Test if confidence interval works",{
 test_that("Test if gs works",{
   expect_that(fmegs2<-lcc(dataset = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
-                        time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE,
+                        time = "Time", qf = 1, qr = 1,
+                        components = TRUE,
                         gs = "1"),is_a("lcc"))
   expect_that(fmegs3<-lcc(dataset = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
-                        time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE,
+                        time = "Time", qf = 1, qr = 1,
+                        components = TRUE,
                         gs = "2"),is_a("lcc"))
-  expect_equal(fmegs2$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
-               fmegs3$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
+  expect_equal(fmegs2$Summary.lcc$fitted[[1]][, c(2:4)],
+               fmegs3$Summary.lcc$fitted[[1]][, c(2:4)],
                tolerance = 0.05)
 })
 
@@ -272,33 +272,14 @@ test_that("Test if gs works",{
 test_that("Test if interaction works",{
   expect_that(fmeint2<-lcc(dataset = dataset$data, subject = "Fruit",
                            resp = "Response", method = "Method",
-                           time = "Time", qf = 1, qr = 1, ci=TRUE,
-                           nboot = 1000, components = TRUE,
-                           interaction = FALSE,
+                           time = "Time", qf = 1, qr = 1,
+                           components = TRUE,
+                           interaction = TRUE,
                            gs = "1"),is_a("lcc"))
   expect_that(fmeint3<-lcc(dataset = dataset$data, subject = "Fruit",
                            resp = "Response", method = "Method",
-                           time = "Time", qf = 1, qr = 1, ci=TRUE,
-                           nboot = 1000, components = TRUE,
+                           time = "Time", qf = 1, qr = 1,
+                           components = TRUE,
                            interaction = FALSE,
                            gs = "2"),is_a("lcc"))
-  expect_equal(fmeint2$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
-               fmeint3$Summary.lcc$fitted$LCC[[1]][, c(3, 4)],
-               tolerance = 0.05)
 })
-
-#-----------------------------------------------------------------------
-# Testing methods
-#-----------------------------------------------------------------------
-test_that("Testing methods",{
-  expect_that(fmeint2<-lcc(dataset = dataset$data, subject = "Fruit",
-                           resp = "Response", method = "Method",
-                           time = "Time", qf = 1, qr = 1, ci=TRUE,
-                           nboot = 1000, components = TRUE,
-                           interaction = FALSE,
-                        gs = "1"),is_a("lcc"))
-  expect_equal(AIC.lcc(fmeint2), AIC(fmeint2$model))
-  expect_equal(BIC.lcc(fmeint2), BIC(fmeint2$model))
-  expect_equal(residuals(fmeint2), residuals(fmeint2$model))
-})
-#-----------------------------------------------------------------------

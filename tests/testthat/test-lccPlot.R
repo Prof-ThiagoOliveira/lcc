@@ -1,4 +1,5 @@
 # Testing lcc plot
+stopifnot(require("testthat"), require("lcc"))
 
 ## Simulate dataset
 Data<-function(N,time){
@@ -217,4 +218,3 @@ test_that("Scales",{
                               control=list(scale_y_continuous = c)),
                       tmp3)
 })
-

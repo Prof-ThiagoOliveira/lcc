@@ -1,5 +1,4 @@
-library("testthat")
-library("lcc")
+stopifnot(require("testthat"), require("lcc"))
 
 context("scale handling in time variable")
 

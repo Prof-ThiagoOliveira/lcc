@@ -1,3 +1,5 @@
+stopifnot(require("testthat"), require("lcc"))
+
 context("running regular sequence")
 
 test_that("runing regular sequence with experimental time from 0 to 10",{
