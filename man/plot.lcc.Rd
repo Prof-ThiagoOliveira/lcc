@@ -85,7 +85,7 @@ The Q-Q plot uses the normalized residuals. The
   Code partially adapted from \code{\link[stats]{plot.lm}}.
 }
 \examples{
-data(hue)
+
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
 fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",

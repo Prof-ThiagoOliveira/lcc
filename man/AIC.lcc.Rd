@@ -33,7 +33,6 @@ A numeric value with the corresponding AIC or BIC
 }
 \examples{
 \dontrun{
-data(simulated_hue)
 attach(simulated_hue)
 fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
            resp = "Hue", method = "Method", time = "Time",

@@ -23,11 +23,12 @@ See methods for \code{\link{nlme}} objects to get more
   details.
 }
 \examples{
-
-data(hue)
+\dontrun{
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2)
 vcov(fm1)
+}
+
 }
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{lccPlot}},

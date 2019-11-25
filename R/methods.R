@@ -400,7 +400,6 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##'
 ##' @examples
 ##'
-##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
@@ -565,7 +564,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##'   \code{mtext}, \code{text}, \code{plotmath}
 ##'
 ##' @examples
-##' data(hue)
+##'
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
@@ -1290,21 +1289,25 @@ predict.lcc <- function(object, ...) {
 ##'                method = "Method", time = "Time", qf = 2, qr = 1)
 ##' fm2.aov <- update(fm1.aov,  qr = 2)
 ##' anova(fm1.aov, fm2.aov)
+##' }
 ##'
 ##' @examples
+##' \dontrun{
 ##' # Testing fixed effects
 ##' fm3.aov <- update(fm2.aov,  REML = FALSE)
 ##' fm4.aov <- update(fm2.aov,  REML = FALSE,  qf = 3)
 ##' anova(fm3.aov, fm4.aov)
-##'
-##' @importFrom stats formula pchisq pf terms
-##' @importFrom utils head tail
+##' }
 ##'
 ##' @examples
+##' \dontrun{
 ##' # Comparing the 3 lcc models
 ##' fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
 ##' anova(fm1.aov, fm2.aov, fm5.aov)
 ##' }
+##'
+##' @importFrom stats formula pchisq pf terms
+##' @importFrom utils head tail
 ##'
 ##' @export
 
@@ -1487,12 +1490,14 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
 ##'
 ##' @examples
 ##'
-##' data(hue)
+##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(anova(fm1))
+##' }
+##'
 ##' @export
 
 print.anova.lcc <- function(x, verbose = attr(x, "verbose"), ...)

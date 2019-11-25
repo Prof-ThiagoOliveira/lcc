@@ -27,12 +27,13 @@ Prints information about the longitudinal concordance
   \code{\link[base]{print}} method.
 }
 \examples{
-data(hue)
+\dontrun{
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2)
 print(fm1)
+}
 
 }
 \seealso{

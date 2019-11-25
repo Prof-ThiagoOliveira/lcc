@@ -12,8 +12,8 @@
 concordance correlation function.}
 
 \item{verbose}{an optional logical value used to control the amount
-of printed output. If \code{TRUE}, the calling sequences for each fitted 
-model object are printed with the rest of the output, being omitted 
+of printed output. If \code{TRUE}, the calling sequences for each fitted
+model object are printed with the rest of the output, being omitted
 if \code{verbose = FALSE}. Defaults to \code{FALSE}.}
 
 \item{...}{further arguments passed to \code{\link{print}}.}
@@ -22,17 +22,19 @@ if \code{verbose = FALSE}. Defaults to \code{FALSE}.}
 Method print for the \code{anova.lcc}.
 }
 \details{
-Modified from \code{\link{anova.lme}}. For more details see 
+Modified from \code{\link{anova.lme}}. For more details see
 methods for \code{\link{nlme}}.
 }
 \examples{
 
-data(hue)
+\dontrun{
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2)
 print(anova(fm1))
+}
+
 }
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{lccPlot}},

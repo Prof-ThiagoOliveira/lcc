@@ -59,20 +59,26 @@ This function is an adaptation from the
   \code{\link{nlme}}.
 }
 \examples{
+\dontrun{
 ## Testing random effects
 fm1.aov <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
                method = "Method", time = "Time", qf = 2, qr = 1)
 fm2.aov <- update(fm1.aov,  qr = 2)
 anova(fm1.aov, fm2.aov)
+}
 
+\dontrun{
 # Testing fixed effects
 fm3.aov <- update(fm2.aov,  REML = FALSE)
 fm4.aov <- update(fm2.aov,  REML = FALSE,  qf = 3)
 anova(fm3.aov, fm4.aov)
+}
 
+\dontrun{
 # Comparing the 3 lcc models
 fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
 anova(fm1.aov, fm2.aov, fm5.aov)
+}
 
 }
 \seealso{

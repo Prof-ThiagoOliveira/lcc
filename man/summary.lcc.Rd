@@ -54,7 +54,6 @@ Additional information about the fit of longitudinal
 }
 \examples{
 
-data(hue)
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
 fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
