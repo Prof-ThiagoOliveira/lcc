@@ -150,12 +150,12 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
   if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
   if(missing(type)) type="lcc"
-  if(object$plot_info$components == FALSE & type == "lpc" |
-     object$plot_info$components == FALSE & type == "la"){
+  if(object$plot_info$components == FALSE && type == "lpc" ||
+     object$plot_info$components == FALSE && type == "la"){
     stop(paste0("It is necessary to include components = TRUE in the
   lcc() function to calculate the fitted values for type ", type))
   }
-  if(type == "lcc" | type == "lpc" | type == "la"){
+  if(type == "lcc" || type == "lpc" || type == "la"){
     pr <- switch(type,
                  "lcc" = cat( "Fitted longitudinal concordance correlation function", "\n"),
                  "lpc" = cat( "Fitted longitudinal Pearson correlation function", "\n"),
@@ -414,7 +414,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
   if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
   if(missing(type)) type <- "model"
-  if(type=="model" | type=="lcc"){
+  if(type=="model" || type=="lcc"){
     if(type == "lcc"){
       # Object lcc
       object$fitted <- object$Summary.lcc$fitted

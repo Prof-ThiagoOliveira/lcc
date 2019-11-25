@@ -18,7 +18,7 @@
 ##' @method plot lcc
 ##' @title Plot an \code{lcc} object.
 ##'
-##' @usage 
+##' @usage
 ##' \method{plot}{lcc}(x, which = c(1L:6L),
 ##'      caption = list("Relsiduals vs Fitted",
 ##'                     "Residuals vs Time",
@@ -29,7 +29,7 @@
 ##'      sub.caption =  NULL,  main = NULL,
 ##'      panel = if(add.smooth) panel.smooth else points,
 ##'      add.smooth = getOption("add.smooth"),
-##'      ask = prod(par("mfcol")) < length(which) && dev.interactive(),
+##'      ask = prod(par("mfcol")) < length(which) & dev.interactive(),
 ##'      id.n = 3, labels.id = names(residuals(x)),
 ##'      label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
 ##'      cex.oma.man = 1.25, ...)
@@ -84,19 +84,19 @@
 ##'   the random effects is pre-multiplied by the inverse square root of
 ##'   the estimated variances obtained from matrix G. The simulate
 ##'   envelopes are obtained from package hnp (Moral et al.,  2018).
-##'   
+##'
 ##'   Code partially adapted from \code{\link[stats]{plot.lm}}.
 ##'
 ##' @importFrom hnp hnp
 ##'
 ##' @importFrom nlme getVarCov ranef
-##' 
+##'
 ##' @importFrom grDevices as.graphicsAnnot dev.flush dev.hold dev.interactive devAskNewPage extendrange n2mfrow
-##' 
+##'
 ##' @importFrom graphics abline boxplot mtext panel.smooth par plot points strheight text title
-##' 
+##'
 ##' @importFrom stats fitted residuals
-##' 
+##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}
 ##'
@@ -122,7 +122,7 @@ plot.lcc <- function(x, which = c(1L:6L),
            sub.caption =  NULL,  main = NULL,
            panel = if(add.smooth) panel.smooth else points,
            add.smooth = getOption("add.smooth"),
-           ask = prod(par("mfcol")) < length(which) && dev.interactive(),
+           ask = prod(par("mfcol")) < length(which) & dev.interactive(),
            id.n = 3, labels.id = names(residuals(x)),
            label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
            cex.oma.man = 1.25, ...)
