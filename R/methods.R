@@ -1271,26 +1271,25 @@ predict.lcc <- function(object, ...) {
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
 ##'
 ##' @examples
-##' data(hue)
-##' # Testing random effects
-##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 1)
-##' fm2 <- update(fm1,  qr = 2)
-##' anova(fm1, fm2)
+##' ## Testing random effects
+##' fm1.aov <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##'                method = "Method", time = "Time", qf = 2, qr = 1)
+##' fm2.aov <- update(fm1.aov,  qr = 2)
+##' anova(fm1.aov, fm2.aov)
 ##'
 ##' @examples
 ##' # Testing fixed effects
-##' fm3 <- update(fm2,  REML = FALSE)
-##' fm4 <- update(fm2,  REML = FALSE,  qf = 3)
-##' anova(fm3, fm4)
+##' fm3.aov <- update(fm2.aov,  REML = FALSE)
+##' fm4.aov <- update(fm2.aov,  REML = FALSE,  qf = 3)
+##' anova(fm3.aov, fm4.aov)
 ##'
 ##' @importFrom stats formula pchisq pf terms
 ##' @importFrom utils head tail
 ##'
 ##' @examples
 ##' # Comparing the 3 lcc models
-##' fm5 <- update(fm2,  var.class = varExp, weights.form = "time")
-##' anova(fm1, fm2, fm5)
+##' fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
+##' anova(fm1.aov, fm2.aov, fm5.aov)
 ##'
 ##' @export
 
