@@ -6,13 +6,13 @@
   Effects and Variance Components using a Polynomial Mixed-Effects
   Regression Model}
 \usage{
-lcc(dataset, resp, subject, method, time, interaction, qf,
+lcc(data, resp, subject, method, time, interaction, qf,
     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
     percentileMet, alpha, nboot, show.warnings, components,
     REML, lme.control)
 }
 \arguments{
-\item{dataset}{an object of class \code{data.frame}.}
+\item{data}{an object of class \code{data.frame}.}
 
 \item{resp}{character string. Name of the response variable in the
 data set.}
@@ -136,7 +136,7 @@ an object of class lcc. The output is a list with the
   level of \code{time} as sampled values, and the CCC between
   mixed-effects model predicted values and observed values from data
   as goodness of fit (gof)}
-  \item{dataset}{the input dataset.}
+  \item{data}{the input dataset.}
 }
 \description{
 The \code{lcc} function gives fitted values and
@@ -151,7 +151,7 @@ The \code{lcc} function gives fitted values and
 data(hue)
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
-fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
            method = "Method", time = "Time", qf = 2, qr = 2)
 print(fm1)
 summary(fm1)
@@ -196,7 +196,7 @@ lccPlot(fm5)
 \dontrun{
 data(simulated_hue)
 attach(simulated_hue)
-fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+fm6 <- lcc(data = simulated_hue, subject = "Fruit",
            resp = "Hue", method = "Method", time = "Time",
            qf = 2, qr = 1, components = TRUE,
            time_lcc = list(n=50, from=min(Time), to=max(Time)))
@@ -210,7 +210,7 @@ detach(simulated_hue)
 \dontrun{
 data(simulated_hue_block)
 attach(simulated_hue_block)
-fm7 <- lcc(dataset = simulated_hue_block, subject = "Fruit",
+fm7 <- lcc(data = simulated_hue_block, subject = "Fruit",
            resp = "Hue", method = "Method",time = "Time",
            qf = 2, qr = 1, components = TRUE, covar = c("Block"),
            time_lcc = list(n=50, from=min(Time), to=max(Time)))

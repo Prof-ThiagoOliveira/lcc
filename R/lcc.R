@@ -27,12 +27,12 @@
 ##'   within-group errors using or not the time as a covariate.
 ##'
 ##' @usage
-##' lcc(dataset, resp, subject, method, time, interaction, qf,
+##' lcc(data, resp, subject, method, time, interaction, qf,
 ##'     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
 ##'     percentileMet, alpha, nboot, show.warnings, components,
 ##'     REML, lme.control)
 ##'
-##' @param dataset an object of class \code{data.frame}.
+##' @param data an object of class \code{data.frame}.
 ##'
 ##' @param resp character string. Name of the response variable in the
 ##'   data set.
@@ -155,7 +155,7 @@
 ##'   level of \code{time} as sampled values, and the CCC between
 ##'   mixed-effects model predicted values and observed values from data
 ##'   as goodness of fit (gof)}
-##'   \item{dataset}{the input dataset.}
+##'   \item{data}{the input dataset.}
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@usp.br}, Rafael de Andrade Moral,
@@ -183,7 +183,7 @@
 ##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(fm1)
 ##' summary(fm1)
@@ -233,7 +233,7 @@
 ##' \dontrun{
 ##' data(simulated_hue)
 ##' attach(simulated_hue)
-##' fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+##' fm6 <- lcc(data = simulated_hue, subject = "Fruit",
 ##'            resp = "Hue", method = "Method", time = "Time",
 ##'            qf = 2, qr = 1, components = TRUE,
 ##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
@@ -248,7 +248,7 @@
 ##' \dontrun{
 ##' data(simulated_hue_block)
 ##' attach(simulated_hue_block)
-##' fm7 <- lcc(dataset = simulated_hue_block, subject = "Fruit",
+##' fm7 <- lcc(data = simulated_hue_block, subject = "Fruit",
 ##'            resp = "Hue", method = "Method",time = "Time",
 ##'            qf = 2, qr = 1, components = TRUE, covar = c("Block"),
 ##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
@@ -263,7 +263,7 @@
 ##' anova(fm1, fm8)
 ##'
 ##' @export
-lcc <- function(dataset, resp, subject, method, time,
+lcc <- function(data, resp, subject, method, time,
                 interaction = TRUE, qf = 1, qr = 0, covar = NULL,
                 gs = NULL, pdmat = pdSymm, var.class = NULL,
                 weights.form = NULL, time_lcc = NULL, ci = FALSE,
@@ -277,7 +277,7 @@ lcc <- function(dataset, resp, subject, method, time,
   #---------------------------------------------------------------------
   Init<-init(var.class = var.class, weights.form = weights.form,
              REML = REML, qf = qf, qr = qr, pdmat = pdmat,
-             dataset = dataset, resp = resp, subject = subject,
+             dataset = data, resp = resp, subject = subject,
              method = method, time = time, gs = gs)
   pdmat<-Init$pdmat
   MethodREML<-Init$MethodREML
@@ -285,7 +285,7 @@ lcc <- function(dataset, resp, subject, method, time,
   #---------------------------------------------------------------------
   # Getting relevant model information
   #---------------------------------------------------------------------
-  model.info <- try(lccModel(dataset = dataset, resp = resp,
+  model.info <- try(lccModel(dataset = data, resp = resp,
                              subject = subject, pdmat = pdmat,
                              method = method, time = time, qf = qf,
                              qr = qr, interaction = interaction,
@@ -341,7 +341,7 @@ lcc <- function(dataset, resp, subject, method, time,
                             lme.control = lme.control, method.init =
                                                          MethodREML)
   lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]],
-            "dataset" = dataset, "plot_info" = lcc.int_full[-1],
+            "data" = data, "plot_info" = lcc.int_full[-1],
             "call" = lcc_call)
   class(lcc)<-"lcc"
   return(invisible(lcc))

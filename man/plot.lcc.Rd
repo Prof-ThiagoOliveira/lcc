@@ -88,7 +88,7 @@ The Q-Q plot uses the normalized residuals. The
 
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
-fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
            method = "Method", time = "Time", qf = 2, qr = 2)
 plot(fm1)
 }

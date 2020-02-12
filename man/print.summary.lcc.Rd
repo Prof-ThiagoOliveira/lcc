@@ -34,7 +34,7 @@ Information summarizing the fitted longitudinal
 \dontrun{
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
-fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
          method = "Method", time = "Time", qf = 2, qr = 2)
 print(summary(fm1, type="model"))
 }

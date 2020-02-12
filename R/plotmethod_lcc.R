@@ -86,7 +86,7 @@
 ##' data(hue)
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2,
 ##'          components=TRUE)
 ##' lccPlot(fm1, type="lcc")
@@ -106,7 +106,7 @@
 ##' \dontrun{
 ##' data(simulated_hue_block)
 ##' attach(simulated_hue_block)
-##' fm2<-lcc(dataset = simulated_hue_block, subject = "Fruit",
+##' fm2<-lcc(data = simulated_hue_block, subject = "Fruit",
 ##'          resp = "Hue", method = "Method",time = "Time",
 ##'          qf = 2, qr = 1, components = TRUE, covar = c("Block"),
 ##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))

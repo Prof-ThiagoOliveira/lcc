@@ -34,7 +34,7 @@ A numeric value with the corresponding AIC or BIC
 \examples{
 \dontrun{
 attach(simulated_hue)
-fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+fm6 <- lcc(data = simulated_hue, subject = "Fruit",
            resp = "Hue", method = "Method", time = "Time",
            qf = 2, qr = 1, components = TRUE,
            time_lcc = list(n=50, from=min(Time), to=max(Time)))

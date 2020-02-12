@@ -37,7 +37,7 @@ data(hue)
 ## Second degree polynomial model with random intercept, slope and
 ## quadratic term
 \dontrun{
-fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
            method = "Method", time = "Time", qf = 2, qr = 2,
            components = TRUE)
 fitted(fm1)

@@ -7,17 +7,17 @@ test_that("changes in the time scale does not affect lcc estimates", {
   hue$Time2<-hue$Time+10
   hue$Time3<-scale(hue$Time)
   #---------------------------------------------------------------------
-  expect_that(fm1<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fm1<-lcc(data = hue, subject = "Fruit",
                        resp = "H_mean", method = "Method",
                        time = "Time", qf = 2, qr = 2,
                        components = TRUE), is_a("lcc"))
   #---------------------------------------------------------------------
-  expect_that(fm2<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fm2<-lcc(data = hue, subject = "Fruit",
                        resp = "H_mean", method = "Method",
                        time = "Time2", qf = 2, qr = 2,
                        components = TRUE), is_a("lcc"))
   #---------------------------------------------------------------------
-  expect_that(fm3<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fm3<-lcc(data = hue, subject = "Fruit",
                        resp = "H_mean", method = "Method",
                        time = "Time3", qf = 2, qr = 2,
                        components = TRUE), is_a("lcc"))

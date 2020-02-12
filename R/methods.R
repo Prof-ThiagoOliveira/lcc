@@ -58,7 +58,7 @@ is.lcc <- function(x) inherits(x, "lcc")
 ##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(fm1)
 ##' }
@@ -135,7 +135,7 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
 ##' \dontrun{
-##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2,
 ##'            components = TRUE)
 ##' fitted(fm1)
@@ -213,7 +213,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(summary(fm1, type="model"))
 ##' }
@@ -402,7 +402,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##'
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' summary(fm1, type="model")
 ##' summary(fm1, type="lcc")
@@ -420,7 +420,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
       object$fitted <- object$Summary.lcc$fitted
       object$sampled <- object$Summary.lcc$sampled
       object$gof <- object$Summary.lcc$gof
-      object$data <- object$dataset
+      object$data <- object$data
       object$AIC <- AIC(object[1]$model)
       object$BIC <- BIC(object[1]$model)
       object$logLik <- c(object[1]$model$logLik)
@@ -428,7 +428,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
       object$comp <- object$Summary.lcc$comp
       object <- object[names(object) != "Summary.lcc"]
       object <- object[names(object) != "plot_info"]
-      object <- object[names(object) != "dataset"]
+      object <- object[names(object) != "data"]
       #-----------------------------------------------------------------
       ## generating the final object
       #-----------------------------------------------------------------
@@ -493,8 +493,6 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##'      id.n = 3, labels.id = names(residuals(x)),
 ##'      label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
 ##'      cex.oma.man = 1.25, ...)
-##'
-##' @method plot lcc
 ##'
 ##' @aliases plot.lcc
 ##'
@@ -567,7 +565,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##'
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1 <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' plot(fm1)
 ##' @export
@@ -766,7 +764,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @examples
 ##'
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' coef(fm1)
 ##' }
@@ -826,7 +824,7 @@ coef.lcc <- function(object, ...) {
 ##'
 ##' @examples
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' vcov(fm1)
 ##' }
@@ -886,7 +884,7 @@ vcov.lcc <- function(object, ...) {
 ##' @examples
 ##'
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' getVarCov(fm1)
 ##' }
@@ -950,7 +948,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##' @examples
 ##'
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' getVarCov(fm1)
 ##' }
@@ -1034,7 +1032,7 @@ AIC.lcc <- function(object, ..., k = 2) {
 ##' @examples
 ##' \dontrun{
 ##' attach(simulated_hue)
-##' fm6 <- lcc(dataset = simulated_hue, subject = "Fruit",
+##' fm6 <- lcc(data = simulated_hue, subject = "Fruit",
 ##'            resp = "Hue", method = "Method", time = "Time",
 ##'            qf = 2, qr = 1, components = TRUE,
 ##'            time_lcc = list(n=50, from=min(Time), to=max(Time)))
@@ -1106,7 +1104,7 @@ BIC.lcc <- function (object, ...)
 ##'
 ##' @examples
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' ranef(fm1)
 ##' }
@@ -1163,7 +1161,7 @@ ranef.lcc <- function(object, ...) {
 ##' @examples
 ##'
 ##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' logLik(fm1)
 ##' }
@@ -1242,7 +1240,7 @@ logLik.lcc <- function(object, ..., REML) {
 ##' @examples
 ##' \dontrun{
 ##' ## Testing random effects
-##' fm1.aov <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'                method = "Method", time = "Time", qf = 2, qr = 1)
 ##' fm2.aov <- update(fm1.aov,  qr = 2)
 ##' anova(fm1.aov, fm2.aov)
@@ -1450,7 +1448,7 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
 ##' \dontrun{
 ##' ## Second degree polynomial model with random intercept, slope and
 ##' ## quadratic term
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'          method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(anova(fm1))
 ##' }

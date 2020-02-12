@@ -61,7 +61,7 @@ This function is an adaptation from the
 \examples{
 \dontrun{
 ## Testing random effects
-fm1.aov <- lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
                method = "Method", time = "Time", qf = 2, qr = 1)
 fm2.aov <- update(fm1.aov,  qr = 2)
 anova(fm1.aov, fm2.aov)

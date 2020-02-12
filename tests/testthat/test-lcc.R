@@ -5,48 +5,48 @@ context("fitting lcc models")
 data(hue)
 
 test_that("Name of variables", {
-  expect_error(lcc(dataset = ddd, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = ddd, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2),
                "object 'ddd' not found")
-  expect_error(lcc(dataset = hue, subject = "AAAAA", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "AAAAA", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2),
                "Please, verify the name of 'resp', 'subject', 'method', and 'time' variables")
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "AAAAA",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "AAAAA",
                    method = "Method", time = "Time", qf = 2, qr = 2),
                "Please, verify the name of 'resp', 'subject', 'method', and 'time' variables")
-  expect_error(lcc(dataset = hue, subject = "Fruits", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruits", resp = "H_mean",
                    method = "AAAAA", time = "Time", qf = 2, qr = 2),
                "Please, verify the name of 'resp', 'subject', 'method', and 'time' variables")
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "AAAAA", qf = 2, qr = 2),
                "Please, verify the name of 'resp', 'subject', 'method', and 'time' variables")
   })
 
 test_that("If qr>qf should result in error",{
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 3),
                "'qr' should be less or equal 'qf'")
  })
 
 test_that("pdmat" ,{
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    pdmat = pdIdent()),
                "Do not include brackets after the pdmat function, e.g. pdSymm()")
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    pdmat = AAAA),"object 'AAAA' not found")
 
 # compatibility names in pdmat
-  expect_that(fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_that(fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
                        method = "Method", time = "Time", qf = 2, qr = 2,
                        pdmat = "pdIdent()"), is_a("lcc"))
 
-  expect_that(fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_that(fm2<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
                        method = "Method", time = "Time", qf = 2, qr = 2,
                        pdmat = pdIdent), is_a("lcc"))
 
-  expect_that(fm3<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fm3<-lcc(data = hue, subject = "Fruit",
                        resp = "H_mean", method = "Method",
                        time = "Time", qf = 2, qr = 2, pdmat = "pdIdent"), is_a("lcc"))
 
@@ -59,31 +59,31 @@ test_that("pdmat" ,{
 
 test_that("var.class and weights.form" ,{
   # without declare weights.forms
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = varIdent),
                "Please specify the 'weights.form' argument.")
 
   # wrong name for var.class
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = varIdent(), weights.form = "method"),
                "Do not include brackets after the var.class function, e.g. varExp()")
 
   # wrong name for weights.form
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = varIdent, weights.form = "AAAA"),
                "The weights.form argument are \"time\", \"method\", \"time.ident\", or \"both\".")
 
   # wrong name for weights.form
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = varIdent, weights.form = "both"),
                "Please specify the 'weight.form' correctly for varIdent class")
 
   # Wrong name for var.class and weights.form
-  expect_error(lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = AAA, weights.form = "AAA"),
                "object 'AAA' not found")
@@ -91,12 +91,12 @@ test_that("var.class and weights.form" ,{
 
 test_that("time_lcc" ,{
   # Testing regular sequence
-  expect_that(fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_that(fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
                        method = "Method", time = "Time", qf = 2, qr = 2,
                        time_lcc =
 
   list(from=min(hue$Time), to=max(hue$Time), n=30)),is_a("lcc"))
-  expect_that(fm2<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
+  expect_that(fm2<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
                        method = "Method", time = "Time", qf = 2, qr = 2,
                        time_lcc =
                          list(time=seq(0,14,1), from=0, to=14, n=30)),is_a("lcc"))
@@ -210,7 +210,7 @@ Data<-function(N,time){
 set.seed(5925670)
 dataset<-Data(N=30,time=seq(0,15,1))
 test_that("Testing LCC estimates", {
-  expect_that(fme1<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fme1<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method", time = "Time",
                         qf = 1, qr = 1),is_a("lcc"))
   expect_equal(fme1$Summary.lcc$fitted[[1]][,2], dataset$LCC12T,
@@ -223,20 +223,20 @@ test_that("Testing LCC estimates", {
 
 # Test for confidence intervals
 test_that("Test if confidence interval works",{
-  expect_that(fme2<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fme2<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 1000, components = TRUE),is_a("lcc"))
-  expect_that(fme3<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fme3<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 1000, components = TRUE,
                         percentileMet = TRUE),is_a("lcc"))
-  expect_that(fme4<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fme4<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 1000, components = TRUE),is_a("lcc"))
-  expect_that(fme5<-lcc(dataset = hue, subject = "Fruit",
+  expect_that(fme5<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 1000, components = TRUE,
@@ -251,12 +251,12 @@ test_that("Test if confidence interval works",{
 # Testing different gs
 #-----------------------------------------------------------------------
 test_that("Test if gs works",{
-  expect_that(fmegs2<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fmegs2<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1,
                         components = TRUE,
                         gs = "1"),is_a("lcc"))
-  expect_that(fmegs3<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fmegs3<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1,
                         components = TRUE,
@@ -270,13 +270,13 @@ test_that("Test if gs works",{
 #Testing if interaction works
 #-----------------------------------------------------------------------
 test_that("Test if interaction works",{
-  expect_that(fmeint2<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fmeint2<-lcc(data = dataset$data, subject = "Fruit",
                            resp = "Response", method = "Method",
                            time = "Time", qf = 1, qr = 1,
                            components = TRUE,
                            interaction = TRUE,
                            gs = "1"),is_a("lcc"))
-  expect_that(fmeint3<-lcc(dataset = dataset$data, subject = "Fruit",
+  expect_that(fmeint3<-lcc(data = dataset$data, subject = "Fruit",
                            resp = "Response", method = "Method",
                            time = "Time", qf = 1, qr = 1,
                            components = TRUE,
