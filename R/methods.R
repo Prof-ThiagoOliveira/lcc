@@ -1177,49 +1177,6 @@ logLik.lcc <- function(object, ..., REML) {
 }
 
 #=======================================================================
-# Predict
-#=======================================================================
-##' @rdname predict.lcc
-##' @title Predictions from an \code{lcc} Object
-##' @usage \method{predict}{lcc}(object, ...)
-##' @method predict lcc
-##' @aliases predict.lcc
-##'
-##' @description The predict method for a class \code{lcc}.
-##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
-##'
-##' @param ... further arguments passed to \code{\link{predict.lme}}.
-##'
-##' @details See methods for \code{\link{nlme}} objects to get more
-##'   details.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
-##'
-##' @importFrom stats logLik
-##'
-##' @seealso \code{\link[lcc]{lcc}}, \code{\link{fitted.lcc}}
-##'
-##' @examples
-##'
-##' \dontrun{
-##' fm1<-lcc(dataset = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
-##' predict(fm1)
-##' }
-##'
-##' @export
-
-predict.lcc <- function(object, ...) {
-   if (!is.lcc(object))
-     stop("use only with \"lcc\" objects" , call. = FALSE)
-   predict(object$model, ...)
-}
-
-#=======================================================================
 # ANOVA
 # =======================================================================
 ##' @rdname anova.lcc

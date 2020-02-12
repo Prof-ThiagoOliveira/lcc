@@ -4,9 +4,16 @@
 \alias{plotControl}
 \title{Specifying Graphical Control Values for \code{lcc} Class}
 \usage{
-plotControl(plot = TRUE, shape = 1, colour = "black", size = 0.5,
-  xlab = "Time", ylab = "LCC", scale_y_continuous = c(0, 1),
-  all.plot = TRUE)
+plotControl(
+  plot = TRUE,
+  shape = 1,
+  colour = "black",
+  size = 0.5,
+  xlab = "Time",
+  ylab = "LCC",
+  scale_y_continuous = c(0, 1),
+  all.plot = TRUE
+)
 }
 \arguments{
 \item{plot}{an optional to include an initial plot. If \code{TRUE},

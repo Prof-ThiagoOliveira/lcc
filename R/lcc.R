@@ -300,7 +300,7 @@ lcc <- function(dataset, resp, subject, method, time,
   if(model.info$wcount == "1") {
     opt <- options(show.error.messages=FALSE)
     on.exit(options(opt))
-    stop(print(model.info$message), call.=FALSE)
+    stop(message(model.info$message), call.=FALSE)
   }
   #---------------------------------------------------------------------
   model <- model.info$model
