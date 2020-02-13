@@ -1,3 +1,4 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # lcc <img src="man/figures/logo.svg" align="right" height = 150/>
@@ -24,7 +25,7 @@ time as covariate, and also allows for inclusion of covariates in the
 linear predictor to control systematic variations in the response
 variable. It was developed by Thiago de Paula Oliveira \[cre, aut\],
 Rafael de Andrade Moral \[aut\], John Hinde \[aut\], Silvio Sandoval
-Zocchi \[aut,ctb\], Clarice Garcia Borges Demétrio \[aut,ctb\].
+Zocchi \[ctb\], Clarice Garcia Borges Demétrio \[ctb\].
 
 It has been available on CRAN since 2018
 (<https://CRAN.R-project.org/package=lcc>). Its last version was updated
@@ -69,7 +70,8 @@ Xcode (available on the App Store).
 `lcc` can also be installed by downloading the appropriate files
 directly at the CRAN web site and following the instructions given in
 the section `6.3 Installing Packages` of the [R Installation and
-Administration](https://CRAN.R-project.org) manual.
+Administration](http://CRAN.R-project.org/doc/manuals/R-admin.pdf)
+manual.
 
 # Longitudinal Concordance Correlation App
 

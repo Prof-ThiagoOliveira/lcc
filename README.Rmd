@@ -38,7 +38,7 @@ time as covariate, and also allows for inclusion of covariates in the
 linear predictor to control systematic variations in the response
 variable. It was developed by Thiago de Paula Oliveira [cre, aut],
 Rafael de Andrade Moral [aut], John Hinde [aut], Silvio Sandoval Zocchi
-[aut,ctb], Clarice Garcia Borges Demétrio [aut,ctb].
+[ctb], Clarice Garcia Borges Demétrio [ctb].
 
 It has been available on CRAN since 2018
 (https://CRAN.R-project.org/package=lcc). Its last version was updated
