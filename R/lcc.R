@@ -148,7 +148,7 @@
 ##'   the control argument for the \code{lme} function.
 ##'
 ##' @param numCore number of cores used in parallel during bootstrapping
-##'   computation
+##'   computation. Default is 1.
 ##'
 ##' @return an object of class lcc. The output is a list with the
 ##'   following components: \item{model}{summary of the polynomial
@@ -161,8 +161,7 @@
 ##'   \item{data}{the input dataset.}
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}, Rafael de Andrade Moral,
-##'   Silvio Sandoval Zocchi, Clarice Garcia Borges Demetrio, John Hinde
+##'   \email{thiago.paula.oliveira@@usp.br}, Rafael de Andrade Moral, John Hinde
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
 ##'   \code{\link{print.lcc}}, \code{\link{lccPlot}},
