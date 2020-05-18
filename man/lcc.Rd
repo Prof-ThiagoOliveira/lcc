@@ -9,7 +9,7 @@
 lcc(data, resp, subject, method, time, interaction, qf,
     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
     percentileMet, alpha, nboot, show.warnings, components,
-    REML, lme.control)
+    REML, lme.control,  numCore)
 }
 \arguments{
 \item{data}{an object of class \code{data.frame}.}
@@ -126,6 +126,9 @@ algorithm to replace the default values of the function
 \code{\link[nlme]{lmeControl}} available in the \code{\link{nlme}}
 package. Defaults to an empty list. The returned list is used as
 the control argument for the \code{lme} function.}
+
+\item{numCore}{number of cores used in parallel during bootstrapping
+computation}
 }
 \value{
 an object of class lcc. The output is a list with the
@@ -222,6 +225,25 @@ detach(simulated_hue_block)
 ## Testing interaction effect between time and method
 fm8 <- update(fm1, interaction = FALSE)
 anova(fm1, fm8)
+
+\dontrun{
+## Using parallel computing with 3 cores, and a set.seed(123)
+to verify model reproducibility.
+set.seed(123)
+fm8 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+              method = "Method", time = "Time", qf = 2, qr = 2,
+              ci=TRUE, nboot = 30, numCore = 3)
+
+# Repeating same model with same set seed.
+set.seed(123)
+fm9 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+              method = "Method", time = "Time", qf = 2, qr = 2,
+              ci=TRUE, nboot = 30, numCore = 3)
+
+## Verifying if both fitted values and confidence intervals
+are identical
+identical(fm8$Summary.lcc$fitted,fm9$Summary.lcc$fitted)
+}
 
 }
 \references{

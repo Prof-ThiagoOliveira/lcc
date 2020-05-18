@@ -31,7 +31,7 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                         pdmat, diffbeta, time_lcc, ci, percentileMet,
                         alpha, nboot, labels, var.class, weights.form,
                         show.warnings, components, lme.control,
-                        method.init) {
+                        method.init, numCore) {
   tk2<-tk
   tk.plot2 <- tk2
   tk.plot <- tk
@@ -105,7 +105,7 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                     percentileMet = percentileMet,
                     alpha = alpha, components = components,
                     lme.control = lme.control,
-                    method.init = method.init)
+                    method.init = method.init, numCore = numCore)
       ENV.LCC<-CI$ENV.LCC
       ENV.LPC<-CI$ENV.LPC
       ENV.Cb<-CI$ENV.Cb
@@ -174,7 +174,7 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                     tk.plot2 = tk.plot2, ci=TRUE,
                     percentileMet = percentileMet, alpha =alpha,
                     components = components, lme.control = lme.control,
-                    method.init = method.init)
+                    method.init = method.init,  numCore = numCore)
       ENV.LCC<-CI$ENV.LCC
       ENV.LPC<-CI$ENV.LPC
       ENV.Cb<-CI$ENV.Cb

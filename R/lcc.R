@@ -30,7 +30,7 @@
 ##' lcc(data, resp, subject, method, time, interaction, qf,
 ##'     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
 ##'     percentileMet, alpha, nboot, show.warnings, components,
-##'     REML, lme.control)
+##'     REML, lme.control,  numCore)
 ##'
 ##' @param data an object of class \code{data.frame}.
 ##'
@@ -147,6 +147,9 @@
 ##'   package. Defaults to an empty list. The returned list is used as
 ##'   the control argument for the \code{lme} function.
 ##'
+##' @param numCore number of cores used in parallel during bootstrapping
+##'   computation
+##'
 ##' @return an object of class lcc. The output is a list with the
 ##'   following components: \item{model}{summary of the polynomial
 ##'   mixed-effects regression model.} \item{Summary.lcc}{fitted values
@@ -262,6 +265,26 @@
 ##' fm8 <- update(fm1, interaction = FALSE)
 ##' anova(fm1, fm8)
 ##'
+##' @examples
+##' \dontrun{
+##' ## Using parallel computing with 3 cores, and a set.seed(123)
+##' to verify model reproducibility.
+##' set.seed(123)
+##' fm8 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'               method = "Method", time = "Time", qf = 2, qr = 2,
+##'               ci=TRUE, nboot = 30, numCore = 3)
+##'
+##' # Repeating same model with same set seed.
+##' set.seed(123)
+##' fm9 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'               method = "Method", time = "Time", qf = 2, qr = 2,
+##'               ci=TRUE, nboot = 30, numCore = 3)
+##'
+##' ## Verifying if both fitted values and confidence intervals
+##' are identical
+##' identical(fm8$Summary.lcc$fitted,fm9$Summary.lcc$fitted)
+##' }
+##'
 ##' @export
 lcc <- function(data, resp, subject, method, time,
                 interaction = TRUE, qf = 1, qr = 0, covar = NULL,
@@ -269,7 +292,7 @@ lcc <- function(data, resp, subject, method, time,
                 weights.form = NULL, time_lcc = NULL, ci = FALSE,
                 percentileMet = FALSE, alpha = 0.05, nboot = 5000,
                 show.warnings = FALSE, components=FALSE, REML = TRUE,
-                lme.control = NULL) {
+                lme.control = NULL,  numCore = 1) {
   # getting function call
   lcc_call <- match.call()
   #---------------------------------------------------------------------
@@ -278,7 +301,7 @@ lcc <- function(data, resp, subject, method, time,
   Init<-init(var.class = var.class, weights.form = weights.form,
              REML = REML, qf = qf, qr = qr, pdmat = pdmat,
              dataset = data, resp = resp, subject = subject,
-             method = method, time = time, gs = gs)
+             method = method, time = time, gs = gs, numCore = numCore)
   pdmat<-Init$pdmat
   MethodREML<-Init$MethodREML
   var.class<-Init$var.class
@@ -339,7 +362,8 @@ lcc <- function(data, resp, subject, method, time,
                             show.warnings = show.warnings, components =
                                                              components,
                             lme.control = lme.control, method.init =
-                                                         MethodREML)
+                                                         MethodREML,
+                            numCore = numCore)
   lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]],
             "data" = data, "plot_info" = lcc.int_full[-1],
             "call" = lcc_call)

@@ -31,7 +31,7 @@
 ##'
 ##' @keywords internal
 init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
-               resp, subject, method, time, gs){
+               resp, subject, method, time, gs, numCore){
   resp<-resp
   subject<-subject
   method<-method
@@ -141,5 +141,9 @@ init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
     }
   }
   #---------------------------------------------------------------------
+  # Number of cores
+  #---------------------------------------------------------------------
+  if(numCore < 1) stop("Please, 'numCore' argument must be 1 or higher",
+                                      call.=FALSE)
   return((list2env(initList, .GlobalEnv)))
 }

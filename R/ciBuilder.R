@@ -28,7 +28,8 @@
 ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                     var.class, weights.form, show.warnings, tk,
                     diffbeta, ldb, tk.plot, tk.plot2, ci, percentileMet,
-                    alpha, components,lme.control, method.init){
+                    alpha, components,lme.control, method.init,
+                    numCore){
   #---------------------------------------------------------------------
   # Computing the bootstrap samples for calculate the confidence
   # intervals
@@ -40,7 +41,8 @@ ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                             weights.form = weights.form,
                             show.warnings = show.warnings,
                             lme.control = lme.control,
-                            method.init = method.init)
+                            method.init = method.init,
+                            numCore = numCore)
   #---------------------------------------------------------------------
   # Computing the lcc or lcc, lpc and la bootstrap confidence intervals
   #---------------------------------------------------------------------

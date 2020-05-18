@@ -28,6 +28,12 @@
 ##'
 ##' @importFrom utils txtProgressBar setTxtProgressBar capture.output
 ##'
+##' @importFrom doParallel registerDoParallel
+##'
+##' @importFrom foreach foreach
+##'
+##' @importFrom doRNG %dorng%
+##'
 ##' @keywords internal
 
 dataBootstrap<-function(model){
@@ -61,7 +67,8 @@ return(Boot_Dataset)
 ##' @keywords internal
 bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
                            var.class, pdmat, weights.form,
-                           show.warnings, lme.control, method.init){
+                           show.warnings, lme.control, method.init,
+                           numCore){
   Dataset_boot<-list(NA)
   Boot_model<-list(NA)
   Diff<-list(NA)
@@ -69,46 +76,111 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
   pb <- txtProgressBar(
     title = "Processing the bootstrap confidence intervals",
     style = 3, min = 0, max = nboot)
-  for(i in 1:nboot){
-    Dataset_boot[[i]]<-dataBootstrap(model=model)
-    lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
-      subject="subject", covar = covar,method="method", time="time",
-      qf=q_f, qr=q_r, interaction = interaction, pdmat = pdmat,
-      var.class = var.class, weights.form = weights.form,
-      lme.control = lme.control, method.init = method.init)
-    x<-NULL
-    y<-NULL
-    if(lccModel.fit$wcount == 1) {
-      Boot_model[[i]] <- model
-      tk <- sort(unique(Boot_model[[i]]$data$time))
-      lev.lab <- levels(Boot_model[[i]]$data$method)
-      lev.facA <- length(lev.lab)
-      lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-      lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-      fx <- fixef(Boot_model[[i]])
-      if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
-    } else {
-      Boot_model[[i]] <- lccModel.fit$model
-      tk <- sort(unique(Boot_model[[i]]$data$time))
-      lev.lab <- levels(Boot_model[[i]]$data$method)
-      lev.facA <- length(lev.lab)
-      lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-      lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-      fx <- fixef(Boot_model[[i]])
+  #---------------------------------------------------------------------
+  # Without parallelization
+  #---------------------------------------------------------------------
+  if (numCore == 1){
+    for(i in 1:nboot){
+      Dataset_boot[[i]]<-dataBootstrap(model=model)
+      lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
+                               subject="subject", covar = covar,
+                               method="method", time="time",
+                               qf=q_f, qr=q_r,
+                               interaction = interaction, pdmat = pdmat,
+                               var.class = var.class,
+                               weights.form = weights.form,
+                               lme.control = lme.control,
+                               method.init = method.init)
+      x<-NULL
+      y<-NULL
+      if(lccModel.fit$wcount == 1) {
+        Boot_model[[i]] <- model
+        tk <- sort(unique(Boot_model[[i]]$data$time))
+        lev.lab <- levels(Boot_model[[i]]$data$method)
+        lev.facA <- length(lev.lab)
+        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
+        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
+        fx <- fixef(Boot_model[[i]])
+        if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
+      } else {
+        Boot_model[[i]] <- lccModel.fit$model
+        tk <- sort(unique(Boot_model[[i]]$data$time))
+        lev.lab <- levels(Boot_model[[i]]$data$method)
+        lev.facA <- length(lev.lab)
+        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
+        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
+        fx <- fixef(Boot_model[[i]])
+      }
+      warnings <- warnings + lccModel.fit$wcount
+      pat <- list()
+      for(j in 2:lev.facA) pat[[j-1]] <- grep(lev.lab$newcol[j], names(fx))
+      beta1 <- fx[-unlist(pat)]
+      betas <- list()
+      for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
+      Diff[[i]]<-betas
+      #-----------------------------------------------------------------
+      # print
+      #-----------------------------------------------------------------
+      #cat("Sample number: ", i, "\n")
+      setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
+                                           "% done"))
     }
-    warnings <- warnings + lccModel.fit$wcount
-    pat <- list()
-    for(j in 2:lev.facA) pat[[j-1]] <- grep(lev.lab$newcol[j], names(fx))
-    beta1 <- fx[-unlist(pat)]
-    betas <- list()
-    for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
-    Diff[[i]]<-betas
+  }else {
+    #===================================================================
+    # With parallelizarion
+    #===================================================================
+    # Sampling data
+    registerDoParallel(numCore)
+    Dataset_boot <- foreach(i = 1:nboot) %dorng% {
+      dataBootstrap(model=model)
+    }
     #-------------------------------------------------------------------
-    # print
-    #-------------------------------------------------------------------
-    #cat("Sample number: ", i, "\n")
-    setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
-                                         "% done"))
+    lccModel.fit <- foreach(i = 1:nboot) %dorng% {
+      lccModel(dataset=Dataset_boot[[i]], resp="resp",
+               subject="subject", covar = covar,
+               method="method", time="time",
+               qf=q_f, qr=q_r,
+               interaction = interaction, pdmat = pdmat,
+               var.class = var.class,
+               weights.form = weights.form,
+               lme.control = lme.control,
+               method.init = method.init)
+    }
+    for(i in 1:nboot){
+      x<-NULL
+      y<-NULL
+      if(lccModel.fit[[i]]$wcount == 1) {
+        Boot_model[[i]] <- model
+        tk <- sort(unique(Boot_model[[i]]$data$time))
+        lev.lab <- levels(Boot_model[[i]]$data$method)
+        lev.facA <- length(lev.lab)
+        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
+        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
+        fx <- fixef(Boot_model[[i]])
+        if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
+      } else {
+        Boot_model[[i]] <- lccModel.fit[[i]]$model
+        tk <- sort(unique(Boot_model[[i]]$data$time))
+        lev.lab <- levels(Boot_model[[i]]$data$method)
+        lev.facA <- length(lev.lab)
+        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
+        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
+        fx <- fixef(Boot_model[[i]])
+      }
+      warnings <- warnings + lccModel.fit[[i]]$wcount
+      pat <- list()
+      for(j in 2:lev.facA) pat[[j-1]] <- grep(lev.lab$newcol[j], names(fx))
+      beta1 <- fx[-unlist(pat)]
+      betas <- list()
+      for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
+      Diff[[i]]<-betas
+      #-----------------------------------------------------------------
+      # print
+      #-----------------------------------------------------------------
+      #cat("Sample number: ", i, "\n")
+      setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
+                                           "% done"))
+    }
   }
   cat("\n", "  Convergence error in", warnings, "out of",
                              nboot, "bootstrap samples.", "\n")
