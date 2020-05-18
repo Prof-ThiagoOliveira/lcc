@@ -34,7 +34,7 @@
 ##'
 ##' @importFrom doSNOW registerDoSNOW
 ##'
-##' @importFrom snow makeSOCKcluster
+##' @importFrom parallel makeCluster stopCluster
 ##'
 ##' @keywords internal
 
@@ -83,8 +83,7 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
       title = "Processing the bootstrap confidence intervals",
       style = 3, min = 0, max = nboot)
     for(i in 1:nboot){
-      Dataset_boot[[i]]<-dataBootstrap(model=model)
-      lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
+      lccModel.fit <- lccModel(dataset=dataBootstrap(model=model), resp="resp",
                                subject="subject", covar = covar,
                                method="method", time="time",
                                qf=q_f, qr=q_r,
@@ -132,26 +131,24 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
     # With parallelizarion
     #===================================================================
     # Sampling data
-    cl <- makeSOCKcluster(numCore)
+    cl <- makeCluster(numCore, type = "SOCK")
     registerDoSNOW(cl)
     pb <- txtProgressBar(max=nboot, style=3)
     progress <- function(n) setTxtProgressBar(pb, n)
     opts <- list(progress=progress)
-    Dataset_boot <- foreach(i = 1:nboot, .options.snow = opts) %dorng% {
-      dataBootstrap(model=model)
-    }
     #-------------------------------------------------------------------
     lccModel.fit <- foreach(i = 1:nboot, .options.snow = opts) %dorng% {
-      lccModel(dataset=Dataset_boot[[i]], resp="resp",
-               subject="subject", covar = covar,
-               method="method", time="time",
-               qf=q_f, qr=q_r,
+      lccModel(dataset = dataBootstrap(model=model), resp = "resp",
+               subject = "subject", covar = covar,
+               method = "method", time="time",
+               qf = q_f, qr = q_r,
                interaction = interaction, pdmat = pdmat,
                var.class = var.class,
                weights.form = weights.form,
                lme.control = lme.control,
                method.init = method.init)
     }
+    stopCluster(cl)
     #-------------------------------------------------------------------
     for(i in 1:nboot){
       x<-NULL
@@ -181,10 +178,6 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
       betas <- list()
       for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
       Diff[[i]]<-betas
-      #-----------------------------------------------------------------
-      # print
-      #-----------------------------------------------------------------
-      #cat("Sample number: ", i, "\n")
     }
   }
   cat("\n", "  Convergence error in", warnings, "out of",

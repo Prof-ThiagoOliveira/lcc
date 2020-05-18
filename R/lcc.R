@@ -269,19 +269,19 @@
 ##' ## Using parallel computing with 3 cores, and a set.seed(123)
 ##' to verify model reproducibility.
 ##' set.seed(123)
-##' fm8 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##' fm9 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'               method = "Method", time = "Time", qf = 2, qr = 2,
 ##'               ci=TRUE, nboot = 30, numCore = 3)
 ##'
 ##' # Repeating same model with same set seed.
 ##' set.seed(123)
-##' fm9 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##' fm10 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'               method = "Method", time = "Time", qf = 2, qr = 2,
 ##'               ci=TRUE, nboot = 30, numCore = 3)
 ##'
 ##' ## Verifying if both fitted values and confidence intervals
 ##' are identical
-##' identical(fm8$Summary.lcc$fitted,fm9$Summary.lcc$fitted)
+##' identical(fm9$Summary.lcc$fitted,fm10$Summary.lcc$fitted)
 ##' }
 ##'
 ##' @export
