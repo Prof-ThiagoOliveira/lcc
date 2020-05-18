@@ -4,7 +4,7 @@
 # lcc <img src="man/figures/logo.svg" align="right" height = 150/>
 
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lcc)](https://CRAN.R-project.org/package=lcc)
 [![Build
 Status](https://travis-ci.org/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://travis-ci.org/Prof-ThiagoOliveira/lcc)
 [![Coverage
@@ -70,7 +70,7 @@ Xcode (available on the App Store).
 `lcc` can also be installed by downloading the appropriate files
 directly at the CRAN web site and following the instructions given in
 the section `6.3 Installing Packages` of the [R Installation and
-Administration](http://CRAN.R-project.org/doc/manuals/R-admin.pdf)
+Administration](https://CRAN.R-project.org/doc/manuals/R-admin.pdf)
 manual.
 
 # Longitudinal Concordance Correlation App

@@ -8,7 +8,7 @@ Maintainer: Thiago de Paula Oliveira <thiago.paula.oliveira@usp.br>
 Description: Estimates the longitudinal concordance correlation to access the longitudinal agreement profile. The estimation approach implemented is variance components approach based on polynomial mixed effects regression model, as proposed by Oliveira, Hinde and Zocchi (2018) <doi:10.1007/s13253-018-0321-1>.  In addition, non-parametric confidence intervals were implemented using percentile method or normal-approximation based on Fisher Z-transformation.
 Date: 2020-05-18
 Depends: R (>= 3.2.3), nlme (>= 3.1-124), ggplot2 (>= 2.2.1)
-Imports: grid, gridExtra, hnp, gdata, doParallel, doRNG, foreach
+Imports: grid, gridExtra, hnp, gdata, snow, doSNOW, doRNG, foreach
 Suggests:
     roxygen2 (>= 3.0.0),
     covr,

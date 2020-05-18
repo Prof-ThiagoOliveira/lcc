@@ -28,11 +28,13 @@
 ##'
 ##' @importFrom utils txtProgressBar setTxtProgressBar capture.output
 ##'
-##' @importFrom doParallel registerDoParallel
-##'
-##' @importFrom foreach foreach
+##' @importFrom foreach foreach %dopar%
 ##'
 ##' @importFrom doRNG %dorng%
+##'
+##' @importFrom doSNOW registerDoSNOW
+##'
+##' @importFrom snow makeSOCKcluster
 ##'
 ##' @keywords internal
 
@@ -73,13 +75,13 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
   Boot_model<-list(NA)
   Diff<-list(NA)
   warnings <- 0
-  pb <- txtProgressBar(
-    title = "Processing the bootstrap confidence intervals",
-    style = 3, min = 0, max = nboot)
   #---------------------------------------------------------------------
   # Without parallelization
   #---------------------------------------------------------------------
   if (numCore == 1){
+    pb <- txtProgressBar(
+      title = "Processing the bootstrap confidence intervals",
+      style = 3, min = 0, max = nboot)
     for(i in 1:nboot){
       Dataset_boot[[i]]<-dataBootstrap(model=model)
       lccModel.fit <- lccModel(dataset=Dataset_boot[[i]], resp="resp",
@@ -130,12 +132,16 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
     # With parallelizarion
     #===================================================================
     # Sampling data
-    registerDoParallel(numCore)
-    Dataset_boot <- foreach(i = 1:nboot) %dorng% {
+    cl <- makeSOCKcluster(numCore)
+    registerDoSNOW(cl)
+    pb <- txtProgressBar(max=nboot, style=3)
+    progress <- function(n) setTxtProgressBar(pb, n)
+    opts <- list(progress=progress)
+    Dataset_boot <- foreach(i = 1:nboot, .options.snow = opts) %dorng% {
       dataBootstrap(model=model)
     }
     #-------------------------------------------------------------------
-    lccModel.fit <- foreach(i = 1:nboot) %dorng% {
+    lccModel.fit <- foreach(i = 1:nboot, .options.snow = opts) %dorng% {
       lccModel(dataset=Dataset_boot[[i]], resp="resp",
                subject="subject", covar = covar,
                method="method", time="time",
@@ -146,6 +152,7 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
                lme.control = lme.control,
                method.init = method.init)
     }
+    #-------------------------------------------------------------------
     for(i in 1:nboot){
       x<-NULL
       y<-NULL
@@ -178,8 +185,6 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
       # print
       #-----------------------------------------------------------------
       #cat("Sample number: ", i, "\n")
-      setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
-                                           "% done"))
     }
   }
   cat("\n", "  Convergence error in", warnings, "out of",
