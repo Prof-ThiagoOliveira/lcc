@@ -4,13 +4,15 @@
 # lcc <img src="man/figures/logo.svg" align="right" height = 150/>
 
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lcc)](https://CRAN.R-project.org/package=lcc)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
 [![Build
 Status](https://travis-ci.org/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://travis-ci.org/Prof-ThiagoOliveira/lcc)
-[![Coverage
-status](https://codecov.io/gh/Prof-ThiagoOliveira/lcc/branch/master/graph/badge.svg)](https://codecov.io/github/Prof-ThiagoOliveira/lcc?branch=master)
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/master?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc)
+[![Coverage
+status](https://codecov.io/gh/Prof-ThiagoOliveira/lcc/branch/master/graph/badge.svg)](https://codecov.io/github/Prof-ThiagoOliveira/lcc?branch=master)
+[![downloads](https://cranlogs.r-pkg.org/badges/lcc)](https://cranlogs.r-pkg.org/badges/lcc)
+[![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/lcc)](https://cranlogs.r-pkg.org/badges/grand-total/lcc)
 
 `lcc` is a package under development based on estimation procedures for
 longitudinal concordance correlation (lcc), longitudinal Pearson
@@ -70,7 +72,7 @@ Xcode (available on the App Store).
 `lcc` can also be installed by downloading the appropriate files
 directly at the CRAN web site and following the instructions given in
 the section `6.3 Installing Packages` of the [R Installation and
-Administration](https://CRAN.R-project.org/doc/manuals/R-admin.pdf)
+Administration](http://CRAN.R-project.org/doc/manuals/R-admin.pdf)
 manual.
 
 # Longitudinal Concordance Correlation App
