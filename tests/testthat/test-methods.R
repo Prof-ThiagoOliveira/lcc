@@ -37,7 +37,6 @@ test_that("Test if interaction works",{
   expect_equal(class(coef(fm1)),  c("coef.lcc", "ranef.lcc",
                                     "data.frame"))
   expect_equal(class(ranef(fm1)),  c("ranef.lcc", "data.frame"))
-  expect_equal(class(vcov(fm1)),  c("matrix"))
   expect_equal(class(getVarCov(fm1)),  c("random.effects", "VarCov"))
   expect_equal(class(residuals(fm1)),  c("numeric"))
   expect_equal(class(AIC(fm1)),  c("numeric"))
