@@ -200,7 +200,7 @@
 ##' #accuracy
 ##' fm2 <- update(fm1, components = TRUE)
 ##' summary(fm2)
-##' lccPlot(fm2)
+##' lccPlot(fm2) +
 ##'  ylim(0,1) +
 ##'  geom_hline(yintercept = 1, linetype = "dashed") +
 ##'  scale_x_continuous(breaks = seq(1,max(hue$Time),2)) +
@@ -212,7 +212,7 @@
 ##' fm3 <- update(fm2, time_lcc = list(from = min(hue$Time),
 ##'            to = max(hue$Time), n=40))
 ##' summary(fm3)
-##' lccPlot(fm3)
+##' lccPlot(fm3) +
 ##'  ylim(0,1) +
 ##'  geom_hline(yintercept = 1, linetype = "dashed") +
 ##'  scale_x_continuous(breaks = seq(1,max(hue$Time),2)) +
