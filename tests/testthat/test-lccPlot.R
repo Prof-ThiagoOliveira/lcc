@@ -196,25 +196,3 @@ test_that("labels, shape and colour",{
     shape = 2, colour = "red", size = 2,
     xlab = "Time (hours)", ylab = "Longitudinal Accuracy")), tmp3)
 })
-
-test_that("Scales",{
-  a<-c(0,1)
-  b<-c(-0.5,1)
-  c<-c(-0.2,1)
-  expect_that(fm<-lcc(data = dataset$data, subject = "Fruit",
-                      resp = "Response", method = "Method",
-                      time = "Time", qf = 1, qr = 1,
-                      components = TRUE),is_a("lcc"))
-  tmp<-tempfile()
-  expect_known_output(lccPlot(fm,
-                              control=list(scale_y_continuous = a)),
-                      tmp)
-  tmp2<-tempfile()
-  expect_known_output(lccPlot(fm, type = "lpc",
-                              control=list(scale_y_continuous = b)),
-                      tmp2)
-  tmp3<-tempfile()
-  expect_known_output(lccPlot(fm, type = "la",
-                              control=list(scale_y_continuous = c)),
-                      tmp3)
-})

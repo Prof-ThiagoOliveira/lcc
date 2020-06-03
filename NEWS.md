@@ -96,6 +96,11 @@ was used to solve this problem.
 * logLik: extract fitted log-likelihood
   * anova: Compare likelihoods of fitted models from an lcc object
  
-# lcc version 1.0.5
+# lcc version 1.0.0
 
 * New argument numCore can be used to establish more cores to work in parallel  when performing bootstrap.
+
+# lcc version 1.0.1
+
+* lccPlot - now all plots belong to the class ggplot.
+* no longer need to import packages grid and gridExtra.

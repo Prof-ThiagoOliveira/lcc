@@ -66,17 +66,17 @@ Pearson<-function(dataset, resp, subject, method, time){
 ##'
 ##' @keywords internal
 plot_lpc <- function(LPC,ENV.LPC, tk.plot, tk.plot2,ldb, model,
-                     ci, arg) {
+                     ci, arg, ...) {
   Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject",
                    method="method", time="time")
   if(ci==FALSE){
     plotBuilder_lpc(LPC = LPC, tk.plot = tk.plot,
                      tk.plot2 = tk.plot2, ldb = ldb, Pearson=Pearson,
-                     model = model, ci=FALSE, arg = arg)
+                    model = model, ci=FALSE, arg = arg, ...)
 
   }else{
     plotBuilder_lpc(LPC = LPC, ENV.LPC = ENV.LPC, tk.plot = tk.plot,
                      tk.plot2 = tk.plot2, ldb = ldb, Pearson = Pearson,
-                     model = model, ci=TRUE, arg = arg)
+                    model = model, ci=TRUE, arg = arg, ...)
   }
 }

@@ -49,7 +49,8 @@ single page. If \code{FALSE} returns a single
 \code{\link[ggplot2]{ggplot}} object by different pages using the
 \code{\link[gridExtra]{marrangeGrob}} function.}}}
 
-\item{...}{not used.}
+\item{...}{arguments to be passed to
+\code{\link[ggplot2]{facet_wrap}} function}
 }
 \description{
 A plot of predictions versus the time covariate is

@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 03/06/2020                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -27,7 +27,7 @@
 ##' @keywords internal
 ##'
 plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
-                    ci, arg) {
+                    ci, arg, ...) {
   CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                method="method", time="time")
   Pearson<-Pearson(dataset=model$data, resp="resp", subject="subject",
@@ -35,11 +35,11 @@ plot_la <- function(Cb,ENV.Cb, tk.plot, tk.plot2,ldb, model,
   if(ci==FALSE){
     plotBuilder_la(CCC = CCC, Pearson = Pearson, tk.plot = tk.plot,
                  tk.plot2 = tk.plot2, ldb = ldb, Cb=Cb,
-                 model = model, ci=FALSE, arg = arg)
+                 model = model, ci=FALSE, arg = arg, ...)
 
   }else{
     plotBuilder_la(CCC = CCC, Pearson = Pearson, ENV.Cb = ENV.Cb,
                    tk.plot = tk.plot, tk.plot2 = tk.plot2, ldb = ldb,
-                   Cb=Cb, model = model, ci=TRUE, arg = arg)
+                   Cb=Cb, model = model, ci=TRUE, arg = arg, ...)
   }
 }

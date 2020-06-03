@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 03/06/2020                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -44,29 +44,14 @@
 ##' @param ylab title for the \code{y} axis. Default is
 ##'   \code{"LCC"}.
 ##'
-##' @param scale_y_continuous a numeric vector of length two
-##'   providing limits of the scale. Default is \code{c(0,1)}.
-##'
-##' @param all.plot viewports functions for \code{lcc} class. If
-##'   \code{TRUE}, the default, returns a object created by
-##'   \code{\link[grid]{viewport}} function with multiple plots in a
-##'   single page. If \code{FALSE} returns a single
-##'   \code{\link[ggplot2]{ggplot}} object by page.
-##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
 ##'
 ##' @import ggplot2
 ##'
-##' @importFrom grid viewport
-##'
 ##' @keywords internal
 plotControl<-function(plot= TRUE, shape=1, colour="black", size=0.5,
-                       xlab = "Time", ylab = "LCC",
-                       scale_y_continuous=c(0,1),
-                       all.plot=TRUE)
+                       xlab = "Time", ylab = "LCC")
 {
        list(plot = plot, shape=shape, colour=colour, size=size,
-            xlab = xlab, ylab = ylab,
-            scale_y_continuous = scale_y_continuous,
-            all.plot = all.plot)
+            xlab = xlab, ylab = ylab)
 }

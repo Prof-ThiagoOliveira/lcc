@@ -10,9 +10,7 @@ plotControl(
   colour = "black",
   size = 0.5,
   xlab = "Time",
-  ylab = "LCC",
-  scale_y_continuous = c(0, 1),
-  all.plot = TRUE
+  ylab = "LCC"
 )
 }
 \arguments{
@@ -38,15 +36,6 @@ with a numerical value (in millimetres); see
 
 \item{ylab}{title for the \code{y} axis. Default is
 \code{"LCC"}.}
-
-\item{scale_y_continuous}{a numeric vector of length two
-providing limits of the scale. Default is \code{c(0,1)}.}
-
-\item{all.plot}{viewports functions for \code{lcc} class. If
-\code{TRUE}, the default, returns a object created by
-\code{\link[grid]{viewport}} function with multiple plots in a
-single page. If \code{FALSE} returns a single
-\code{\link[ggplot2]{ggplot}} object by page.}
 }
 \value{
 a list with components for each of the possible arguments.
