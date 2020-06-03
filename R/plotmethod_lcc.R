@@ -94,6 +94,20 @@
 ##' lccPlot(fm1, type="lpc")
 ##' lccPlot(fm1, type="la")
 ##'
+##' ## Using themes of ggplot2 package
+##' lccPlot(fm1, type = "lpc")+
+##'  ylim(0,1) +
+##'  geom_hline(yintercept = 1, linetype = "dashed") +
+##'  scale_x_continuous(breaks = seq(1,max(hue$Time),2))+
+##'  theme_bw() +
+##'  theme(legend.position = "none", aspect.ratio = 1,
+##'   axis.line.x = element_line(color="black", size = 0.5),
+##'   axis.line.y = element_line(color="black", size = 0.5),
+##'   axis.title.x = element_text(size=14),
+##'   axis.title.y = element_text(size=14),
+##'   axis.text.x = element_text(size = 14, face = "plain"),
+##'   axis.text.y = element_text(size = 14, face = "plain"))
+##'
 ##' @examples
 ##' ## Using the key (+) to constructing sophisticated graphics
 ##' lccPlot(fm1, type="lcc") +
@@ -112,7 +126,7 @@
 ##'          qf = 2, qr = 1, components = TRUE, covar = c("Block"),
 ##'          time_lcc = list(n=50, from=min(Time), to=max(Time)))
 ##' ggsave("myplots.pdf",
-##'        lccPlot(fm2, type="lcc", control=list(all.plot=FALSE)))
+##'        lccPlot(fm2, type="lcc", scales = "free"))
 ##' }
 ##'
 ##' @export
