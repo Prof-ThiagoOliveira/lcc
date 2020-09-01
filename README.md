@@ -31,7 +31,7 @@ Zocchi \[ctb\], Clarice Garcia Borges Demétrio \[ctb\].
 
 It has been available on CRAN since 2018
 (<https://CRAN.R-project.org/package=lcc>). Its last version was updated
-on 2019-04-26. CRAN has lcc’s stable version, which is recommended for
+on 2020-05-18. CRAN has lcc's stable version, which is recommended for
 most users.
 
 This github page has its version under development. New functions will
