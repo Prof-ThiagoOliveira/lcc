@@ -6,9 +6,9 @@ Authors@R: c(person("Thiago", "de Paula Oliveira", role=c("aut", "cre"), email =
 Author: Thiago de Paula Oliveira [aut, cre], Rafael de Andrade Moral [aut], Silvio Sandoval Zocchi [ctb], Clarice Garcia Borges Demetrio [ctb], John Hinde [aut]
 Maintainer: Thiago de Paula Oliveira <thiago.paula.oliveira@usp.br>
 Description: Estimates the longitudinal concordance correlation to access the longitudinal agreement profile. The estimation approach implemented is variance components approach based on polynomial mixed effects regression model, as proposed by Oliveira, Hinde and Zocchi (2018) <doi:10.1007/s13253-018-0321-1>.  In addition, non-parametric confidence intervals were implemented using percentile method or normal-approximation based on Fisher Z-transformation.
-Date: 2020-06-03
+Date: 2020-09-12
 Depends: R (>= 3.2.3), nlme (>= 3.1-124), ggplot2 (>= 2.2.1)
-Imports: hnp, gdata, parallel, doSNOW, doRNG, foreach
+Imports: hnp, parallel, doSNOW, doRNG, foreach
 Suggests:
     roxygen2 (>= 3.0.0),
     covr,
