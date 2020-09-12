@@ -103,4 +103,8 @@ was used to solve this problem.
 # lcc version 1.0.1
 
 * lccPlot - now all plots belong to the class ggplot.
-* no longer need to import packages grid and gridExtra.
+* no longer needs to import packages grid and gridExtra.
+
+# lcc version 1.0.2
+
+* no longer needs to import package gdata 

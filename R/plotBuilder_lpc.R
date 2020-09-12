@@ -28,8 +28,6 @@
 ##'
 ##' @usage NULL
 ##'
-##' @importFrom grid pushViewport grid.layout
-##'
 ##' @keywords internal
 plotBuilder_lpc<-function(LPC, ENV.LPC, tk.plot, Pearson,
                           tk.plot2, ldb, model, ci, arg, ...){
