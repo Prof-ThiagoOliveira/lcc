@@ -24,7 +24,7 @@
 ##' @details returns a inital plot for the longitudinal Pearson
 ##'   correlation.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @usage NULL
 ##'

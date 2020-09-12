@@ -25,7 +25,7 @@
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 lpcBuilder<-function(G, tk, q_r, q_f, g, sig2_epsilon,

@@ -25,7 +25,7 @@
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 plotBuilder_la<-function(CCC, Pearson, Cb, ENV.Cb, tk.plot,

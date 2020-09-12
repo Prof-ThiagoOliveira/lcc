@@ -69,7 +69,7 @@
 ##' @param ... arguments to be passed to
 ##'   \code{\link[ggplot2]{facet_wrap}} function
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @references Lin, L. A Concordance Correlation Coefficient to
 ##'   Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,

@@ -23,7 +23,7 @@
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom stats predict
 ##'

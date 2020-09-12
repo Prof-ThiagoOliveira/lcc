@@ -22,7 +22,7 @@
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom stats cor
 ##'
@@ -62,7 +62,7 @@ Pearson<-function(dataset, resp, subject, method, time){
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 plot_lpc <- function(LPC,ENV.LPC, tk.plot, tk.plot2,ldb, model,

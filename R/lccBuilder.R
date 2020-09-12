@@ -25,7 +25,7 @@
 ##' @details returns a vector or list containing the longitudinal
 ##'   concordance correlation estimates.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 lccBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon, delta,

@@ -22,7 +22,7 @@
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 ciBuilder<-function(model, nboot, q_f, q_r, interaction, covar, pdmat,

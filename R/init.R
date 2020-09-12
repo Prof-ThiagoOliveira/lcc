@@ -25,7 +25,7 @@
 ##'
 ##' @importFrom nlme lme
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,

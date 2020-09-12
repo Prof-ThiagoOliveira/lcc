@@ -161,7 +161,7 @@
 ##'   \item{data}{the input dataset.}
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}, Rafael de Andrade Moral, John Hinde
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}, Rafael de Andrade Moral, John Hinde
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
 ##'   \code{\link{print.lcc}}, \code{\link{lccPlot}},

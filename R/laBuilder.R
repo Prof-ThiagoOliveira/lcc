@@ -24,7 +24,7 @@
 ##' @details returns a vector or list containing the longitudinal
 ##'   accuracy estimates.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 laBuilder <- function(G, diffbeta, tk, q_r, q_f, g, sig2_epsilon,

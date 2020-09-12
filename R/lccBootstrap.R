@@ -24,7 +24,7 @@
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom utils txtProgressBar setTxtProgressBar capture.output
 ##'
@@ -62,7 +62,7 @@ return(Boot_Dataset)
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom nlme fixef
 ##'
@@ -196,7 +196,7 @@ bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 lccBootstrap<-function(model_boot, diff_boot, ldb, nboot, tk, q_f){
@@ -247,7 +247,7 @@ lccBootstrap<-function(model_boot, diff_boot, ldb, nboot, tk, q_f){
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 lpcBootstrap<-function(model_boot, ldb, nboot, tk, q_f){
@@ -294,7 +294,7 @@ lpcBootstrap<-function(model_boot, ldb, nboot, tk, q_f){
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 laBootstrap<-function(model_boot, diff_boot, ldb, nboot, tk, q_f){

@@ -25,7 +25,7 @@
 ##' @details returns a vector or list containing the longitudinal
 ##'   Pearson correlation estimates.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
 lpcWrapper<-function(model, q_f, tk, n.delta){

@@ -21,7 +21,7 @@
 ##' @rdname is.lcc
 ##' @param x An object to test
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @keywords internal
 ##' @export
 is.lcc <- function(x) inherits(x, "lcc")
@@ -52,7 +52,7 @@ is.lcc <- function(x) inherits(x, "lcc")
 ##' @param ... further arguments passed to \code{{\link{print}}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}
 ##' @examples
 ##' \dontrun{
@@ -127,7 +127,7 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' @param ... not used.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}},
 ##'   \code{\link[lcc]{lccPlot}}
 ##' @examples
@@ -204,7 +204,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##' @importFrom stats AIC BIC asOneSidedFormula
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}
@@ -391,7 +391,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##' @param ...  not used.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom stats AIC BIC asOneSidedFormula pt resid
 ##'
@@ -556,7 +556,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##' @importFrom stats fitted residuals
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link{lccPlot}}, \code{\link[lcc]{lcc}},
 ##'   \code{mtext}, \code{text}, \code{plotmath}
@@ -754,7 +754,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{lccPlot}}, \code{\link{vcov.lcc}}
@@ -812,7 +812,7 @@ coef.lcc <- function(object, ...) {
 ##'   function.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @details See methods for \code{\link{nlme}} objects to get more
 ##'   details.
@@ -871,7 +871,7 @@ vcov.lcc <- function(object, ...) {
 ##'   function.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
@@ -940,7 +940,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
@@ -988,7 +988,7 @@ residuals.lcc <- function(object, type = "response", ...) {
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
@@ -1096,7 +1096,7 @@ BIC.lcc <- function (object, ...)
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}},
 ##'
@@ -1152,7 +1152,7 @@ ranef.lcc <- function(object, ...) {
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom stats logLik
 ##'
@@ -1233,7 +1233,7 @@ logLik.lcc <- function(object, ..., REML) {
 ##'   \code{\link{nlme}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
 ##'
@@ -1438,7 +1438,7 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
 ##' methods for \code{\link{nlme}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@usp.br}
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}
