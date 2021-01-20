@@ -86,4 +86,4 @@ affects the LCC estimate over time. Have fun\!
 
 You can read lcc tutorials going to our work published at PeerJ (https://doi.org/10.7717/peerj.9850), or by clicking in the link below:
 
-[LCC paper](https://peerj.com/articles/9850/).
+[LCC paper](https://peerj.com/articles/9850.pdf).
