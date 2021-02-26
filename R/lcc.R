@@ -178,6 +178,10 @@
 ##'   Application in Fruit Color Analysis. \emph{Journal of
 ##'   Agricultural, Biological, and Environmental Statistics}, v. 23,
 ##'   n. 2, 233–254, 2018.
+##' @references Oliveira, T.P.; Moral, R.A.; Zocchi, S.S.; Demetrio,
+##'   C.G.B.; Hinde, J. lcc: an R packageto estimate the concordance
+##'   correlation, Pearson correlation, and accuracy over
+##'   time. \emph{PeerJ}, 8:c9850, 2020. DOI:10.7717/peerj.9850
 ##'
 ##' @keywords nlme ggplot2
 ##'
