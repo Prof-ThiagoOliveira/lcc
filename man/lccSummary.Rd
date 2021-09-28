@@ -10,6 +10,6 @@ This is an internally called function used to summarize
   coefficient between them for \code{lcc} objects.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}

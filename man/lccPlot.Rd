@@ -120,5 +120,5 @@ Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
 \code{\link[lcc]{lcc}}.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }

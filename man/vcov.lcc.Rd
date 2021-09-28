@@ -36,5 +36,5 @@ vcov(fm1)
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@usp.br}
+  \email{thiago.paula.oliveira@alumni.usp.br}
 }

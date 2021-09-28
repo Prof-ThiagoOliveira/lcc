@@ -12,6 +12,6 @@ returns a vector or list containing the longitudinal
   accuracy estimates.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}

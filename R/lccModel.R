@@ -69,7 +69,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
     }
 
     COVAR<-list()
-    for(i in 1:length(pos)){
+    for(i in seq_len(length(pos))){
     COVAR[[i]]<-model.matrix(~Data[,pos[i]])[,-1]
     colnames(COVAR[[i]])<- paste(covar[[1]][i], levels(Data[,pos[i]])[-1])
     }

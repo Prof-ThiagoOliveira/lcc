@@ -10,7 +10,7 @@ This is an internally called function used to extract
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@usp.br} and Rafael de Andrade Moral,
+  \email{thiago.paula.oliveira@alumni.usp.br} and Rafael de Andrade Moral,
   \email{rafael_moral@yahoo.com.br}
 }
 \keyword{internal}

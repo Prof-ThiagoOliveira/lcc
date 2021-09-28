@@ -14,6 +14,6 @@ returns a inital plot for the longitudinal concordance
   correlation.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}

@@ -61,14 +61,14 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       LCC_IC <- matrix(0, ncol=length(LCC_Boot),
                        nrow=length(LCC_Boot[[1]]))
     if(percentileMet=="TRUE"){
-      for(i in 1:length(LCC_Boot)) {
+      for(i in seq_len(length(LCC_Boot))) {
         if(is.null(LCC_Boot[[i]])==FALSE){
           LCC_IC[,i] <- LCC_Boot[[i]]
         }else(cat(i,"\n"))
       }
     ENV.LCC <- apply(LCC_IC, 1, quantile, probs=c(alpha/2,1-alpha/2))
     } else{
-    for(i in 1:length(LCC_Boot)) {
+    for(i in seq_len(length(LCC_Boot))) {
       if(is.null(LCC_Boot[[i]])==FALSE){
         LCC_IC[,i] <- ZFisher(LCC_Boot[[i]])
       }else(cat(i,"\n"))
@@ -76,7 +76,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     SE<-apply(LCC_IC, 1, sd)
     mean<-apply(LCC_IC, 1, mean)
     ENV.LCC<-matrix(NA, nrow = 2, ncol = length(SE))
-    for(i in 1:length(SE)){
+    for(i in seq_len(length(SE))){
       ENV.LCC[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],
                                          qnorm(alpha/2)*SE[i])
      }
@@ -85,14 +85,14 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     LPC_IC <- matrix(0, ncol=length(LPC_Boot),
                      nrow=length(LPC_Boot[[1]]))
     if(percentileMet=="TRUE"){
-    for(i in 1:length(LPC_Boot)) {
+    for(i in seq_len(length(LPC_Boot))) {
       if(is.null(LPC_Boot[[i]])==FALSE){
         LPC_IC[,i] <- LPC_Boot[[i]]
       }else(cat(i,"\n"))
     }
     ENV.LPC <- apply(LPC_IC, 1, quantile, probs=c(alpha/2,1-alpha/2))
     } else{
-      for(i in 1:length(LPC_Boot)) {
+      for(i in seq_len(length(LPC_Boot))) {
         if(is.null(LPC_Boot[[i]])==FALSE){
           LPC_IC[,i] <- ZFisher(LPC_Boot[[i]])
         }else(cat(i,"\n"))
@@ -100,7 +100,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       SE<-apply(LPC_IC, 1, sd)
       mean<-apply(LPC_IC, 1, mean)
       ENV.LPC<-matrix(NA, nrow = 2, ncol = length(SE))
-      for(i in 1:length(SE)){
+      for(i in seq_len(length(SE))){
         ENV.LPC[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],
                                            qnorm(alpha/2)*SE[i])
       }
@@ -108,14 +108,14 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     }
     Cb_IC <- matrix(0, ncol=length(Cb_Boot), nrow=length(Cb_Boot[[1]]))
     if(percentileMet=="TRUE"){
-    for(i in 1:length(Cb_Boot)) {
+    for(i in seq_len(length(Cb_Boot))) {
       if(is.null(Cb_Boot[[i]])==FALSE){
         Cb_IC[,i] <- Cb_Boot[[i]]
       }else(cat(i,"\n"))
     }
     ENV.Cb <- apply(Cb_IC, 1, quantile, probs=c(alpha/2,1-alpha/2))
     } else{
-      for(i in 1:length(Cb_Boot)) {
+      for(i in seq_len(length(Cb_Boot))) {
         if(is.null(Cb_Boot[[i]])==FALSE){
           Cb_IC[,i] <- Arcsin(Cb_Boot[[i]])
         }else(cat(i,"\n"))
@@ -123,7 +123,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       SE<-apply(Cb_IC, 1, sd)
       mean<-apply(Cb_IC, 1, mean)
       ENV.Cb<-matrix(NA, nrow = 2, ncol = length(SE))
-      for(i in 1:length(SE)){
+      for(i in seq_len(length(SE))){
         ENV.Cb[,i]<-c(mean[i], mean[i])-c(qnorm(1-alpha/2)*SE[i],
                                           qnorm(alpha/2)*SE[i])
       }
@@ -137,11 +137,11 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     ENV.LCC<-list(NA)
     SE_LCC<-list()
     mean_LCC<-list()
-    for(i in 1:ldb){
+    for(i in seq_len(ldb)){
       LCC_IC[[i]] <- matrix(0, ncol=length(LCC_Boot),
                             nrow=length(LCC_Boot[[1]][[i]]))
       if(percentileMet=="TRUE"){
-      for(j in 1:length(LCC_Boot)) {
+      for(j in seq_len(length(LCC_Boot))) {
         if(is.null(LCC_Boot[[j]])==FALSE){
           LCC_IC[[i]][,j] <- LCC_Boot[[j]][[i]]
           }else(cat(i,"\n"))
@@ -149,7 +149,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       ENV.LCC[[i]] <- apply(LCC_IC[[i]], 1, quantile,
                             probs=c(alpha/2,1-alpha/2))
       } else{
-        for(j in 1:length(LCC_Boot)) {
+        for(j in seq_len(length(LCC_Boot))) {
           if(is.null(LCC_Boot[[j]])==FALSE){
             LCC_IC[[i]][,j] <- ZFisher(LCC_Boot[[j]][[i]])
           }else(cat(i,"\n"))
@@ -157,7 +157,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
         SE_LCC[[i]]<-apply(LCC_IC[[i]], 1, sd)
         mean_LCC[[i]]<-apply(LCC_IC[[i]], 1, mean)
         ENV.LCC[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_LCC[[i]]))
-        for(k in 1:length(SE_LCC[[i]])){
+        for(k in seq_len(length(SE_LCC[[i]]))){
           ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-
             c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*
                                                 SE_LCC[[i]][k])
@@ -169,11 +169,11 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     ENV.LPC<-list(NA)
     SE_LPC<-list()
     mean_LPC<-list()
-    for(i in 1:ldb){
+    for(i in seq_len(ldb)){
       LPC_IC[[i]] <- matrix(0, ncol=length(LPC_Boot),
                             nrow=length(LPC_Boot[[1]][[i]]))
       if(percentileMet=="TRUE"){
-      for(j in 1:length(LPC_Boot)) {
+      for(j in seq_len(length(LPC_Boot))) {
         if(is.null(LPC_Boot[[j]])==FALSE){
           LPC_IC[[i]][,j] <- LPC_Boot[[j]][[i]]
         }else(cat(i,"\n"))
@@ -181,7 +181,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       ENV.LPC[[i]] <- apply(LPC_IC[[i]], 1, quantile,
                             probs=c(alpha/2,1-alpha/2))
       } else{
-        for(j in 1:length(LPC_Boot)) {
+        for(j in seq_len(length(LPC_Boot))) {
           if(is.null(LPC_Boot[[j]])==FALSE){
             LPC_IC[[i]][,j] <- ZFisher(LPC_Boot[[j]][[i]])
           }else(cat(i,"\n"))
@@ -189,7 +189,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
         SE_LPC[[i]]<-apply(LPC_IC[[i]], 1, sd)
         mean_LPC[[i]]<-apply(LPC_IC[[i]], 1, mean)
         ENV.LPC[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_LPC[[i]]))
-        for(k in 1:length(SE_LPC[[i]])){
+        for(k in seq_len(length(SE_LPC[[i]]))){
           ENV.LPC[[i]][,k]<-
             c(mean_LPC[[i]][k], mean_LPC[[i]][k])-
             c(qnorm(1-alpha/2)*SE_LPC[[i]][k],qnorm(alpha/2)*
@@ -202,11 +202,11 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     ENV.Cb<-list(NA)
     SE_Cb<-list()
     mean_Cb<-list()
-    for(i in 1:ldb){
+    for(i in seq_len(ldb)){
       Cb_IC[[i]] <- matrix(0, ncol=length(Cb_Boot),
                            nrow=length(Cb_Boot[[1]][[i]]))
       if(percentileMet=="TRUE"){
-      for(j in 1:length(Cb_Boot)) {
+      for(j in seq_len(length(Cb_Boot))) {
         if(is.null(Cb_Boot[[j]])==FALSE){
           Cb_IC[[i]][,j] <- Cb_Boot[[j]][[i]]
         }else(cat(i,"\n"))
@@ -214,7 +214,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       ENV.Cb[[i]] <- apply(Cb_IC[[i]], 1, quantile, probs=c(alpha/2,
                                                             1-alpha/2))
       } else {
-        for(j in 1:length(Cb_Boot)) {
+        for(j in seq_len(length(Cb_Boot))) {
           if(is.null(Cb_Boot[[j]])==FALSE){
             Cb_IC[[i]][,j] <- Arcsin(Cb_Boot[[j]][[i]])
           }else(cat(i,"\n"))
@@ -222,7 +222,7 @@ ciCompute<-function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
         SE_Cb[[i]]<-apply(Cb_IC[[i]], 1, sd)
         mean_Cb[[i]]<-apply(Cb_IC[[i]], 1, mean)
         ENV.Cb[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_Cb[[i]]))
-        for(k in 1:length(SE_Cb[[i]])){
+        for(k in seq_len(length(SE_Cb[[i]]))){
           ENV.Cb[[i]][,k]<-c(mean_Cb[[i]][k], mean_Cb[[i]][k])-c(qnorm(
             1-alpha/2)*SE_Cb[[i]][k],qnorm(alpha/2)*SE_Cb[[i]][k])
         }

@@ -35,14 +35,14 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
   if(ldb == 1) {
   LCC_IC <- matrix(0, ncol=length(LCC_Boot), nrow=length(LCC_Boot[[1]]))
   if(percentileMet=="TRUE"){
-    for(i in 1:length(LCC_Boot)) {
+    for(i in seq_len(length(LCC_Boot))) {
       if(is.null(LCC_Boot[[i]])==FALSE){
         LCC_IC[,i] <- LCC_Boot[[i]]
       }else(cat(i,"\n"))
 }
     ENV.LCC <- apply(LCC_IC, 1, quantile, probs=c(alpha/2,1-alpha/2))
   }else{
-    for(i in 1:length(LCC_Boot)) {
+    for(i in seq_len(length(LCC_Boot))) {
       if(is.null(LCC_Boot[[i]])==FALSE){
         LCC_IC[,i] <- ZFisher(LCC_Boot[[i]])
       }else(cat(i,"\n"))
@@ -50,7 +50,7 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
     SE<-apply(LCC_IC, 1, sd)
     mean<-apply(LCC_IC, 1, mean)
     ENV.LCC<-matrix(NA, nrow = 2, ncol = length(SE))
-    for(i in 1:length(SE)){
+    for(i in seq_len(length(SE))){
       ENV.LCC[,i]<-c(mean[i], mean[i])-
         c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
     }
@@ -62,11 +62,11 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
     ENV.LCC<-list()
     SE_LCC<-list()
     mean_LCC<-list()
-    for(i in 1:ldb){
+    for(i in seq_len(ldb)){
       LCC_IC[[i]] <- matrix(0, ncol=length(LCC_Boot),
                             nrow=length(LCC_Boot[[1]][[i]]))
       if(percentileMet=="TRUE"){
-       for(j in 1:length(LCC_Boot)) {
+       for(j in seq_len(length(LCC_Boot))) {
         if(is.null(LCC_Boot[[j]])==FALSE){
           LCC_IC[[i]][,j] <- LCC_Boot[[j]][[i]]
         }else(cat(i,"\n"))
@@ -74,7 +74,7 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
        ENV.LCC[[i]] <- apply(LCC_IC[[i]], 1, quantile,
                              probs=c(alpha/2,1-alpha/2))
       }else{
-        for(j in 1:length(LCC_Boot)) {
+        for(j in seq_len(length(LCC_Boot))) {
           if(is.null(LCC_Boot[[j]])==FALSE){
             LCC_IC[[i]][,j] <- ZFisher(LCC_Boot[[j]][[i]])
           }else(cat(i,"\n"))
@@ -82,7 +82,7 @@ lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
         SE_LCC[[i]]<-apply(LCC_IC[[i]], 1, sd)
         mean_LCC[[i]]<-apply(LCC_IC[[i]], 1, mean)
         ENV.LCC[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_LCC[[i]]))
-        for(k in 1:length(SE_LCC[[i]])){
+        for(k in seq_len(length(SE_LCC[[i]]))){
           ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-
             c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*SE_LCC[[i]][k])
         }

@@ -13,6 +13,6 @@ returns a matrix or list of matrix containing the
   non-parametric bootstrap interval.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}

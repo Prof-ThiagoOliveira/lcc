@@ -152,7 +152,7 @@ lccPlot<-function(obj, type = "lcc", control = list(), ...){
       pos <- pos[!nap]
       control <- control[!nap]
     }
-    for(i in 1:length(pos)){
+    for(i in seq_len(length(pos))){
       plot.cons[[pos[i]]]<-control[[i]]
     }
   }

@@ -273,6 +273,11 @@ Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
   Application in Fruit Color Analysis. \emph{Journal of
   Agricultural, Biological, and Environmental Statistics}, v. 23,
   n. 2, 233–254, 2018.
+
+Oliveira, T.P.; Moral, R.A.; Zocchi, S.S.; Demetrio,
+  C.G.B.; Hinde, J. lcc: an R packageto estimate the concordance
+  correlation, Pearson correlation, and accuracy over
+  time. \emph{PeerJ}, 8:c9850, 2020. DOI:10.7717/peerj.9850
 }
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
@@ -284,7 +289,7 @@ Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@usp.br}, Rafael de Andrade Moral, John Hinde
+  \email{thiago.paula.oliveira@alumni.usp.br}, Rafael de Andrade Moral, John Hinde
 }
 \keyword{ggplot2}
 \keyword{nlme}

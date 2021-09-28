@@ -1,7 +1,7 @@
 Package: lcc
 Type: Package
 Title: Longitudinal Concordance Correlation
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: c(
     person("Thiago", "de Paula Oliveira", role=c("aut", "cre"), 
            email = "thiago.paula.oliveira@alumni.usp.br",
@@ -22,7 +22,7 @@ Author: Thiago de Paula Oliveira [aut, cre] (<https://orcid.org/0000-0002-4555-2
   John Hinde [aut] (<https://orcid.org/0000-0001-6507-5204>)
 Maintainer: Thiago de Paula Oliveira <thiago.paula.oliveira@alumni.usp.br>
 Description: Estimates the longitudinal concordance correlation to access the longitudinal agreement profile. The estimation approach implemented is variance components approach based on polynomial mixed effects regression model, as proposed by Oliveira, Hinde and Zocchi (2018) <doi:10.1007/s13253-018-0321-1>.  In addition, non-parametric confidence intervals were implemented using percentile method or normal-approximation based on Fisher Z-transformation.
-Date: 2021-02-26
+Date: 2021-09-28
 Depends: R (>= 3.2.3), nlme (>= 3.1-124), ggplot2 (>= 2.2.1)
 Imports: hnp, parallel, doSNOW, doRNG, foreach
 Suggests:
@@ -35,4 +35,4 @@ Encoding: UTF-8
 Repository: CRAN
 NeedsCompilation: yes
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.2

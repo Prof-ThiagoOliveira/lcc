@@ -9,6 +9,6 @@ This is an internally called functions used to compute
   the non-parametric confidence intervals for LCC.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@usp.br}
+Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}

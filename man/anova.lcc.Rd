@@ -86,5 +86,5 @@ anova(fm1.aov, fm2.aov, fm5.aov)
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@usp.br}
+  \email{thiago.paula.oliveira@alumni.usp.br}
 }
