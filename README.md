@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lcc <img src="man/figures/logo.svg" align="right" height = 150/>
+# lcc <img src="man/figures/logo.png" align="right" height = 150/>
 
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
