@@ -158,7 +158,7 @@ init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
 ##'
 ##' @usage NULL
 ##'
-##' @author Code by Don MacQueen \email{macq\@llnl.gov}
+##' @author Code by Don MacQueen 
 ##'
 ##' @keywords internal
 

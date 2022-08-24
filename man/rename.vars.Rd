@@ -10,6 +10,6 @@ This is an internally called function used to verify
   based method.
 }
 \author{
-Code by Don MacQueen \email{macq\@llnl.gov}
+Code by Don MacQueen
 }
 \keyword{internal}
