@@ -38,7 +38,7 @@ init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
   Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
     to = c("y", "ind", "FacA", "time"),
     info = FALSE), TRUE)
-  if(class(Data)=="try-error"){
+  if (inherits(Data,"try-error")) {
     stop("Please, verify the name of 'resp', 'subject', 'method', and 'time' variables",
          call.=FALSE)
   }
@@ -79,7 +79,7 @@ init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
   # Test for var.class and weigth form
   #---------------------------------------------------------------------
     if(is.null(var.class)==FALSE){
-      vc<-class(var.class())[1]
+      vc <- class(var.class())[1]
       if(is.null(weights.form)) stop("Please specify the 'weights.form' argument.",
                                      call.=FALSE)
       if(weights.form=="time.ident" || weights.form == "method") {
@@ -129,7 +129,7 @@ init<-function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
   # Test for gs
   #---------------------------------------------------------------------
   if (is.null(gs) == FALSE) {
-    if (class(gs) != "character")  {
+    if (!inherits(gs, "character"))  {
       stop("Please specify the 'gs' as character string.
           Example: gs = 'Scanner'", call.= FALSE)
     }

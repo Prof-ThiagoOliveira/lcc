@@ -147,7 +147,7 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' @export
 
 fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
-  if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
+  if (!inherits(object, "lcc")) stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
   if(missing(type)) type="lcc"
   if(object$plot_info$components == FALSE && type == "lpc" ||
@@ -221,7 +221,7 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 ##' @export
 
 print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
-  if(class(x)[2] == "lcc"){
+  if (inherits(x, "lcc")) {
     cat("Longitudinal concordance correlation model fit by ")
     cat( if(x$model$method == "REML") "REML\n" else "maximum likelihood\n")
     AIC <- AIC(x$model)
@@ -232,8 +232,8 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
     gof <- x$gof
     cat(paste0(" gof: ", round(gof, 4)), "\n")
     cat("\n")
-    if(class(x$comp) == "character"){
-      if(is.null(x$info$ENV.LCC)){
+    if (inherits(x$comp, "character")) {
+      if (is.null(x$info$ENV.LCC)) {
         cat(x$comp, "\n")
         fitted <- x$fitted
         print(fitted, digits = digits,  ...)
@@ -273,7 +273,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
       }
     }
   }else{
-    if(class(x)[2] == "model"){
+    if (inherits(x, "model")) {
       dd <- x$dims
       verbose <- verbose || attr(x, "verbose")
       cat( "Linear mixed-effects model fit by " )
@@ -411,7 +411,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 summary.lcc <- function(object, type, adjustSigma = TRUE,
                         verbose = FALSE, ...)
 {
-  if(class(object)!="lcc") stop("Object must inherit from class \"lcc\"",
+  if (!inherits(object, "lcc")) stop("Object must inherit from class \"lcc\"",
                                 call.=FALSE)
   if(missing(type)) type <- "model"
   if(type=="model" || type=="lcc"){
@@ -464,7 +464,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
       obj$BIC <- BIC(aux)
       obj$AIC <- AIC(aux)
       structure(obj, verbose = verbose, oClass = class(obj),
-                class = c("summary.lcc", "model", class(object)))
+                class = c("summary.lcc", "model", class(obj)))
     }
   }else {
     stop("Available 'type' are lcc or model", call.=FALSE)

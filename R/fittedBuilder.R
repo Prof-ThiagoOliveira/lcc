@@ -35,8 +35,8 @@ fittedBuilder <- function(object, type){
                   "lcc" = "LCC",
                   "lpc" = "LPC",
                   "la"  = "LA")
-  if(class(object$Summary.lcc$comp) == "character"){
-    if(class(object$Summary.lcc$fitted) == "data.frame"){
+  if (inherits(object$Summary.lcc$comp, "character")) {
+    if (inherits(object$Summary.lcc$fitted, "data.frame")) {
       ret <- data.frame(Methods = object$Summary.lcc$comp,
                         Time = object$Summary.lcc$fitted[,"Time"],
                         LCC = object$Summary.lcc$fitted[, .name])
@@ -48,7 +48,7 @@ fittedBuilder <- function(object, type){
       attr(ret, "row.names")
     }
   }else{
-    if(class(object$Summary.lcc$fitted) == "data.frame"){
+    if (inherits(object$Summary.lcc$fitted, "data.frame")) {
       fit <- list()
       rn <- list()
       met <- list()
