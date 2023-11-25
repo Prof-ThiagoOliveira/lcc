@@ -14,21 +14,23 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal Function to Produces a Longitudinal Concordance
-##'   Correlation Plot.
-##'
-##' @description This is an internally called function used to produces
-##'   a longitudinal concordance correlation plot from fitted ans
-##'   sampled values with or not non-parametric confidence intervals.
-##'
-##' @details returns a inital plot for the longitudinal concordance
-##'   correlation.
-##'
-##' @usage NULL
-##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @keywords internal
+#' Generate a Longitudinal Concordance Correlation Plot
+#'
+#' Produces a longitudinal concordance correlation plot from fitted 
+#' and sampled values with optional non-parametric confidence intervals.
+#'
+#' @param rho Vector of LCC values.
+#' @param ENV.LCC Environment matrix for LCC values, used for confidence intervals.
+#' @param tk.plot Time points for LCC values.
+#' @param CCC Matrix or list of CCC values.
+#' @param tk.plot2 Time points for CCC values.
+#' @param ldb Number of levels in the data.
+#' @param model The model object from which data was extracted.
+#' @param ci Logical, indicating if confidence intervals should be included.
+#' @param arg List of graphical arguments.
+#' @param ... Additional arguments for ggplot.
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_ribbon labs theme element_text
+#' @keywords internal
 plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
                             tk.plot2, ldb, model, ci, arg, ...){
   if(ci==FALSE){
@@ -69,7 +71,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       data_plot2_ <- do.call(rbind.data.frame, data_plot2)
       Plot <- ggplot(data_plot_, aes(y=LCC, x=Time))+
         geom_line(data=data_plot_, colour=arg$colour, size=arg$size)+
-      geom_point(data=data_plot2_, aes(y=CCC, x=Time), shape=arg$shape)+
+        geom_point(data=data_plot2_, aes(y=CCC, x=Time), shape=arg$shape)+
         facet_wrap(~ Level, ...) +
         labs(x = paste0(arg$xlab)) +
         labs(y = paste0(arg$ylab)) +
@@ -95,7 +97,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
         geom_ribbon(data=data_plot,aes(ymin=lower_rho,ymax=upper_rho),
                     fill="grey70", alpha=0.3,show.legend = TRUE)+
         ggtitle(paste(levels(model$data$method)[2], "vs.",
-                  levels(model$data$method)[1]))+
+                      levels(model$data$method)[1]))+
         labs(x = paste0(arg$xlab))+
         labs(y = paste0(arg$ylab))+
         theme(plot.title = element_text(hjust = 0.5))

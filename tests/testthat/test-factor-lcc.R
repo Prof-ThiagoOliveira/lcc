@@ -20,3 +20,4 @@ expect_equivalent(fm1$Summary.lcc$fitted,fm2$Summary.lcc$fitted)
 expect_equivalent(fm1$Summary.lcc$sampled,fm2$Summary.lcc$sampled)
 expect_equivalent(fm1$Summary.lcc$gof,fm2$Summary.lcc$gof)
 })
+

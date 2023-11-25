@@ -3,35 +3,48 @@
 \name{AIC.lcc}
 \alias{AIC.lcc}
 \alias{BIC.lcc}
-\title{Akaike and Bayesian Information Criteria for an \code{lcc} Object.}
+\title{Akaike and Bayesian Information Criteria for an \code{lcc} Object}
 \usage{
 \method{AIC}{lcc}(object, ..., k = 2)
 
 \method{BIC}{lcc}(object, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{object}{An object of class \code{lcc}, representing a fitted 
+longitudinal concordance correlation function.}
 
-\item{...}{optional arguments passed to the \code{AIC}
-function.}
+\item{...}{Optional arguments passed to the underlying \code{BIC}
+function from the \code{stats} package.}
 
-\item{k}{numeric value, use as penalty coefficient for the number of
-parameters in the fitted model; the default \code{k = 2} is the
-classical AIC.}
+\item{k}{Numeric value used as a penalty coefficient for the number of
+parameters in the fitted model; the default \code{k = 2} corresponds
+to the classical AIC.}
 }
 \description{
-Calculate the Akaike's 'An Information Criterion' or
-  the BIC or SBC (Schwarz's Bayesian criterion) for an object of
-  class \code{lcc}.
+Calculates the Akaike Information Criterion (AIC) or the Bayesian Information Criterion (BIC)
+for a fitted longitudinal concordance correlation model represented by an \code{lcc} object.
+
+Calculates the Bayesian Information Criterion (BIC) for a fitted
+longitudinal concordance correlation model represented by an \code{lcc} object.
+BIC is used for model selection, with lower values indicating a better model.
 }
 \details{
-A numeric value with the corresponding AIC or BIC
-  value. See methods for \code{\link{AIC}} objects to get more
-  details.
+The function computes AIC or BIC values as a measure of the relative quality of
+statistical models for a given set of data. Lower AIC or BIC values indicate a
+better model fit with fewer parameters. For more information, refer to the methods
+for \code{\link{AIC}} objects.
+
+The function computes BIC as a measure of the trade-off between model fit and
+complexity. It is particularly useful for comparing models with different numbers
+of parameters. For more information, refer to the documentation for \code{\link{BIC}}.
 }
 \examples{
+\dontrun{
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
+AIC(fm1)
+}
+
 \dontrun{
 attach(simulated_hue)
 fm6 <- lcc(data = simulated_hue, subject = "Fruit",
@@ -46,8 +59,7 @@ BIC(fm6)
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
+
+\code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
+  \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}, \code{\link{AIC.lcc}}
 }

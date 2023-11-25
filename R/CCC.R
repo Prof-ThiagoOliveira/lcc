@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 25/11/2023                                            #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -17,23 +17,25 @@
 ##' @title Internal Function to Compute the Sampled Concordance
 ##'   Correlation Values.
 ##'
-##' @description This is an internally called functions used to compute
-##'   the sampled concordance correlation values.
+##' @description This function computes the sampled concordance correlation
+##'   coefficient (CCC) between two numeric vectors. It is used internally
+##'   for statistical analysis.
 ##'
-##' @usage NULL
+##' @param Y1 A numeric vector.
+##' @param Y2 A numeric vector, typically paired with Y1.
 ##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @return The concordance correlation coefficient between Y1 and Y2.
 ##'
-##' @importFrom stats var cov cor
+##' @importFrom stats var cov
 ##'
 ##' @keywords internal
-CCC<-function(Y1,Y2){
-  data=data.frame(Y1,Y2)
-  m1<-mean(Y1)
-  m2<-mean(Y2)
-  S1<-var(Y1)
-  S2<-var(Y2)
-  S12<-cov(Y1, Y2)
-  CCC_lin<-2*S12/(S1+S2+(m1-m2)^2)
+##' @examples
+##' # Example usage:
+##' # CCC(c(1, 2, 3), c(3, 2, 1))
+CCC <- function(Y1, Y2) {
+  m1 <- mean(Y1)
+  m2 <- mean(Y2)
+  S12 <- cov(Y1, Y2)
+  CCC_lin <- 2 * S12 / (var(Y1) + var(Y2) + (m1 - m2)^2)
   return(CCC_lin)
 }

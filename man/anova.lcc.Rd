@@ -2,89 +2,58 @@
 % Please edit documentation in R/methods.R
 \name{anova.lcc}
 \alias{anova.lcc}
-\title{Compare Likelihoods of Fitted Models from an \code{lcc}
-  Object}
+\title{Compare Likelihoods of Fitted Models from an \code{lcc} Object}
 \usage{
-\method{anova}{lcc}(object, ..., test, type, adjustSigma,
-  verbose)
+\method{anova}{lcc}(object, ..., test = TRUE, type = c("sequential", "marginal"), 
+  adjustSigma = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc} or \code{lme},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{object}{An object inheriting from class \code{lcc} or \code{lme}.}
 
-\item{...}{other optional fitted model objects inheriting from
-classes "lcc", or "lme".}
+\item{...}{Other optional fitted model objects inheriting from classes "lcc" or "lme".}
 
-\item{test}{an optional logical value controlling whether likelihood
-ratio tests should be used to compare the fitted models
-represented by object and the objects in \code{...}. Defaults to
-TRUE.}
+\item{test}{Logical; if \code{TRUE}, performs likelihood ratio tests to compare models. 
+Defaults to \code{TRUE}.}
 
-\item{type}{an optional character string specifying the type of sum
-of squares to be used in F-tests for the terms in the model. If
-\code{sequential}, the sequential sum of squares obtained by
-including the terms in the order they appear in the model is used;
-else, if \code{marginal}, the marginal sum of squares obtained by
-deleting a term from the model at a time is used. This argument is
-only used when a single fitted object is passed to the
-function. Partial matching of arguments is used, so only the first
-character needs to be provided. Defaults to \code{sequential}.}
+\item{type}{Character string specifying the type of sum of squares for F-tests. 
+Options are "sequential" or "marginal". Defaults to "sequential".}
 
-\item{adjustSigma}{an optional logical value. If \code{TRUE} and the
-estimation method used to obtain object was maximum likelihood,
-the residual standard error is multiplied by sqrt(nobs/(nobs -
-npar)), converting it to a REML-like estimate. This argument is
-only used when a single fitted object is passed to the
-function. Default is \code{TRUE}.}
+\item{adjustSigma}{Logical; if \code{TRUE}, adjusts the residual standard error 
+for maximum likelihood estimation. Defaults to \code{TRUE}.}
 
-\item{verbose}{an optional logical value. If \code{TRUE}, the
-calling sequences for each fitted model object are printed with
-the rest of the output, being omitted if \code{verbose =
-FALSE}. Defaults to \code{FALSE}.}
+\item{verbose}{Logical; if \code{TRUE}, prints additional model details. 
+Defaults to \code{FALSE}.}
 }
 \description{
-If just one \code{lcc} model object is declared, a data
-  frame with the numerator degrees of freedom, denominator degrees
-  of freedom, F-values, and P-values for the fixed terms in the
-  model. Otherwise, when multiple \code{lcc} fitted objects are
-  being compared, a data frame with the degrees of freedom, the
-  (restricted) log-likelihood, the Akaike Information Criterion
-  (AIC), and the Bayesian Information Criterion (BIC) of each object
-  is returned.
+Compares the fit of different longitudinal concordance correlation models 
+(lcc objects). When comparing multiple models, the function returns a 
+data frame with degrees of freedom, log-likelihood, AIC, and BIC for each model. 
+For a single model, it returns F-values and P-values for fixed terms in the model.
 }
 \details{
-This function is an adaptation from the
-  \code{\link{anova.lme}}. For more details see methods for
-  \code{\link{nlme}}.
+This function is an adaptation from \code{\link{anova.lme}}. 
+It assesses whether the addition of terms significantly improves model fit.
 }
 \examples{
 \dontrun{
-## Testing random effects
-fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
-               method = "Method", time = "Time", qf = 2, qr = 1)
-fm2.aov <- update(fm1.aov,  qr = 2)
+fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean", method = "Method", 
+               time = "Time", qf = 2, qr = 1)
+fm2.aov <- update(fm1.aov, qr = 2)
 anova(fm1.aov, fm2.aov)
 }
 
 \dontrun{
-# Testing fixed effects
-fm3.aov <- update(fm2.aov,  REML = FALSE)
-fm4.aov <- update(fm2.aov,  REML = FALSE,  qf = 3)
+fm3.aov <- update(fm2.aov, REML = FALSE)
+fm4.aov <- update(fm2.aov, REML = FALSE, qf = 3)
 anova(fm3.aov, fm4.aov)
 }
 
 \dontrun{
-# Comparing the 3 lcc models
-fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
+fm5.aov <- update(fm2.aov, var.class = varExp, weights.form = "time")
 anova(fm1.aov, fm2.aov, fm5.aov)
 }
 
 }
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

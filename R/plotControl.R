@@ -13,45 +13,38 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Specifying Graphical Control Values for \code{lcc} Class
-##'
-##' @description The values supplied in the \code{plotControl()} call
-##'   replace the defaults, and a \code{\link{list}} with all settings
-##'   is returned.
-##'
-##' @return a list with components for each of the possible arguments.
-##'
-##' @param plot an optional to include an initial plot. If \code{TRUE},
-##'   the default, returns a \code{\link[ggplot2]{ggplot}} object with a
-##'   initial plot for \code{lcc} class. If \code{FALSE} never includes.
-##'
-##' @param shape Draw points considering a shape parameter. Legal shape
-##'   values are the numbers 0 to 25, and 32 to 127; see
-##'   \code{\link[ggplot2]{aes_linetype_size_shape}}. Default is
-##'   \code{1}.
-##'
-##' @param colour an specification for lines color. Default is
-##'   \code{"black"}.
-##'
-##' @param size an specification for lines size. Should be specified
-##'   with a numerical value (in millimetres); see
-##'   \code{\link[ggplot2]{aes_linetype_size_shape}}. Default is
-##'   \code{0.5}.
-##'
-##' @param xlab a title for the \code{x} axis.  Default is
-##'   \code{"Time"}.
-##'
-##' @param ylab title for the \code{y} axis. Default is
-##'   \code{"LCC"}.
-##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @import ggplot2
-##'
-##' @keywords internal
-plotControl<-function(plot= TRUE, shape=1, colour="black", size=0.5,
-                       xlab = "Time", ylab = "LCC")
-{
-       list(plot = plot, shape=shape, colour=colour, size=size,
-            xlab = xlab, ylab = ylab)
+#' Control Settings for \code{lcc} Plots
+#'
+#' This function customizes the graphical control settings for plots of the 
+#' \code{lcc} class. It allows for the adjustment of various aspects such as 
+#' shape, color, and size of plot elements, as well as axis labels. The function 
+#' returns a list containing all these settings, which can be used in plotting 
+#' functions for \code{lcc} objects.
+#'
+#' @param plot Logical flag to include an initial plot. If set to \code{TRUE}, 
+#'   a \code{\link[ggplot2]{ggplot}} object with an initial plot for \code{lcc} 
+#'   class is returned. Defaults to \code{TRUE}.
+#' @param shape Numeric value specifying the shape of points in the plot. 
+#'   Acceptable values are from 0 to 25, and 32 to 127. See 
+#'   \code{\link[ggplot2]{aes}} for details on setting shape. Default is \code{1}.
+#' @param colour String specifying the color of lines in the plot. 
+#'   Default color is \code{"black"}.
+#' @param size Numeric value specifying the size of lines in the plot, given in 
+#'   millimeters. See \code{\link[ggplot2]{aes}} for details on setting size. 
+#'   Default is \code{0.5}.
+#' @param xlab Title for the x-axis, defaulting to \code{"Time"}.
+#' @param ylab Title for the y-axis, defaulting to \code{"LCC"}.
+#'
+#' @return A list with the specified graphical parameters.
+#'
+#' @author Thiago de Paula Oliveira,
+#'   \email{thiago.paula.oliveira@@alumni.usp.br}
+#'
+#' @importFrom ggplot2 ggplot aes
+#'
+#' @keywords internal
+plotControl <- function(plot = TRUE, shape = 1, colour = "black", size = 0.5,
+                        xlab = "Time", ylab = "LCC") {
+  list(plot = plot, shape = shape, colour = colour, size = size,
+       xlab = xlab, ylab = ylab)
 }

@@ -2,30 +2,32 @@
 % Please edit documentation in R/methods.R
 \name{vcov.lcc}
 \alias{vcov.lcc}
-\title{Extract Variance-Covariance Matrix of the Fixed Effects}
+\title{Extract Variance-Covariance Matrix of the Fixed Effects for an lcc Object}
 \usage{
 \method{vcov}{lcc}(object, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{object}{An object of class \code{lcc}, representing a fitted 
+longitudinal concordance correlation model.}
 
-\item{...}{optional arguments passed to the \code{vcov.lme}
-function.}
+\item{...}{Optional arguments passed to the \code{vcov.lme}
+function from the \code{nlme} package.}
 }
 \description{
-Returns the variance-covariance matrix of a fitted
-  \code{lcc} model object.
+Extracts the variance-covariance matrix of the fixed effects from a fitted
+\code{lcc} model object. This function provides insights into the variability
+and covariance structure of the fixed effects in the model.
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
-  details.
+The function specifically retrieves the variance-covariance matrix associated
+with the fixed effects of the \code{lcc} object, which is useful for understanding
+the relationship between these effects. For more details on variance-covariance
+matrices, refer to the methods for \code{\link{nlme}} objects.
 }
 \examples{
 \dontrun{
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
 vcov(fm1)
 }
 
@@ -33,8 +35,4 @@ vcov(fm1)
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{lccPlot}},
   \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

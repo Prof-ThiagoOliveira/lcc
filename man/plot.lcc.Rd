@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot.lcc}
 \alias{plot.lcc}
-\title{Diagnostic Plots of an \code{lcc} Object.}
+\title{Diagnostic Plots for an \code{lcc} Object}
 \usage{
 \method{plot}{lcc}(x, which = c(1L:6L),
      caption = list("Residuals vs Fitted",
@@ -11,7 +11,7 @@
                     "Observed values vs Fitted values",
                     "Normal Q-Q Plot (Conditional residuals)",
                     "Normal Q-Q Plot (Random effects)"),
-     sub.caption =  NULL,  main = NULL,
+     sub.caption = NULL, main = NULL,
      panel = if(add.smooth) panel.smooth else points,
      add.smooth = TRUE, ask = TRUE,
      id.n = 3, labels.id = names(residuals(x)),
@@ -19,78 +19,69 @@
      cex.oma.man = 1.25, ...)
 }
 \arguments{
-\item{x}{an object inheriting from class \code{\link[lcc]{lcc}},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{x}{An object of class \code{\link[lcc]{lcc}}, representing a
+fitted longitudinal concordance correlation function.}
 
-\item{which}{if a subset of the plots is required, specify a subset
-of the numbers from 1 to 6.}
+\item{which}{A numeric vector specifying which plots to display.
+The valid range is c(1L:6L), corresponding to the plot types.}
 
-\item{caption}{captions to appear above the plots. Vector or list of
-valid graphics annotations is required. All captions can be
-supressed using '""' or \code{NA}.}
+\item{caption}{Captions for the plots, provided as a vector or list
+of valid graphics annotations. Default captions are provided for each plot.}
 
-\item{sub.caption}{common sub-title (at bottom). Default to
+\item{sub.caption}{A common sub-title for all plots; defaults to
 \code{NULL}.}
 
-\item{main}{The main title (on top) above the caption.}
+\item{main}{The main title for the plots, displayed above the captions.}
 
-\item{panel}{panel function. If \code{add.smooth = TRUE},
-\code{panel.smooth} is used rather than \code{points}.}
+\item{panel}{Panel function to be used for adding points to the plots.
+Defaults to \code{panel.smooth} if \code{add.smooth} is \code{TRUE}, 
+otherwise \code{points}.}
 
-\item{add.smooth}{logical indicating if smoother should be added to
-most plots; see also \code{panel} above. Defaults to \code{TRUE}.}
+\item{add.smooth}{Logical; indicates whether a smoother should be added
+to most plots. Defaults to \code{TRUE}.}
 
-\item{ask}{logical; if \code{TRUE}, the default, the user is _ask_ed
-before each plot, see \code{\link[graphics]{par}}.}
+\item{ask}{Logical; if \code{TRUE}, prompts the user before displaying
+each plot in a multi-plot layout. Defaults to \code{TRUE}.}
 
-\item{id.n}{number of points to be labelled is the first three
-plots, starting with the most extreme.}
+\item{id.n}{Number of extreme points to label in the first three plots.}
 
-\item{labels.id}{vector of labels, from which the labels for extreme
-points will be chosen. Default to \code{NULL} (uses observation
-numbers).}
+\item{labels.id}{Labels for the extreme points, defaulting to observation
+numbers if \code{NULL}.}
 
-\item{label.pos}{positioning of labels, for the left half and right
-half of the graph respectively, for plots 1-3.}
+\item{label.pos}{Positioning of labels in the left and right halves
+of the graph, applicable for plots 1-3.}
 
-\item{cex.id}{magnification of point label.}
+\item{cex.id}{Magnification factor for point labels.}
 
-\item{cex.caption}{controls the size of \code{caption}.}
+\item{cex.caption}{Size of the plot captions.}
 
-\item{cex.oma.man}{controls the size of the \code{sub.caption} only
-if that is _above_ the figures when there is more than one.}
+\item{cex.oma.man}{Size of the overall margin annotation (applies only
+if \code{sub.caption} is above the figures in multi-plot layouts).}
 
-\item{...}{further graphical parameters from 'par'.}
+\item{...}{Additional graphical parameters passed to \code{par}.}
 }
 \description{
-Diagnostic plots for conditional error and random
-effects from the linear mixed-effects fit are obtained. Six plots
-plots (selectable by 'which') are currently available: a plot of
-residuals against fitted values, a plot of residuals against
-time variable, a boxplot of residuals by subject,
-a plot of observerd values against fitted values, a normal Q-Q plot
-with simulation envelopes based on conditional error,  and a normal
-Q-Q plot with simulation envelopes based on the random effects. By
-default, all plots are provided.
+Generates a series of diagnostic plots for evaluating the fit of a linear
+mixed-effects model represented by an \code{lcc} object. This function
+provides six types of plots, including residual plots, fitted value
+comparisons, and normal Q-Q plots. Users can select specific plots or display
+all by default.
 }
 \details{
-The Q-Q plot uses the normalized residuals. The
-  standardized residuals is pre-multiplied by the inverse
-  square-root factor of the estimated error correlation matrix while
-  the random effects is pre-multiplied by the inverse square root of
-  the estimated variances obtained from matrix G. The simulate
-  envelopes are obtained from package hnp (Moral et al.,  2018).
+The Q-Q plots use normalized residuals. Standardized residuals are pre-multiplied
+by the inverse square-root factor of the estimated error correlation matrix,
+while random effects are adjusted using the estimated variances from matrix G.
+Simulation envelopes in Q-Q plots are generated using the \code{hnp} package.
 
-  Code partially adapted from \code{\link[stats]{plot.lm}}.
+The function is partly adapted from \code{\link[stats]{plot.lm}}.
 }
 \examples{
-
-## Second degree polynomial model with random intercept, slope and
-## quadratic term
+\dontrun{
 fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
            method = "Method", time = "Time", qf = 2, qr = 2)
 plot(fm1)
+}
+
 }
 \seealso{
 \code{\link{lccPlot}}, \code{\link[lcc]{lcc}},

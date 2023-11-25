@@ -2,18 +2,33 @@
 % Please edit documentation in R/plotBuilder_lcc.R
 \name{plotBuilder_lcc}
 \alias{plotBuilder_lcc}
-\title{Internal Function to Produces a Longitudinal Concordance
-  Correlation Plot.}
+\title{Generate a Longitudinal Concordance Correlation Plot}
+\usage{
+plotBuilder_lcc(rho, ENV.LCC, tk.plot, CCC, tk.plot2, ldb, model, ci, arg, ...)
+}
+\arguments{
+\item{rho}{Vector of LCC values.}
+
+\item{ENV.LCC}{Environment matrix for LCC values, used for confidence intervals.}
+
+\item{tk.plot}{Time points for LCC values.}
+
+\item{CCC}{Matrix or list of CCC values.}
+
+\item{tk.plot2}{Time points for CCC values.}
+
+\item{ldb}{Number of levels in the data.}
+
+\item{model}{The model object from which data was extracted.}
+
+\item{ci}{Logical, indicating if confidence intervals should be included.}
+
+\item{arg}{List of graphical arguments.}
+
+\item{...}{Additional arguments for ggplot.}
+}
 \description{
-This is an internally called function used to produces
-  a longitudinal concordance correlation plot from fitted ans
-  sampled values with or not non-parametric confidence intervals.
-}
-\details{
-returns a inital plot for the longitudinal concordance
-  correlation.
-}
-\author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
+Produces a longitudinal concordance correlation plot from fitted 
+and sampled values with optional non-parametric confidence intervals.
 }
 \keyword{internal}

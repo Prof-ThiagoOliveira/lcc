@@ -2,44 +2,35 @@
 % Please edit documentation in R/methods.R
 \name{print.lcc}
 \alias{print.lcc}
-\title{Print an \code{lcc} Object}
+\title{Print Method for \code{lcc} Objects}
 \usage{
-\method{print}{lcc}(x, digits, ...)
+\method{print}{lcc}(x, digits = NULL, ...)
 }
 \arguments{
-\item{x}{an object inheriting from class
-\code{\link[lcc]{lcc}}, representing a fitted longitudinal
-concordance correlation function.}
+\item{x}{An object of class \code{lcc}, representing a fitted longitudinal
+concordance correlation model.}
 
-\item{digits}{a non-null value for \code{digits} specifies the minimum
-number of significant digits to be printed in values. The
-default, \code{NULL}.}
+\item{digits}{Minimum number of significant digits to be printed in values.
+Default is \code{NULL}, which uses the default precision.}
 
-\item{...}{further arguments passed to \code{{\link{print}}}.}
+\item{...}{Further arguments passed to \code{print}.}
 }
 \value{
-an object inheriting from class \code{print.lcc}.
+The function is used for its side effect of printing and returns
+  the input \code{lcc} object invisibly.
 }
 \description{
-Prints information about the longitudinal concordance
-  correlation represented by an object of class
-  \code{\link[lcc]{lcc}}. The returned object has a
-  \code{\link[base]{print}} method.
+Prints detailed information about the fitted longitudinal
+  concordance correlation model contained in an \code{lcc} object.
 }
 \examples{
 \dontrun{
-## Second degree polynomial model with random intercept, slope and
-## quadratic term
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+          method = "Method", time = "Time", qf = 2, qr = 2)
 print(fm1)
 }
 
 }
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

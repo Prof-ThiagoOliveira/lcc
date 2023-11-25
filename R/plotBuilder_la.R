@@ -16,17 +16,16 @@
 
 ##' @title Internal Function to Produces a Longitudinal Accuracy Plot.
 ##'
-##' @description This is an internally called function used to produces
-##'   a longitudinal accuracy plot from fitted ans sampled values with
-##'   or not non-parametric confidence intervals.
+##' @description Produces a longitudinal accuracy plot from fitted and sampled values 
+##'   with optional non-parametric confidence intervals.
 ##'
-##' @details returns a inital plot for the longitudinal accuracy
-##'   correlation.
+##' @details Returns an initial plot for the longitudinal accuracy correlation.
 ##'
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
+##' @importFrom ggplot2 ggplot geom_line geom_point geom_ribbon labs theme element_text ggtitle
 ##' @keywords internal
 plotBuilder_la<-function(CCC, Pearson, Cb, ENV.Cb, tk.plot,
                          tk.plot2, ldb, model, ci, arg, ...){
@@ -57,7 +56,7 @@ plotBuilder_la<-function(CCC, Pearson, Cb, ENV.Cb, tk.plot,
           paste(levels(model$data$method)[i+1], "vs.",
                 levels(model$data$method)[1])
         data_plot2[[i]] <- data.frame("Cb" = CCC[[i]]$V1/Pearson[[i]]$V1,
-                                    "Time" = tk.plot2)
+                                      "Time" = tk.plot2)
         data_plot2[[i]]$Level <-
           paste(levels(model$data$method)[i+1], "vs.",
                 levels(model$data$method)[1])
@@ -71,7 +70,7 @@ plotBuilder_la<-function(CCC, Pearson, Cb, ENV.Cb, tk.plot,
         labs(x = paste0(arg$xlab)) +
         labs(y = paste0(arg$ylab)) +
         theme(plot.title = element_text(hjust = 0.5))
-    print(Plot)
+      print(Plot)
     }
   }else{
     if(ldb == 1) {
@@ -79,14 +78,14 @@ plotBuilder_la<-function(CCC, Pearson, Cb, ENV.Cb, tk.plot,
                             "Time"=tk.plot,
                             "lower_LA"=t(ENV.Cb)[,1],
                             "upper_LA"=t(ENV.Cb)[,2]
-                            )
+      )
       data_plot2<-data.frame("Cb"=CCC[[1]]$V1/Pearson[[1]]$V1,
-                         "Time"=tk.plot2)
+                             "Time"=tk.plot2)
       LA<-data_plot$Cb
       Time<-data_plot$Time
       lower_LA<-data_plot$lower_LA
       upper_LA<-data_plot$upper_LA
-
+      
       Plot<-ggplot(data_plot, aes(y=LA, x=Time))+
         geom_line(data=data_plot, colour=arg$colour, size=arg$size)+
         geom_point(data=data_plot2, aes(y=Cb, x=Time), shape=arg$shape)+

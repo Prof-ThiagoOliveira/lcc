@@ -4,11 +4,24 @@
 \alias{CCC}
 \title{Internal Function to Compute the Sampled Concordance
   Correlation Values.}
-\description{
-This is an internally called functions used to compute
-  the sampled concordance correlation values.
+\usage{
+CCC(Y1, Y2)
 }
-\author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
+\arguments{
+\item{Y1}{A numeric vector.}
+
+\item{Y2}{A numeric vector, typically paired with Y1.}
+}
+\value{
+The concordance correlation coefficient between Y1 and Y2.
+}
+\description{
+This function computes the sampled concordance correlation
+  coefficient (CCC) between two numeric vectors. It is used internally
+  for statistical analysis.
+}
+\examples{
+# Example usage:
+# CCC(c(1, 2, 3), c(3, 2, 1))
 }
 \keyword{internal}

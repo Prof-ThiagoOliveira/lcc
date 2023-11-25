@@ -31,41 +31,29 @@ is.lcc <- function(x) inherits(x, "lcc")
 #=======================================================================
 ##' @rdname print.lcc
 ##' @method print lcc
-##' @title Print an \code{lcc} Object
-##' @usage \method{print}{lcc}(x, digits, ...)
-##' @aliases print.lcc
-##' @description Prints information about the longitudinal concordance
-##'   correlation represented by an object of class
-##'   \code{\link[lcc]{lcc}}. The returned object has a
-##'   \code{\link[base]{print}} method.
+##' @title Print Method for \code{lcc} Objects
 ##'
-##' @return an object inheriting from class \code{print.lcc}.
+##' @description Prints detailed information about the fitted longitudinal
+##'   concordance correlation model contained in an \code{lcc} object.
 ##'
-##' @param x an object inheriting from class
-##'   \code{\link[lcc]{lcc}}, representing a fitted longitudinal
-##'   concordance correlation function.
+##' @param x An object of class \code{lcc}, representing a fitted longitudinal
+##'   concordance correlation model.
+##' @param digits Minimum number of significant digits to be printed in values.
+##'   Default is \code{NULL}, which uses the default precision.
+##' @param ... Further arguments passed to \code{print}.
 ##'
-##' @param digits a non-null value for \code{digits} specifies the minimum
-##'   number of significant digits to be printed in values. The
-##'   default, \code{NULL}.
+##' @return The function is used for its side effect of printing and returns
+##'   the input \code{lcc} object invisibly.
 ##'
-##' @param ... further arguments passed to \code{{\link{print}}}.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}}
 ##' @examples
 ##' \dontrun{
-##' ## Second degree polynomial model with random intercept, slope and
-##' ## quadratic term
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'           method = "Method", time = "Time", qf = 2, qr = 2)
 ##' print(fm1)
 ##' }
 ##'
-##' @importFrom stats AIC BIC
 ##' @export
-
 print.lcc <- function(x, digits = NULL, ...){
   cat("Longitudinal concordance correlation model fit by ")
   cat( if(x[1]$model$method == "REML") "REML\n" else "maximum likelihood\n")
@@ -99,73 +87,54 @@ print.lcc <- function(x, digits = NULL, ...){
 #=======================================================================
 ##' @rdname fitted.lcc
 ##' @method fitted lcc
-##' @title  Extract \code{lcc} Fitted Values
-##' @usage
-##' \method{fitted}{lcc}(object, type, digits, ...)
-##' @aliases fitted.lcc
-##' @description Fitted values from object of class \code{lcc}
-##'   returned by modeling functions.
+##' @title Extract Fitted Values from an \code{lcc} Object
 ##'
-##' @return A data frame with columns given by methods, time, and
-##'   fitted values.
+##' @description Extracts and prints the fitted values from an object of class
+##'   \code{lcc}, as returned by modeling functions. The function allows selection
+##'   of different types of fitted values based on longitudinal data analysis.
 ##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
+##' @param object An object of class \code{lcc}, representing a fitted longitudinal
+##'   concordance correlation model.
+##' @param type The type of fitted values to extract: "lcc" for longitudinal
+##'   concordance correlation, "lpc" for longitudinal Pearson correlation,
+##'   or "la" for longitudinal accuracy. Defaults to "lcc".
+##' @param digits Minimum number of significant digits to be printed.
+##'   Default is \code{NULL}, which uses the default precision.
+##' @param ... Additional arguments (currently not used).
 ##'
-##' @param type an optional character string specifying the type of
-##'   output to be returned. If \code{type="lcc"}, prints the fitted
-##'   longitudinal concordance correlation. If
-##'   \code{type="lpc"}, prints the fitted longitudinal Pearson
-##'   correlation. If \code{type="la"}, prints the fitted longitudinal
-##'   accuracy. Defaults to \code{type="lcc"}.
+##' @return The function prints the fitted values and returns them as a data frame.
 ##'
-##' @param digits a non-null value for \code{digits} specifies the minimum
-##'   number of significant digits to be printed in values. The
-##'   default, \code{NULL}.
-##'
-##' @param ... not used.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link[lcc]{summary.lcc}},
 ##'   \code{\link[lcc]{lccPlot}}
 ##' @examples
 ##' data(hue)
-##' ## Second degree polynomial model with random intercept, slope and
-##' ## quadratic term
-##' \dontrun{
 ##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2,
 ##'            components = TRUE)
 ##' fitted(fm1)
-##' fitted(fm1, type="lpc")
-##' fitted(fm1, type="la")
-##' }
+##' fitted(fm1, type = "lpc")
+##' fitted(fm1, type = "la")
 ##'
-##' @importFrom stats AIC BIC
 ##' @export
-
 fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
-  if (!inherits(object, "lcc")) stop("Object must inherit from class \"lcc\"",
-                                call.=FALSE)
-  if(missing(type)) type="lcc"
-  if(object$plot_info$components == FALSE && type == "lpc" ||
-     object$plot_info$components == FALSE && type == "la"){
-    stop(paste0("It is necessary to include components = TRUE in the
-  lcc() function to calculate the fitted values for type ", type))
+  if (!inherits(object, "lcc")) {
+    stop("Object must inherit from class 'lcc'", call. = FALSE)
   }
-  if(type == "lcc" || type == "lpc" || type == "la"){
-    pr <- switch(type,
-                 "lcc" = cat( "Fitted longitudinal concordance correlation function", "\n"),
-                 "lpc" = cat( "Fitted longitudinal Pearson correlation function", "\n"),
-                 "la"  = cat( "Fitted longitudinal accuracy function", "\n"))
-    cat("\n")
-    fittedBuilder(object = object, type = type)
-  }else{
-    stop("Available 'type' are 'lcc',  'lpc', or 'la'", call.=FALSE)
+  if (!type %in% c("lcc", "lpc", "la")) {
+    stop("Available 'type' are 'lcc', 'lpc', or 'la'", call. = FALSE)
   }
+  if (object$plot_info$components == FALSE && type != "lcc") {
+    stop(paste0("It is necessary to include components = TRUE in the lcc() function ",
+                "to calculate the fitted values for type '", type, "'"), call. = FALSE)
+  }
+  
+  cat(paste0("Fitted ", switch(type,
+                               "lcc" = "longitudinal concordance correlation function",
+                               "lpc" = "longitudinal Pearson correlation function",
+                               "la"  = "longitudinal accuracy function"), "\n\n"))
+  return(fittedBuilder(object = object, type = type))
 }
+
 
 #=======================================================================
 # Summary method
@@ -174,52 +143,31 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
 # Print method for summary.lcc
 #-----------------------------------------------------------------------
 ##' @rdname print.summary.lcc
-##' @title  Print the Summary of an \code{lcc} Object
-##' @usage
-##' \method{print}{summary.lcc}(x, verbose, digits, ...)
-##' @method print summary.lcc
-##' @aliases print.summary.lcc
-##' @description Information summarizing the fitted longitudinal
-##'   concordance correlation is printed. This includes the AIC, BIC,
-##'   and log-likelihood at convergence. If \code{type = "lcc"}, prints
-##'   the fitted values while \code{type = "model"} prints the fixed
-##'   effects estimates and their standard errors, standard deviations,
-##'   correlations for the random effects, within-group correlation, and
-##'   variance function parameters.
+##' @title Print Summary of an \code{lcc} Object
 ##'
-##' @param x an object inheriting from class
-##'   \code{\link[lcc]{summary.lcc}}, representing a fitted longitudinal
-##'   concordance correlation function.
+##' @description Provides a detailed summary of a fitted longitudinal
+##'   concordance correlation model, including AIC, BIC, log-likelihood, and
+##'   other relevant statistics. The function supports detailed output for
+##'   different types of model fits.
 ##'
-##' @param verbose an optional logical value used to control the amount
-##'   of printed output when \code{type = "model"}. Defaults to
-##'   \code{FALSE}
-##'
-##' @param digits a non-null value for \code{digits} specifies the
-##'   minimum number of significant digits to be printed in values. The
-##'   default, \code{NULL}.
-##'
-##' @param ... further arguments passed to \code{\link{print}}.
-##'
-##' @importFrom stats AIC BIC asOneSidedFormula
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @param x An object of class \code{\link[lcc]{summary.lcc}},
+##'   representing a summarized longitudinal concordance correlation function.
+##' @param verbose Logical value to control the amount of printed output for
+##'   model details. Defaults to \code{FALSE}.
+##' @param digits Specifies the minimum number of significant digits to be
+##'   printed in values. Default is \code{NULL}.
+##' @param ... Further arguments passed to \code{print}.
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}
-##'
 ##' @examples
 ##' \dontrun{
-##' ## Second degree polynomial model with random intercept, slope and
-##' ## quadratic term
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
-##' print(summary(fm1, type="model"))
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
+##' print(summary(fm1, type = "model"))
 ##' }
 ##'
 ##' @export
-
 print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
   if (inherits(x, "lcc")) {
     cat("Longitudinal concordance correlation model fit by ")
@@ -407,7 +355,6 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##' summary(fm1, type="model")
 ##' summary(fm1, type="lcc")
 ##' @export
-
 summary.lcc <- function(object, type, adjustSigma = TRUE,
                         verbose = FALSE, ...)
 {
@@ -415,7 +362,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
                                 call.=FALSE)
   if(missing(type)) type <- "model"
   if(type=="model" || type=="lcc"){
-    if(type == "lcc"){
+    if(type == "lcc") {
       # Object lcc
       object$fitted <- object$Summary.lcc$fitted
       object$sampled <- object$Summary.lcc$sampled
@@ -467,7 +414,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
                 class = c("summary.lcc", "model", class(obj)))
     }
   }else {
-    stop("Available 'type' are lcc or model", call.=FALSE)
+    stop("Available 'type' are 'lcc' or 'model'", call. = FALSE)
   }
 }
 
@@ -477,7 +424,14 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 #=======================================================================
 ##' @rdname plot.lcc
 ##' @method plot lcc
-##' @title Diagnostic Plots of an \code{lcc} Object.
+##' @title Diagnostic Plots for an \code{lcc} Object
+##'
+##' @description 
+##' Generates a series of diagnostic plots for evaluating the fit of a linear
+##' mixed-effects model represented by an \code{lcc} object. This function
+##' provides six types of plots, including residual plots, fitted value
+##' comparisons, and normal Q-Q plots. Users can select specific plots or display
+##' all by default.
 ##'
 ##' @usage
 ##' \method{plot}{lcc}(x, which = c(1L:6L),
@@ -487,248 +441,189 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
 ##'                     "Observed values vs Fitted values",
 ##'                     "Normal Q-Q Plot (Conditional residuals)",
 ##'                     "Normal Q-Q Plot (Random effects)"),
-##'      sub.caption =  NULL,  main = NULL,
+##'      sub.caption = NULL, main = NULL,
 ##'      panel = if(add.smooth) panel.smooth else points,
 ##'      add.smooth = TRUE, ask = TRUE,
 ##'      id.n = 3, labels.id = names(residuals(x)),
 ##'      label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
 ##'      cex.oma.man = 1.25, ...)
 ##'
-##' @aliases plot.lcc
-##'
-##' @description Diagnostic plots for conditional error and random
-##' effects from the linear mixed-effects fit are obtained. Six plots
-##' plots (selectable by 'which') are currently available: a plot of
-##' residuals against fitted values, a plot of residuals against
-##' time variable, a boxplot of residuals by subject,
-##' a plot of observerd values against fitted values, a normal Q-Q plot
-##' with simulation envelopes based on conditional error,  and a normal
-##' Q-Q plot with simulation envelopes based on the random effects. By
-##' default, all plots are provided.
-##'
-##' @param x an object inheriting from class \code{\link[lcc]{lcc}},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
-##' @param which if a subset of the plots is required, specify a subset
-##'   of the numbers from 1 to 6.
-##' @param caption captions to appear above the plots. Vector or list of
-##'   valid graphics annotations is required. All captions can be
-##'   supressed using '""' or \code{NA}.
-##' @param sub.caption common sub-title (at bottom). Default to
+##' @param x An object of class \code{\link[lcc]{lcc}}, representing a
+##'   fitted longitudinal concordance correlation function.
+##' @param which A numeric vector specifying which plots to display.
+##'   The valid range is c(1L:6L), corresponding to the plot types.
+##' @param caption Captions for the plots, provided as a vector or list
+##'   of valid graphics annotations. Default captions are provided for each plot.
+##' @param sub.caption A common sub-title for all plots; defaults to
 ##'   \code{NULL}.
-##' @param main The main title (on top) above the caption.
-##' @param panel panel function. If \code{add.smooth = TRUE},
-##'   \code{panel.smooth} is used rather than \code{points}.
-##' @param add.smooth logical indicating if smoother should be added to
-##'   most plots; see also \code{panel} above. Defaults to \code{TRUE}.
-##' @param ask logical; if \code{TRUE}, the default, the user is _ask_ed
-##'   before each plot, see \code{\link[graphics]{par}}.
-##' @param id.n number of points to be labelled is the first three
-##'   plots, starting with the most extreme.
-##' @param labels.id vector of labels, from which the labels for extreme
-##'   points will be chosen. Default to \code{NULL} (uses observation
-##'   numbers).
-##' @param label.pos positioning of labels, for the left half and right
-##'   half of the graph respectively, for plots 1-3.
-##' @param cex.id magnification of point label.
-##' @param cex.caption controls the size of \code{caption}.
-##' @param cex.oma.man controls the size of the \code{sub.caption} only
-##'   if that is _above_ the figures when there is more than one.
-##' @param ... further graphical parameters from 'par'.
+##' @param main The main title for the plots, displayed above the captions.
+##' @param panel Panel function to be used for adding points to the plots.
+##'   Defaults to \code{panel.smooth} if \code{add.smooth} is \code{TRUE}, 
+##'   otherwise \code{points}.
+##' @param add.smooth Logical; indicates whether a smoother should be added
+##'   to most plots. Defaults to \code{TRUE}.
+##' @param ask Logical; if \code{TRUE}, prompts the user before displaying
+##'   each plot in a multi-plot layout. Defaults to \code{TRUE}.
+##' @param id.n Number of extreme points to label in the first three plots.
+##' @param labels.id Labels for the extreme points, defaulting to observation
+##'   numbers if \code{NULL}.
+##' @param label.pos Positioning of labels in the left and right halves
+##'   of the graph, applicable for plots 1-3.
+##' @param cex.id Magnification factor for point labels.
+##' @param cex.caption Size of the plot captions.
+##' @param cex.oma.man Size of the overall margin annotation (applies only
+##'   if \code{sub.caption} is above the figures in multi-plot layouts).
+##' @param ... Additional graphical parameters passed to \code{par}.
 ##'
-##' @details The Q-Q plot uses the normalized residuals. The
-##'   standardized residuals is pre-multiplied by the inverse
-##'   square-root factor of the estimated error correlation matrix while
-##'   the random effects is pre-multiplied by the inverse square root of
-##'   the estimated variances obtained from matrix G. The simulate
-##'   envelopes are obtained from package hnp (Moral et al.,  2018).
+##' @details
+##' The Q-Q plots use normalized residuals. Standardized residuals are pre-multiplied
+##' by the inverse square-root factor of the estimated error correlation matrix,
+##' while random effects are adjusted using the estimated variances from matrix G.
+##' Simulation envelopes in Q-Q plots are generated using the \code{hnp} package.
 ##'
-##'   Code partially adapted from \code{\link[stats]{plot.lm}}.
-##'
-##' @importFrom hnp hnp
-##'
-##' @importFrom nlme getVarCov ranef
-##'
-##' @importFrom grDevices as.graphicsAnnot dev.flush dev.hold dev.interactive devAskNewPage extendrange n2mfrow
-##'
-##' @importFrom graphics abline boxplot mtext panel.smooth par plot points strheight text title
-##'
-##' @importFrom stats fitted residuals
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' The function is partly adapted from \code{\link[stats]{plot.lm}}.
 ##'
 ##' @seealso \code{\link{lccPlot}}, \code{\link[lcc]{lcc}},
 ##'   \code{mtext}, \code{text}, \code{plotmath}
 ##'
 ##' @examples
-##'
-##' ## Second degree polynomial model with random intercept, slope and
-##' ## quadratic term
+##' \dontrun{
 ##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
 ##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' plot(fm1)
+##' }
+##'
+##' @importFrom hnp hnp
+##' @importFrom nlme getVarCov ranef
+##' @importFrom grDevices as.graphicsAnnot dev.flush dev.hold dev.interactive devAskNewPage extendrange n2mfrow
+##' @importFrom graphics abline boxplot mtext panel.smooth par plot points strheight text title
+##' @importFrom stats fitted residuals qqnorm qqline
+##'
+##' @author Thiago de Paula Oliveira,
+##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @export
-
 plot.lcc <- function(x, which = c(1L:6L),
-           caption = list("Residuals vs Fitted",
-                          "Residuals vs Time",
-                          "Residuals by Subject",
-                          "Observed values vs Fitted values",
-                          "Normal Q-Q Plot (Conditional residuals)",
-                          "Normal Q-Q Plot (Random effects)"),
-           sub.caption =  NULL,  main = NULL,
-           panel = if(add.smooth) panel.smooth else points,
-           add.smooth = TRUE, ask = TRUE,
-           id.n = 3, labels.id = names(residuals(x)),
-           label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
-           cex.oma.man = 1.25, ...)
-  {
-    if (!is.lcc(x))
-      stop("use only with \"lcc\" objects", call. = FALSE)
-    if(!is.numeric(which) || any(which < 1) || any(which > 6))
-      stop("'which' must be in 1:6")
-    #-------------------------------------------------------------------
-    show <- rep(FALSE, 6)
-    show[which] <- TRUE
-    #-------------------------------------------------------------------
-    # information from lme model
-    #-------------------------------------------------------------------
-    model <- x$model
-    r <- residuals(model)
-    r_norm <- residuals(model, type = "normalized")
-    yh <- fitted(model)
-    n <- length(r)
-    time <- model$data$time
-    #-------------------------------------------------------------------
-     if(id.n > 0L) { ## label the largest residuals
-       if(is.null(labels.id))
-         labels.id <- paste(1L:n)
-       iid <- 1L:id.n
-       show.r <- sort.list(abs(r), decreasing = TRUE)[iid]
-       text.id <- function(x, y, ind, adj.x = TRUE) {
-         if (is.factor(x)) {
-           labpos <-
-             if(adj.x) label.pos[1+as.numeric(y > mean(range(y)))] else 3
-         }else {
-           labpos <-
-             if(adj.x) label.pos[1+as.numeric(x > mean(range(x)))] else 3
-         }
-         text(x, y, labels.id[ind], cex = cex.id, xpd = TRUE,
-              pos = labpos, offset = 0.25)
-       }
-    }
-    #-------------------------------------------------------------------
-    getCaption <- function(k) # allow caption = "" , plotmath etc
-      if(length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
-    one.fig <- prod(par("mfcol")) == 1
-    if (ask) {
-      oask <- devAskNewPage(TRUE)
-      on.exit(devAskNewPage(oask))
-    }
-    #-------------------------------------------------------------------
-    # Individual plots
-    #-------------------------------------------------------------------
-    if (show[1L]) {
-      l.fit <- "Fitted values"
-      ylim <- range(r, na.rm=TRUE)
-      if(id.n > 0)
-        ylim <- extendrange(r = ylim, f = 0.08)
-      dev.hold()
-      plot(yh, r, xlab = l.fit, ylab = "Residuals", main = main,
-           ylim = ylim, type = "n", ...)
-      panel(yh, r, ...)
-      if (one.fig)
-        title(sub = sub.caption, ...)
-      mtext(getCaption(1), 3, 0.25, cex = cex.caption)
-      if(id.n > 0) {
-        y.id <- r[show.r]
-        y.id[y.id < 0] <- y.id[y.id < 0] - strheight(" ")/3
-        text.id(yh[show.r], y.id, show.r)
-      }
-      abline(h = 0, lty = 3, col = "gray")
-      dev.flush()
-    }
-    #===================================================================
-    if (show[2L]) {
-      l.fit <- "Time"
-      ylim <- range(r, na.rm=TRUE)
-      if(id.n > 0)
-        ylim <- extendrange(r = ylim, f = 0.08)
-      dev.hold()
-      plot(time, r, xlab = l.fit, ylab = "Residuals", main = main,
-           ylim = ylim, type = "n", ...)
-      panel(time, r, ...)
-      if (one.fig)
-      title(sub = sub.caption, ...)
-      mtext(getCaption(2), 3, 0.25, cex = cex.caption)
-      if(id.n > 0) {
-        y.id <- r[show.r]
-        y.id[y.id < 0] <- y.id[y.id < 0] - strheight(" ")/3
-        text.id(time[show.r], y.id, show.r)
-      }
-      abline(h = 0, lty = 3, col = "gray")
-      dev.flush()
-    }
-    #===================================================================
-    if (show[3L]) {
-      Subject <- model$data$subject
-      boxplot(r ~ Subject,  ylab = "Residuals", main = main, ...)
-      if (one.fig)
-        title(sub = sub.caption, ...)
-      mtext(getCaption(3), 3, 0.25, cex = cex.caption)
-      if(id.n > 0) {
-        y.id <- r[show.r]
-        y.id[y.id < 0] <- y.id[y.id < 0] - strheight(" ")/3
-        text.id(Subject[show.r], y.id, show.r)
-      }
-      abline(h = 0, lty = 3, col = "blue")
-    }
-    #===================================================================
-    if (show[4L]) {
-      Response <- model$data$resp
-      plot(Response ~  yh, ylab = "Observed Values",
-           xlab = "Fitted Values", main = main, ...)
-      if (one.fig)
-        title(sub = sub.caption, ...)
-      mtext(getCaption(4), 3, 0.25, cex = cex.caption)
-      abline(0, 1)
-    }
-    #===================================================================
-    if (show[5L]) {
-        hnp(r_norm, scale = TRUE, halfnormal = FALSE, print.on = TRUE,
-                 main = main, ...)
-        if (one.fig)
-          title(sub = sub.caption, ...)
-        mtext(getCaption(5), 3, 0.25, cex = cex.caption)
-    }
-    #===================================================================
-    if (show[6L]) {
-      vars <- sqrt(diag(getVarCov(model)))
-      ranefs <- re <- as.matrix(ranef(model))
-      re <- ranefs %*% diag(1 / vars)
-      ncol.re <- ncol(re)
-      if (ncol.re == 1) {
-        if (is.null(main)) {
-          main <- "Random effect (Intercept)"
-        }
-        hnp(re, scale = TRUE, halfnormal = FALSE, print.on = TRUE,
-                   main = main, ...)
-      }else {
-        par(mfrow = rev(n2mfrow(ncol.re)))
-        for (i in 1:ncol.re) {
-          hnp(re[, i], scale = TRUE, halfnormal = FALSE, print.on = TRUE,
-                   main = main, ...)
-          if (one.fig)
-            title(sub = sub.caption, ...)
-          mtext(getCaption(6), 3, 0.25, cex = cex.caption)
-          mtext(paste0("b", i - 1, "i"), 1, -1.5, cex = cex.caption)
-        }
-      }
-    }
-    par(mfrow = c(1,1))
-    invisible()
+                     caption = list("Residuals vs Fitted",
+                                    "Residuals vs Time",
+                                    "Residuals by Subject",
+                                    "Observed values vs Fitted values",
+                                    "Normal Q-Q Plot (Conditional residuals)",
+                                    "Normal Q-Q Plot (Random effects)"),
+                     sub.caption = NULL, main = NULL,
+                     panel = if(add.smooth) panel.smooth else points,
+                     add.smooth = TRUE, ask = TRUE,
+                     id.n = 3, labels.id = names(residuals(x)),
+                     label.pos = c(4, 2), cex.id = 0.75, cex.caption = 1,
+                     cex.oma.man = 1.25, ...) {
+  
+  if (!is.lcc(x))
+    stop("use only with 'lcc' objects", call. = FALSE)
+  
+  if (!is.numeric(which) || any(which < 1) || any(which > 6))
+    stop("'which' must be in 1:6")
+  
+  model <- x$model
+  r <- residuals(model)
+  r_norm <- residuals(model, type = "normalized")
+  yh <- fitted(model)
+  time <- model$data$time
+  Response <- model$data$resp
+  Subject <- model$data$subject
+  
+  one.fig <- prod(par("mfcol")) == 1
+  
+  if (ask) {
+    oask <- devAskNewPage(TRUE)
+    on.exit(devAskNewPage(oask))
   }
+  
+  plotFunc <- function(i) {
+    switch(i,
+           {
+             plotGeneric("Fitted values", "Residuals", yh, r)
+           },
+           {
+             plotGeneric("Time", "Residuals", time, r)
+           },
+           {
+             boxplot(r ~ Subject, ylab = "Residuals", main = main, ...)
+             addTitleAndCaption(i)
+           },
+           {
+             plot(Response ~ yh, ylab = "Observed Values", xlab = "Fitted Values", main = main, ...)
+             abline(0, 1)
+             addTitleAndCaption(i)
+           },
+           {
+             qqnorm(r_norm, main = main, ...)
+             qqline(r_norm)
+             addTitleAndCaption(i)
+           },
+           {
+             plotRandomEffects()
+             addTitleAndCaption(i)
+           }
+    )
+  }
+  
+  plotRandomEffects <- function() {
+    vars <- sqrt(diag(getVarCov(model)))
+    ranefs <- as.matrix(ranef(model))
+    re <- ranefs %*% diag(1 / vars)
+    ncol.re <- ncol(re)
+    if (ncol.re == 1) {
+      hnp(re, scale = TRUE, halfnormal = FALSE, print.on = TRUE, main = main, ...)
+    } else {
+      par(mfrow = rev(n2mfrow(ncol.re)))
+      for (j in 1:ncol.re) {
+        hnp(re[, j], scale = TRUE, halfnormal = FALSE, print.on = TRUE, main = main, ...)
+        mtext(paste0("b", j - 1, "i"), 1, -1.5, cex = cex.caption)
+      }
+    }
+  }
+  
+  plotGeneric <- function(xlab, ylab, x, y) {
+    ylim <- range(y, na.rm = TRUE)
+    if (id.n > 0) 
+      ylim <- extendrange(ylim, f = 0.08)
+    
+    dev.hold()
+    plot(x, y, xlab = xlab, ylab = ylab, main = main, ylim = ylim, type = "n", ...)
+    panel(x, y, ...)
+    abline(h = 0, lty = 3, col = "gray")
+    
+    if (id.n > 0 && !is.null(labels.id)) {
+      show.r <- sort.list(abs(y), decreasing = TRUE)[1:id.n]
+      labelPoints(x, y, show.r)
+    }
+    
+    dev.flush()
+  }
+  
+  labelPoints <- function(x, y, indices) {
+    y.id <- y[indices]
+    y.id[y.id < 0] <- y.id[y.id < 0] - strheight(" ")/3
+    text(x[indices], y.id, labels.id[indices], cex = cex.id, xpd = TRUE,
+         pos = label.pos, offset = 0.25)
+  }
+  
+  addTitleAndCaption <- function(i) {
+    if (one.fig)
+      title(sub = sub.caption, ...)
+    mtext(getCaption(i), 3, 0.25, cex = cex.caption)
+  }
+  
+  getCaption <- function(k) {
+    if (length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
+  }
+  
+  for (i in which) {
+    plotFunc(i)
+  }
+  
+  par(mfrow = c(1, 1))
+  invisible()
+}
 
 #=======================================================================
 # coef function
@@ -770,26 +665,31 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' }
 ##'
 ##' @export
-
 coef.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("use only with \"lcc\" objects", call. = FALSE)
+    stop("The 'object' must be of class 'lcc'.", call. = FALSE)
+  
   x <- coef(object$model)
-  colnames(x) <- gsub(pattern = "fixed", x = colnames(x),
-                      replacement = "Fixed")
-  colnames(x) <- gsub(pattern = "Poly", x = colnames(x),
-                      replacement = "Time")
-  colnames(x) <- gsub(pattern = "fmla.", x = colnames(x),
-                      replacement = "")
-  colnames(x) <- gsub(pattern = "\\(time, degree = qr, raw = TRUE\\)",
-                      x = colnames(x), replacement = "")
-  colnames(x) <- gsub(pattern = "rand", x = colnames(x),
-                      replacement = "Random")
-  colnames(x) <- gsub(pattern = "poly", x = colnames(x),
-                      replacement = "Time")
-  colnames(x) <- gsub(pattern = "method", x = colnames(x),
-                      replacement = "")
-  class(x) <- c("coef.lcc", "ranef.lcc",  "data.frame")
+  colNames <- colnames(x)
+  
+  # Consolidate the substitutions 
+  replacements <- list(
+    "fixed" = "Fixed",
+    "Poly" = "Time",
+    "fmla." = "",
+    "\\(time, degree = qr, raw = TRUE\\)" = "",
+    "rand" = "Random",
+    "poly" = "Time",
+    "method" = ""
+  )
+  
+  for (pattern in names(replacements)) {
+    colNames <- gsub(pattern, replacements[[pattern]], colNames)
+  }
+  
+  colnames(x) <- colNames
+  class(x) <- c("coef.lcc", "ranef.lcc", "data.frame")
+  
   x
 }
 
@@ -797,167 +697,170 @@ coef.lcc <- function(object, ...) {
 # vcov function
 #=======================================================================
 ##' @rdname vcov.lcc
-##' @title Extract Variance-Covariance Matrix of the Fixed Effects
+##' @title Extract Variance-Covariance Matrix of the Fixed Effects for an lcc Object
 ##' @usage \method{vcov}{lcc}(object, ...)
 ##' @method vcov lcc
 ##' @aliases vcov.lcc
 ##'
-##' @description Returns the variance-covariance matrix of a fitted
-##'   \code{lcc} model object.
+##' @description 
+##' Extracts the variance-covariance matrix of the fixed effects from a fitted
+##' \code{lcc} model object. This function provides insights into the variability
+##' and covariance structure of the fixed effects in the model.
 ##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
-##' @param ... optional arguments passed to the \code{vcov.lme}
-##'   function.
+##' @param object An object of class \code{lcc}, representing a fitted 
+##'   longitudinal concordance correlation model.
+##' @param ... Optional arguments passed to the \code{vcov.lme}
+##'   function from the \code{nlme} package.
 ##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @details See methods for \code{\link{nlme}} objects to get more
-##'   details.
+##' @details 
+##' The function specifically retrieves the variance-covariance matrix associated
+##' with the fixed effects of the \code{lcc} object, which is useful for understanding
+##' the relationship between these effects. For more details on variance-covariance
+##' matrices, refer to the methods for \code{\link{nlme}} objects.
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}}
 ##'
-##' @importFrom stats vcov
-##'
 ##' @examples
 ##' \dontrun{
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' vcov(fm1)
 ##' }
 ##'
+##' @importFrom stats vcov
 ##' @export
-
 vcov.lcc <- function(object, ...) {
-   if (!is.lcc(object))
-      stop("use only with \"lcc\" objects", call. = FALSE)
-  x <- vcov(object$model, ...)
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "fixed", x = colnames(x),
-         replacement = "Fixed")
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "Poly", x = colnames(x),
-         replacement = "Time")
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "method", x = colnames(x),
-         replacement = "")
-  x
+  if (!is.lcc(object))
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
+  covMatrix <- vcov(object$model, ...)
+  
+  # Streamline the replacement process
+  replaceTerms <- c("fixed" = "Fixed", "Poly" = "Time", "method" = "")
+  namesToChange <- names(replaceTerms)
+  
+  for (term in namesToChange) {
+    pattern <- term
+    replacement <- replaceTerms[[term]]
+    rownames(covMatrix) <- gsub(pattern, replacement, rownames(covMatrix))
+    colnames(covMatrix) <- gsub(pattern, replacement, colnames(covMatrix))
+  }
+  
+  covMatrix
 }
 
 #=======================================================================
 # getVarCov function
 #=======================================================================
 ##' @rdname getVarCov.lcc
-##' @title Extract Variance Components from a Fitted Model
-##' @usage \method{getVarCov}{lcc}(obj, type, ...)
+##' @title Extract Variance Components from a Fitted lcc Model
+##' @usage \method{getVarCov}{lcc}(obj, type = "random.effects", ...)
 ##' @method getVarCov lcc
 ##' @aliases getVarCov.lcc
 ##'
-##' @description Returns the variance-covariance matrix of a fitted
-##'   \code{lcc} model object.
+##' @description 
+##' Retrieves the variance-covariance matrix of the specified component from a fitted
+##' \code{lcc} model object. The function can extract different types of variance-covariance
+##' matrices based on the specified component type.
 ##'
-##' @param obj an object inheriting from class \code{lcc}, representing
-##'   a fitted longitudinal concordance correlation function.
-##' @param type specifies the type of variance covariance matrix. If
-##'   \code{type = "random.effects"}, the default, extract the
-##'   random-effects variance-covariance; if \code{type = "conditional"}
-##'   extract the conditional variance-covariance of the responses; and
-##'   if \code{type = "marginal"} extracts the the marginal
-##'   variance-covariance of the responses.
-##' @param ... optional arguments passed to the \code{getVarCov}
-##'   function.
+##' @param obj An object of class \code{lcc}, representing a fitted 
+##'   longitudinal concordance correlation model.
+##' @param type Specifies the type of variance-covariance matrix to extract.
+##'   Options are \code{"random.effects"} for random-effects variance-covariance,
+##'   \code{"conditional"} for conditional variance-covariance of the responses, and
+##'   \code{"marginal"} for marginal variance-covariance of the responses.
+##'   Default is \code{"random.effects"}.
+##' @param ... Optional arguments passed to the underlying \code{getVarCov}
+##'   function from the \code{nlme} package.
 ##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details 
+##' This function is useful for detailed inspection of the variance components
+##' in different aspects of the model. For more information on the types of variance-covariance
+##' matrices and their interpretations, refer to the documentation of the \code{nlme} package.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
-##'   details.
-##'
 ##' @importFrom nlme getVarCov
 ##'
 ##' @examples
-##'
 ##' \dontrun{
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' getVarCov(fm1)
 ##' }
 ##'
 ##' @export
-
 getVarCov.lcc <- function(obj, type = "random.effects", ...) {
-   if (!is.lcc(obj))
-      stop("use only with \"lcc\" objects", call. = FALSE)
-  x <- getVarCov(obj$model, type = type, ...)
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "fmla.", x = colnames(x), replacement = "")
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "\\(time, degree = qr, raw = TRUE\\)",
-         x = colnames(x), replacement = "")
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "rand", x = colnames(x), replacement = "Random")
-  rownames(x) <- colnames(x) <-
-    gsub(pattern = "poly", x = colnames(x),
-         replacement = "Time")
-  x
+  if (!is.lcc(obj))
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
+  varCovMatrix <- getVarCov(obj$model, type = type, ...)
+  
+  # Simplify the process of renaming
+  replacePatterns <- list(
+    "fmla." = "",
+    "\\(time, degree = qr, raw = TRUE\\)" = "",
+    "rand" = "Random",
+    "poly" = "Time"
+  )
+  
+  for (pattern in names(replacePatterns)) {
+    replacement <- replacePatterns[[pattern]]
+    rownames(varCovMatrix) <- gsub(pattern, replacement, rownames(varCovMatrix))
+    colnames(varCovMatrix) <- gsub(pattern, replacement, colnames(varCovMatrix))
+  }
+  
+  varCovMatrix
 }
 
 #=======================================================================
 # Residuals
 #=======================================================================
 ##' @rdname residuals.lcc
-##' @title Extract Model Residuals
-##' @usage \method{residuals}{lcc}(object, type, ...)
+##' @title Extract Residuals from a Fitted lcc Model
+##' @usage \method{residuals}{lcc}(object, type = "response", ...)
 ##' @method residuals lcc
 ##' @aliases residuals.lcc
 ##'
-##' @description Extract the residulas from the model used to estimate
-##'   the longitudinal concordance correlation function.
+##' @description 
+##' Extracts residuals from the fitted longitudinal concordance correlation
+##' model represented by an \code{lcc} object. Different types of residuals can
+##' be obtained based on the specified type.
 ##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
+##' @param object An object of class \code{lcc}, representing a fitted 
+##'   longitudinal concordance correlation function.
+##' @param type A character string specifying the type of residuals to extract.
+##'   Options are \code{"response"} for residuals obtained by subtracting
+##'   the fitted values from the response (default), \code{"pearson"} for
+##'   "response" residuals divided by the estimated within-group standard error,
+##'   and \code{"normalized"} for normalized residuals. Partial matching is
+##'   used, so only the first character of the type is necessary.
+##' @param ... Optional arguments passed to the \code{residuals.lme}
+##'   function from the \code{nlme} package.
 ##'
-##' @param type an optional character string specifying the type of
-##'   residulas to be used. If \code{type = "response"}, the default,
-##'   the residuals at level i are obtained by subtracting the fitted
-##'   values at that level from the response vector. If \code{type =
-##'   "pearson"}, the "response" residuals is divided by the estimated
-##'   within-group standard error. If \code{type = "normalized"}, the
-##'   normalized residuals are used. Partial matching of arguments is
-##'   used, so only the first character needs to be provided.
-##'
-##' @param ... optional arguments passed to the \code{residuals.lme}
-##'   function.
-##'
-##' @details See methods for \code{\link{nlme}} objects to get more
-##'   details.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details 
+##' The function provides a convenient way to examine the differences between
+##' observed and predicted values in the model. Understanding these residuals
+##' can be crucial for model diagnostics and validation. For more information,
+##' refer to the methods for \code{\link{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
 ##'
 ##' @examples
-##'
 ##' \dontrun{
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
-##' getVarCov(fm1)
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
+##' residuals(fm1)
 ##' }
 ##'
 ##' @export
-
 residuals.lcc <- function(object, type = "response", ...) {
-   if (!is.lcc(object))
-      stop("use only with \"lcc\" objects", call. = FALSE)
+  if (!is.lcc(object))
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
   residuals(object$model, type = type, ...)
 }
 
@@ -965,69 +868,87 @@ residuals.lcc <- function(object, type = "response", ...) {
 # AIC and BIC
 #=======================================================================
 ##' @rdname AIC.lcc
-##' @title Akaike and Bayesian Information Criteria for an \code{lcc} Object.
+##' @title Akaike and Bayesian Information Criteria for an \code{lcc} Object
 ##' @method AIC lcc
 ##' @aliases AIC.lcc
-##' @description Calculate the Akaike's 'An Information Criterion' or
-##'   the BIC or SBC (Schwarz's Bayesian criterion) for an object of
-##'   class \code{lcc}.
+##' @description 
+##' Calculates the Akaike Information Criterion (AIC) or the Bayesian Information Criterion (BIC)
+##' for a fitted longitudinal concordance correlation model represented by an \code{lcc} object.
 ##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
+##' @param object An object inheriting from class \code{lcc},
+##'   representing a fitted longitudinal concordance correlation function.
+##' @param k Numeric value used as a penalty coefficient for the number of
+##'   parameters in the fitted model; the default \code{k = 2} corresponds
+##'   to the classical AIC.
+##' @param ... Optional arguments passed to the underlying \code{AIC}
+##'   function from the \code{stats} package.
 ##'
-##' @param k numeric value, use as penalty coefficient for the number of
-##'   parameters in the fitted model; the default \code{k = 2} is the
-##'   classical AIC.
-##'
-##' @param ... optional arguments passed to the \code{AIC}
-##'   function.
-##'
-##' @details A numeric value with the corresponding AIC or BIC
-##'   value. See methods for \code{\link{AIC}} objects to get more
-##'   details.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details 
+##' The function computes AIC or BIC values as a measure of the relative quality of
+##' statistical models for a given set of data. Lower AIC or BIC values indicate a
+##' better model fit with fewer parameters. For more information, refer to the methods
+##' for \code{\link{AIC}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
 ##'
-##' @importFrom stats na.omit nobs
+##' @importFrom stats AIC logLik na.omit
+##'
+##' @examples
+##' \dontrun{
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
+##' AIC(fm1)
+##' }
 ##'
 ##' @export
 
 AIC.lcc <- function(object, ..., k = 2) {
   if (!is.lcc(object))
-    stop("use only with \"lcc\" objects", call. = FALSE)
-  ll <- logLik
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
   if (!missing(...)) {
-    lls <- lapply(list(object$model, ...), ll)
+    models <- list(object$model, ...)
+    lls <- lapply(models, logLik)
     vals <- sapply(lls, function(el) {
-      no <- attr(el, "nobs")
-      c(as.numeric(el), attr(el, "df"), if (is.null(no)) NA_integer_ else no)
+      nObs <- attr(el, "nobs")
+      c(AIC = -2 * as.numeric(el) + k * attr(el, "df"), 
+        nObs = if (is.null(nObs)) NA_integer_ else nObs)
     })
-    val <- data.frame(df = vals[2L, ], ll = vals[1L, ])
-    nos <- na.omit(vals[3L, ])
-    if (length(nos) && any(nos != nos[1L]))
+    if (length(unique(na.omit(vals["nObs", ]))) > 1)
       warning("models are not all fitted to the same number of observations")
-    val <- data.frame(df = val$df, AIC = -2 * val$ll + k *
-                        val$df)
-    Call <- match.call()
-    Call$k <- NULL
-    row.names(val) <- as.character(Call[-1L])
+    
+    val <- data.frame(AIC = vals["AIC", ], row.names = names(models))
     val
-  }
-  else {
-    AIC(object$model)
+  } else {
+    AIC(object$model, k = k)
   }
 }
 
 ##' @rdname AIC.lcc
+##' @title Bayesian Information Criterion for an \code{lcc} Object
 ##' @method BIC lcc
 ##' @aliases BIC.lcc
 ##'
-##' @importFrom stats na.omit nobs
+##' @description 
+##' Calculates the Bayesian Information Criterion (BIC) for a fitted
+##' longitudinal concordance correlation model represented by an \code{lcc} object.
+##' BIC is used for model selection, with lower values indicating a better model.
+##'
+##' @param object An object of class \code{lcc}, representing a fitted 
+##'   longitudinal concordance correlation function.
+##' @param ... Optional arguments passed to the underlying \code{BIC}
+##'   function from the \code{stats} package.
+##'
+##' @details 
+##' The function computes BIC as a measure of the trade-off between model fit and
+##' complexity. It is particularly useful for comparing models with different numbers
+##' of parameters. For more information, refer to the documentation for \code{\link{BIC}}.
+##'
+##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
+##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}, \code{\link{AIC.lcc}}
+##'
+##' @importFrom stats BIC logLik nobs na.omit
 ##'
 ##' @examples
 ##' \dontrun{
@@ -1042,34 +963,26 @@ AIC.lcc <- function(object, ..., k = 2) {
 ##'
 ##' @export
 
-BIC.lcc <- function (object, ...)
-{
+BIC.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("use only with \"lcc\" objects", call. = FALSE)
-  ll <- logLik
-  Nobs <- nobs
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
   if (!missing(...)) {
-    lls <- lapply(list(object$model, ...), ll)
+    models <- list(object$model, ...)
+    lls <- lapply(models, logLik)
     vals <- sapply(lls, function(el) {
-      no <- attr(el, "nobs")
-      c(as.numeric(el), attr(el, "df"), if (is.null(no)) NA_integer_ else no)
+      nObs <- attr(el, "nobs")
+      c(logLik = as.numeric(el), df = attr(el, "df"), 
+        nObs = if (is.null(nObs)) NA_integer_ else nObs)
     })
-    val <- data.frame(df = vals[2L, ], ll = vals[1L, ],
-      nobs = vals[3L, ])
-    nos <- na.omit(val$nobs)
-    if (length(nos) && any(nos != nos[1L]))
+    if (length(unique(na.omit(vals["nObs", ]))) > 1)
       warning("models are not all fitted to the same number of observations")
-    unknown <- is.na(val$nobs)
-    if (any(unknown))
-      val$nobs[unknown] <- sapply(list(object$model, ...)[unknown],
-        function(x) tryCatch(Nobs(x), error = function(e) NA_real_))
-    val <- data.frame(df = val$df, BIC = -2 * val$ll + log(val$nobs) *
-      val$df)
-    row.names(val) <- as.character(match.call()[-1L])
+    
+    val <- data.frame(df = vals["df", ], BIC = -2 * vals["logLik", ] + log(vals["nObs", ]) * vals["df", ],
+                      row.names = names(models))
     val
-  }
-  else {
-   BIC(object$model)
+  } else {
+    BIC(object$model)
   }
 }
 
@@ -1077,26 +990,26 @@ BIC.lcc <- function (object, ...)
 # ranef
 # =======================================================================
 ##' @rdname ranef.lcc
-##' @title Extract Model Random Effects
+##' @title Extract Random Effects from an \code{lcc} Model
 ##' @usage \method{ranef}{lcc}(object, ...)
 ##' @method ranef lcc
 ##' @aliases ranef.lcc
 ##'
-##' @description Extract the estimated random effects at level i. A data
-##'   frame with rows given by the different groups at that level and
-##'   columns given by the random effects.
+##' @description 
+##' Extracts the estimated random effects from a fitted longitudinal concordance
+##' correlation model represented by an \code{lcc} object. The function returns
+##' a data frame with rows corresponding to different groups at a specified level
+##' and columns representing the random effects.
 ##'
-##' @param object an object inheriting from class \code{lcc},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
-##' @param ... optional arguments passed to the \code{ranef.lme}
-##'   function.
+##' @param object An object inheriting from class \code{lcc},
+##'   representing a fitted longitudinal concordance correlation function.
+##' @param ... Optional arguments passed to the \code{ranef.lme}
+##'   function from the \code{nlme} package.
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
-##'   details.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details 
+##' This function is useful for examining the random effects associated with
+##' groups or subjects in the model. For a detailed explanation of these effects,
+##' see the documentation for \code{\link{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}},
 ##'
@@ -1104,26 +1017,33 @@ BIC.lcc <- function (object, ...)
 ##'
 ##' @examples
 ##' \dontrun{
-##' fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'          method = "Method", time = "Time", qf = 2, qr = 2)
+##' fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+##'            method = "Method", time = "Time", qf = 2, qr = 2)
 ##' ranef(fm1)
 ##' }
 ##' @export
 
 ranef.lcc <- function(object, ...) {
   if (!is.lcc(object))
-     stop("use only with \"lcc\" objects" , call. = FALSE)
-  x <- ranef(object$model)
-  colnames(x) <- gsub(pattern = "fmla.", x = colnames(x),
-                      replacement = "")
-  colnames(x) <- gsub(pattern = "\\(time, degree = qr, raw = TRUE\\)",
-                      x = colnames(x), replacement = "")
-  colnames(x) <- gsub(pattern = "rand", x = colnames(x),
-                      replacement = "Random")
-  colnames(x) <- gsub(pattern = "poly", x = colnames(x),
-                      replacement = "Time")
-  class(x) <- c("ranef.lcc",  "data.frame")
-  x
+    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+  
+  randomEffects <- ranef(object$model, ...)
+  
+  # Clean up the column names for better readability
+  replacements <- list(
+    "fmla." = "",
+    "\\(time, degree = qr, raw = TRUE\\)" = "",
+    "rand" = "Random",
+    "poly" = "Time"
+  )
+  
+  for (pattern in names(replacements)) {
+    replacement <- replacements[[pattern]]
+    colnames(randomEffects) <- gsub(pattern, replacement, colnames(randomEffects))
+  }
+  
+  class(randomEffects) <- c("ranef.lcc", "data.frame")
+  randomEffects
 }
 
 #=======================================================================
@@ -1178,97 +1098,62 @@ logLik.lcc <- function(object, ..., REML) {
 # ANOVA
 # =======================================================================
 ##' @rdname anova.lcc
-##' @title Compare Likelihoods of Fitted Models from an \code{lcc}
-##'   Object
-##' @usage \method{anova}{lcc}(object, ..., test, type, adjustSigma,
-##'   verbose)
+##' @title Compare Likelihoods of Fitted Models from an \code{lcc} Object
+##' @usage \method{anova}{lcc}(object, ..., test = TRUE, type = c("sequential", "marginal"), 
+##'   adjustSigma = TRUE, verbose = FALSE)
 ##' @method anova lcc
 ##' @aliases anova.lcc
 ##'
-##' @description If just one \code{lcc} model object is declared, a data
-##'   frame with the numerator degrees of freedom, denominator degrees
-##'   of freedom, F-values, and P-values for the fixed terms in the
-##'   model. Otherwise, when multiple \code{lcc} fitted objects are
-##'   being compared, a data frame with the degrees of freedom, the
-##'   (restricted) log-likelihood, the Akaike Information Criterion
-##'   (AIC), and the Bayesian Information Criterion (BIC) of each object
-##'   is returned.
+##' @description 
+##' Compares the fit of different longitudinal concordance correlation models 
+##' (lcc objects). When comparing multiple models, the function returns a 
+##' data frame with degrees of freedom, log-likelihood, AIC, and BIC for each model. 
+##' For a single model, it returns F-values and P-values for fixed terms in the model.
 ##'
-##' @param object an object inheriting from class \code{lcc} or \code{lme},
-##'   representing a fitted longitudinal concordance correlation
-##'   function.
+##' @param object An object inheriting from class \code{lcc} or \code{lme}.
+##' @param ... Other optional fitted model objects inheriting from classes "lcc" or "lme".
+##' @param test Logical; if \code{TRUE}, performs likelihood ratio tests to compare models. 
+##'   Defaults to \code{TRUE}.
+##' @param type Character string specifying the type of sum of squares for F-tests. 
+##'   Options are "sequential" or "marginal". Defaults to "sequential".
+##' @param adjustSigma Logical; if \code{TRUE}, adjusts the residual standard error 
+##'   for maximum likelihood estimation. Defaults to \code{TRUE}.
+##' @param verbose Logical; if \code{TRUE}, prints additional model details. 
+##'   Defaults to \code{FALSE}.
 ##'
-##' @param ... other optional fitted model objects inheriting from
-##'   classes "lcc", or "lme".
-##
-##' @param test an optional logical value controlling whether likelihood
-##'   ratio tests should be used to compare the fitted models
-##'   represented by object and the objects in \code{...}. Defaults to
-##'   TRUE.
-##'
-##' @param type an optional character string specifying the type of sum
-##'   of squares to be used in F-tests for the terms in the model. If
-##'   \code{sequential}, the sequential sum of squares obtained by
-##'   including the terms in the order they appear in the model is used;
-##'   else, if \code{marginal}, the marginal sum of squares obtained by
-##'   deleting a term from the model at a time is used. This argument is
-##'   only used when a single fitted object is passed to the
-##'   function. Partial matching of arguments is used, so only the first
-##'   character needs to be provided. Defaults to \code{sequential}.
-##'
-##' @param adjustSigma an optional logical value. If \code{TRUE} and the
-##'   estimation method used to obtain object was maximum likelihood,
-##'   the residual standard error is multiplied by sqrt(nobs/(nobs -
-##'   npar)), converting it to a REML-like estimate. This argument is
-##'   only used when a single fitted object is passed to the
-##'   function. Default is \code{TRUE}.
-##'
-##' @param verbose an optional logical value. If \code{TRUE}, the
-##'   calling sequences for each fitted model object are printed with
-##'   the rest of the output, being omitted if \code{verbose =
-##'   FALSE}. Defaults to \code{FALSE}.
-##'
-##' @details This function is an adaptation from the
-##'   \code{\link{anova.lme}}. For more details see methods for
-##'   \code{\link{nlme}}.
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details 
+##' This function is an adaptation from \code{\link{anova.lme}}. 
+##' It assesses whether the addition of terms significantly improves model fit.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
 ##'
+##' @importFrom stats formula pchisq pf terms
+##' @importFrom utils head tail
+##'
 ##' @examples
 ##' \dontrun{
-##' ## Testing random effects
-##' fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
-##'                method = "Method", time = "Time", qf = 2, qr = 1)
-##' fm2.aov <- update(fm1.aov,  qr = 2)
+##' fm1.aov <- lcc(data = hue, subject = "Fruit", resp = "H_mean", method = "Method", 
+##'                time = "Time", qf = 2, qr = 1)
+##' fm2.aov <- update(fm1.aov, qr = 2)
 ##' anova(fm1.aov, fm2.aov)
 ##' }
 ##'
 ##' @examples
 ##' \dontrun{
-##' # Testing fixed effects
-##' fm3.aov <- update(fm2.aov,  REML = FALSE)
-##' fm4.aov <- update(fm2.aov,  REML = FALSE,  qf = 3)
+##' fm3.aov <- update(fm2.aov, REML = FALSE)
+##' fm4.aov <- update(fm2.aov, REML = FALSE, qf = 3)
 ##' anova(fm3.aov, fm4.aov)
 ##' }
 ##'
 ##' @examples
 ##' \dontrun{
-##' # Comparing the 3 lcc models
-##' fm5.aov <- update(fm2.aov,  var.class = varExp, weights.form = "time")
+##' fm5.aov <- update(fm2.aov, var.class = varExp, weights.form = "time")
 ##' anova(fm1.aov, fm2.aov, fm5.aov)
 ##' }
 ##'
-##' @importFrom stats formula pchisq pf terms
-##' @importFrom utils head tail
-##'
 ##' @export
-
-anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "marginal"),
-                       adjustSigma = TRUE, verbose = FALSE)
-{
+anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal"),
+                       adjustSigma = TRUE, verbose = FALSE) {
   fixSig <- attr(object$model$modelStruct, "fixedSigma")
   fixSig <- !is.null(fixSig) && fixSig
   dots <- list(...)
@@ -1454,50 +1339,79 @@ anova.lcc <- function (object, ..., test = TRUE, type = c("sequential", "margina
 ##' }
 ##'
 ##' @export
-
-print.anova.lcc <- function(x, verbose = attr(x, "verbose"), ...)
-{
-  obj <- x
-  if ((rt <- attr(x,"rt")) == 1) {
+print.anova.lcc <- function(x, verbose = attr(x, "verbose"), ...) {
+  rt <- attr(x, "rt")
+  
+  if (rt == 1) {
+    # Adjust label if exists
     if (!is.null(lab <- attr(x, "label"))) {
       cat(lab)
     }
-    pval <- format(round(x[, "p-value"],4))
-    pval[as.double(pval) == 0] <- "<.0001"
+    
+    # Format p-values and F-values
+    x[, "p-value"] <- sapply(x[, "p-value"], function(p) ifelse(p < 0.0001, "<.0001", round(p, 4)))
     x[, "F-value"] <- format(zapsmall(x[, "F-value"]))
-    x[, "p-value"] <- pval
+    
+    # Print the data frame
     print(as.data.frame(x), ...)
   } else {
     if (verbose) {
       cat("Call:\n")
-      objNams <- row.names(x)
-      for(i in 1:rt) {
-        cat(" ",objNams[i],":\n", sep ="")
-        cat(" ",as.character(x[i,"call"]),"\n")
+      objNames <- row.names(x)
+      for (i in 1:rt) {
+        cat(" ", objNames[i], ":\n", sep = "")
+        cat("  ", as.character(x[i, "call"]), "\n")
       }
       cat("\n")
     }
-    x <- as.data.frame(x[,-1])
-    for(i in names(x)) {
-      org <- x[[i]]
-      if (i == "p-value") {
-        org <- round(org, 4)
-        xna <- is.na(org)
-        org[!xna] <- format(org[!xna])
-        org[as.double(org) == 0] <- "<.0001"
-        org[xna] <- ""
-      } else {
-        if (match(i, c("AIC", "BIC", "logLik", "L.Ratio"), 0)) {
-          xna <- is.na(org)
-          org <- zapsmall(org)
-          org[xna] <- 0
-          org <- format(org)
-          org[xna] <- ""
-        }
-      }
-      x[[i]] <- org
+    
+    # Format other columns
+    for (colName in names(x)[-1]) {
+      x[, colName] <- formatColumn(x[, colName], colName)
     }
-    print(as.data.frame(x), ...)
+    
+    # Print the data frame
+    print(as.data.frame(x[,-1]), ...)
   }
-  invisible(obj)
+  
+  invisible(x)
+}
+
+#' Format Columns for Print
+#'
+#' This internal helper function is used to format the columns of a data frame
+#' for printing, specifically for use within the `print.anova.lcc` function. It
+#' applies special formatting rules based on the column name, such as rounding
+#' and special handling of small p-values.
+#'
+#' @param column A vector representing a column from a data frame.
+#' @param colName A string indicating the name of the column, which determines
+#'   the formatting rules to be applied.
+#'
+#' @return A vector with the same length as `column`, where each element has been
+#'   formatted according to the column-specific rules.
+#'
+#' @details The function specifically handles the following columns:
+#'   - "p-value": Rounds the values to four decimal places, and represents
+#'     values less than 0.0001 as "<.0001".
+#'   - "AIC", "BIC", "logLik", "L.Ratio": Applies `zapsmall` for formatting.
+#'   Other columns are returned without changes.
+#'
+#' @examples
+#' data <- data.frame(
+#'   pvalue = c(0.00005, 0.0234, 0.5),
+#'   AIC = c(123.4567, 234.5678, 345.6789)
+#' )
+#' data$pvalue <- formatColumn(data$pvalue, "p-value")
+#' data$AIC <- formatColumn(data$AIC, "AIC")
+#'
+#' @export
+formatColumn <- function(column, colName) {
+  formattedCol <- column
+  if (colName == "p-value") {
+    formattedCol <- sapply(column, function(p) ifelse(p < 0.0001, "<.0001", format(round(p, 4))))
+  } else if (colName %in% c("AIC", "BIC", "logLik", "L.Ratio")) {
+    formattedCol <- format(zapsmall(column))
+  }
+  formattedCol
 }

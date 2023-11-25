@@ -2,37 +2,37 @@
 % Please edit documentation in R/methods.R
 \name{getVarCov.lcc}
 \alias{getVarCov.lcc}
-\title{Extract Variance Components from a Fitted Model}
+\title{Extract Variance Components from a Fitted lcc Model}
 \usage{
-\method{getVarCov}{lcc}(obj, type, ...)
+\method{getVarCov}{lcc}(obj, type = "random.effects", ...)
 }
 \arguments{
-\item{obj}{an object inheriting from class \code{lcc}, representing
-a fitted longitudinal concordance correlation function.}
+\item{obj}{An object of class \code{lcc}, representing a fitted 
+longitudinal concordance correlation model.}
 
-\item{type}{specifies the type of variance covariance matrix. If
-\code{type = "random.effects"}, the default, extract the
-random-effects variance-covariance; if \code{type = "conditional"}
-extract the conditional variance-covariance of the responses; and
-if \code{type = "marginal"} extracts the the marginal
-variance-covariance of the responses.}
+\item{type}{Specifies the type of variance-covariance matrix to extract.
+Options are \code{"random.effects"} for random-effects variance-covariance,
+\code{"conditional"} for conditional variance-covariance of the responses, and
+\code{"marginal"} for marginal variance-covariance of the responses.
+Default is \code{"random.effects"}.}
 
-\item{...}{optional arguments passed to the \code{getVarCov}
-function.}
+\item{...}{Optional arguments passed to the underlying \code{getVarCov}
+function from the \code{nlme} package.}
 }
 \description{
-Returns the variance-covariance matrix of a fitted
-  \code{lcc} model object.
+Retrieves the variance-covariance matrix of the specified component from a fitted
+\code{lcc} model object. The function can extract different types of variance-covariance
+matrices based on the specified component type.
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
-  details.
+This function is useful for detailed inspection of the variance components
+in different aspects of the model. For more information on the types of variance-covariance
+matrices and their interpretations, refer to the documentation of the \code{nlme} package.
 }
 \examples{
-
 \dontrun{
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
 getVarCov(fm1)
 }
 
@@ -40,8 +40,4 @@ getVarCov(fm1)
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

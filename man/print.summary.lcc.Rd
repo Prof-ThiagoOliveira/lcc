@@ -2,49 +2,37 @@
 % Please edit documentation in R/methods.R
 \name{print.summary.lcc}
 \alias{print.summary.lcc}
-\title{Print the Summary of an \code{lcc} Object}
+\title{Print Summary of an \code{lcc} Object}
 \usage{
-\method{print}{summary.lcc}(x, verbose, digits, ...)
+\method{print}{summary.lcc}(x, verbose = FALSE, digits = NULL, ...)
 }
 \arguments{
-\item{x}{an object inheriting from class
-\code{\link[lcc]{summary.lcc}}, representing a fitted longitudinal
-concordance correlation function.}
+\item{x}{An object of class \code{\link[lcc]{summary.lcc}},
+representing a summarized longitudinal concordance correlation function.}
 
-\item{verbose}{an optional logical value used to control the amount
-of printed output when \code{type = "model"}. Defaults to
-\code{FALSE}}
+\item{verbose}{Logical value to control the amount of printed output for
+model details. Defaults to \code{FALSE}.}
 
-\item{digits}{a non-null value for \code{digits} specifies the
-minimum number of significant digits to be printed in values. The
-default, \code{NULL}.}
+\item{digits}{Specifies the minimum number of significant digits to be
+printed in values. Default is \code{NULL}.}
 
-\item{...}{further arguments passed to \code{\link{print}}.}
+\item{...}{Further arguments passed to \code{print}.}
 }
 \description{
-Information summarizing the fitted longitudinal
-  concordance correlation is printed. This includes the AIC, BIC,
-  and log-likelihood at convergence. If \code{type = "lcc"}, prints
-  the fitted values while \code{type = "model"} prints the fixed
-  effects estimates and their standard errors, standard deviations,
-  correlations for the random effects, within-group correlation, and
-  variance function parameters.
+Provides a detailed summary of a fitted longitudinal
+  concordance correlation model, including AIC, BIC, log-likelihood, and
+  other relevant statistics. The function supports detailed output for
+  different types of model fits.
 }
 \examples{
 \dontrun{
-## Second degree polynomial model with random intercept, slope and
-## quadratic term
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
-print(summary(fm1, type="model"))
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
+print(summary(fm1, type = "model"))
 }
 
 }
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{lccPlot}},
   \code{\link[lcc]{lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

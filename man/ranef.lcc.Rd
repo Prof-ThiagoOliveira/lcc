@@ -2,38 +2,35 @@
 % Please edit documentation in R/methods.R
 \name{ranef.lcc}
 \alias{ranef.lcc}
-\title{Extract Model Random Effects}
+\title{Extract Random Effects from an \code{lcc} Model}
 \usage{
 \method{ranef}{lcc}(object, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{object}{An object inheriting from class \code{lcc},
+representing a fitted longitudinal concordance correlation function.}
 
-\item{...}{optional arguments passed to the \code{ranef.lme}
-function.}
+\item{...}{Optional arguments passed to the \code{ranef.lme}
+function from the \code{nlme} package.}
 }
 \description{
-Extract the estimated random effects at level i. A data
-  frame with rows given by the different groups at that level and
-  columns given by the random effects.
+Extracts the estimated random effects from a fitted longitudinal concordance
+correlation model represented by an \code{lcc} object. The function returns
+a data frame with rows corresponding to different groups at a specified level
+and columns representing the random effects.
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
-  details.
+This function is useful for examining the random effects associated with
+groups or subjects in the model. For a detailed explanation of these effects,
+see the documentation for \code{\link{nlme}} objects.
 }
 \examples{
 \dontrun{
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
 ranef(fm1)
 }
 }
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}},
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

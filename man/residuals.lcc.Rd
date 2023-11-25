@@ -2,49 +2,44 @@
 % Please edit documentation in R/methods.R
 \name{residuals.lcc}
 \alias{residuals.lcc}
-\title{Extract Model Residuals}
+\title{Extract Residuals from a Fitted lcc Model}
 \usage{
-\method{residuals}{lcc}(object, type, ...)
+\method{residuals}{lcc}(object, type = "response", ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{lcc},
-representing a fitted longitudinal concordance correlation
-function.}
+\item{object}{An object of class \code{lcc}, representing a fitted 
+longitudinal concordance correlation function.}
 
-\item{type}{an optional character string specifying the type of
-residulas to be used. If \code{type = "response"}, the default,
-the residuals at level i are obtained by subtracting the fitted
-values at that level from the response vector. If \code{type =
-"pearson"}, the "response" residuals is divided by the estimated
-within-group standard error. If \code{type = "normalized"}, the
-normalized residuals are used. Partial matching of arguments is
-used, so only the first character needs to be provided.}
+\item{type}{A character string specifying the type of residuals to extract.
+Options are \code{"response"} for residuals obtained by subtracting
+the fitted values from the response (default), \code{"pearson"} for
+"response" residuals divided by the estimated within-group standard error,
+and \code{"normalized"} for normalized residuals. Partial matching is
+used, so only the first character of the type is necessary.}
 
-\item{...}{optional arguments passed to the \code{residuals.lme}
-function.}
+\item{...}{Optional arguments passed to the \code{residuals.lme}
+function from the \code{nlme} package.}
 }
 \description{
-Extract the residulas from the model used to estimate
-  the longitudinal concordance correlation function.
+Extracts residuals from the fitted longitudinal concordance correlation
+model represented by an \code{lcc} object. Different types of residuals can
+be obtained based on the specified type.
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
-  details.
+The function provides a convenient way to examine the differences between
+observed and predicted values in the model. Understanding these residuals
+can be crucial for model diagnostics and validation. For more information,
+refer to the methods for \code{\link{nlme}} objects.
 }
 \examples{
-
 \dontrun{
-fm1<-lcc(data = hue, subject = "Fruit", resp = "H_mean",
-         method = "Method", time = "Time", qf = 2, qr = 2)
-getVarCov(fm1)
+fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
+           method = "Method", time = "Time", qf = 2, qr = 2)
+residuals(fm1)
 }
 
 }
 \seealso{
 \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
-}
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}
 }

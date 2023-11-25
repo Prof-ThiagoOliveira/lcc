@@ -14,20 +14,20 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal Function to Produces a Longitudinal Perason
-##'   Correlation Plot.
+# Declare global variables
+utils::globalVariables(c("Time", "lower_LPC", "upper_LPC", "plot.cons"))
+
+##' @title Internal Function to Produce a Longitudinal Pearson Correlation Plot
 ##'
-##' @description This is an internally called function used to produces
-##'   a longitudinal Perason correlation plot from fitted ans sampled
-##'   values with or not non-parametric confidence intervals.
+##' @description Produces a longitudinal Pearson correlation plot from fitted 
+##'   and sampled values, with optional non-parametric confidence intervals.
 ##'
-##' @details returns a inital plot for the longitudinal Pearson
-##'   correlation.
-##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @details Returns an initial plot for the longitudinal Pearson correlation.
 ##'
 ##' @usage NULL
 ##'
+##' @importFrom ggplot2 ggplot geom_line geom_point geom_ribbon labs theme element_text facet_wrap
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @keywords internal
 plotBuilder_lpc<-function(LPC, ENV.LPC, tk.plot, Pearson,
                           tk.plot2, ldb, model, ci, arg, ...){
@@ -82,7 +82,7 @@ plotBuilder_lpc<-function(LPC, ENV.LPC, tk.plot, Pearson,
                             "Time"=tk.plot,
                             "lower_LPC"=t(ENV.LPC)[,1],
                             "upper_LPC"=t(ENV.LPC)[,2]
-                            )
+      )
       data_plot2<-data.frame("Pearson"=Pearson[[1]]$V1,
                              "Time"=tk.plot2)
       LPC<-data_plot$LPC
@@ -90,25 +90,25 @@ plotBuilder_lpc<-function(LPC, ENV.LPC, tk.plot, Pearson,
       lower_LPC<-data_plot$lower_LPC
       upper_LPC<-data_plot$upper_LPC
       Plot<-ggplot(data_plot, aes(y=LPC, x=Time))+
-    geom_line(data=data_plot, colour=arg$colour, size=arg$size)+
-      geom_point(data=data_plot2, aes(y=Pearson, x=Time),
-                 shape=arg$shape)+
-      geom_ribbon(data=data_plot,aes(ymin=lower_LPC,ymax=upper_LPC),
-                  fill="grey70", alpha=0.3,show.legend = TRUE)+
-      ggtitle(paste(levels(model$data$method)[2], "vs.",
-                  levels(model$data$method)[1]))+
-      labs(x = paste0(arg$xlab))+
-      labs(y = paste0(arg$ylab))+
-      theme(plot.title = element_text(hjust = 0.5))
+        geom_line(data=data_plot, colour=arg$colour, size=arg$size)+
+        geom_point(data=data_plot2, aes(y=Pearson, x=Time),
+                   shape=arg$shape)+
+        geom_ribbon(data=data_plot,aes(ymin=lower_LPC,ymax=upper_LPC),
+                    fill="grey70", alpha=0.3,show.legend = TRUE)+
+        ggtitle(paste(levels(model$data$method)[2], "vs.",
+                      levels(model$data$method)[1]))+
+        labs(x = paste0(arg$xlab))+
+        labs(y = paste0(arg$ylab))+
+        theme(plot.title = element_text(hjust = 0.5))
       print(Plot)
     } else{
       data_plot<-list(NA)
       data_plot2<-list(NA)
       for(i in 1:ldb){
         data_plot[[i]] <- data.frame("LPC" = LPC[,i],
-                               "Time" = tk.plot,
-                               "lower_LPC" = t(ENV.LPC[[i]])[,1],
-                               "upper_LPC" = t(ENV.LPC[[i]])[,2])
+                                     "Time" = tk.plot,
+                                     "lower_LPC" = t(ENV.LPC[[i]])[,1],
+                                     "upper_LPC" = t(ENV.LPC[[i]])[,2])
         data_plot[[i]]$Level <-
           paste(levels(model$data$method)[i+1], "vs.",
                 levels(model$data$method)[1])

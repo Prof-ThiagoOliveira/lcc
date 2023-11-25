@@ -2,31 +2,34 @@
 % Please edit documentation in R/time_lcc.R
 \name{time_lcc}
 \alias{time_lcc}
-\title{Regular Sequence for the Time Variable}
+\title{Regular Sequence Generator for Time Variable}
 \usage{
 time_lcc(time, from, to, n)
 }
 \arguments{
-\item{time}{unique values of time variable}
+\item{time}{A numeric vector of unique time values.}
 
-\item{from}{the starting (minimal) value of time variable.}
+\item{from}{The starting (minimum) value for the time sequence.}
 
-\item{to}{the end (maximal) value of time variable.}
+\item{to}{The ending (maximum) value for the time sequence.}
 
-\item{n}{an integer specifying the desired length of the
-sequence. Generally, \code{n} between 30 and 50 is adequate.}
+\item{n}{Desired length of the sequence (integer). Typically, a value
+between 30 and 50 is adequate.}
+}
+\value{
+A numeric vector containing a regular sequence of time values,
+  including the unique values from the input time vector.
 }
 \description{
-An list specifying control arguments to generate a
-  regular sequence for the time variable returned by the function
-  \code{time_lcc}, which is used to constructed the LCC, LPC and LA
-  curves and its simultaneous confidence intervals. Default is
-  \code{NULL}.
+Generates a regular sequence for the time variable, including
+  the unique values from the input time vector. This function is used
+  internally to construct LCC, LPC, and LA curves and their simultaneous
+  confidence intervals.
 }
 \examples{
 data(hue)
 attach(hue)
-time_lcc(time=Time, from=min(Time), to=max(Time), n=30)
+time_lcc(time = Time, from = min(Time), to = max(Time), n = 30)
 detach(hue)
 
 }

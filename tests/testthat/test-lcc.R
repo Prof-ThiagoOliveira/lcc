@@ -283,3 +283,4 @@ test_that("Test if interaction works",{
                            interaction = FALSE,
                            gs = "2"),is_a("lcc"))
 })
+

@@ -2,16 +2,13 @@
 % Please edit documentation in R/plotBuilder_lpc.R
 \name{plotBuilder_lpc}
 \alias{plotBuilder_lpc}
-\title{Internal Function to Produces a Longitudinal Perason
-  Correlation Plot.}
+\title{Internal Function to Produce a Longitudinal Pearson Correlation Plot}
 \description{
-This is an internally called function used to produces
-  a longitudinal Perason correlation plot from fitted ans sampled
-  values with or not non-parametric confidence intervals.
+Produces a longitudinal Pearson correlation plot from fitted 
+  and sampled values, with optional non-parametric confidence intervals.
 }
 \details{
-returns a inital plot for the longitudinal Pearson
-  correlation.
+Returns an initial plot for the longitudinal Pearson correlation.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}

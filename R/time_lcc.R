@@ -14,34 +14,43 @@
 #                                                                     #
 #######################################################################
 
-##' @title Regular Sequence for the Time Variable
+##' @title Regular Sequence Generator for Time Variable
 ##'
-##' @description An list specifying control arguments to generate a
-##'   regular sequence for the time variable returned by the function
-##'   \code{time_lcc}, which is used to constructed the LCC, LPC and LA
-##'   curves and its simultaneous confidence intervals. Default is
-##'   \code{NULL}.
+##' @description Generates a regular sequence for the time variable, including
+##'   the unique values from the input time vector. This function is used
+##'   internally to construct LCC, LPC, and LA curves and their simultaneous
+##'   confidence intervals.
 ##'
-##' @param time unique values of time variable
+##' @param time A numeric vector of unique time values.
+##' @param from The starting (minimum) value for the time sequence.
+##' @param to The ending (maximum) value for the time sequence.
+##' @param n Desired length of the sequence (integer). Typically, a value
+##'   between 30 and 50 is adequate.
 ##'
-##' @param from the starting (minimal) value of time variable.
+##' @return A numeric vector containing a regular sequence of time values,
+##'   including the unique values from the input time vector.
 ##'
-##' @param to the end (maximal) value of time variable.
-##'
-##' @param n an integer specifying the desired length of the
-##'   sequence. Generally, \code{n} between 30 and 50 is adequate.
 ##' @keywords internal
 ##'
 ##' @examples
 ##' data(hue)
 ##' attach(hue)
-##' time_lcc(time=Time, from=min(Time), to=max(Time), n=30)
+##' time_lcc(time = Time, from = min(Time), to = max(Time), n = 30)
 ##' detach(hue)
 ##'
 ##' @export
 
-time_lcc<-function(time,from, to, n){
-  tk.new<-unique(sort(c(seq.int(from=from, to=to, length.out = n),
-                        time)))
-  return(tk.new)
+time_lcc <- function(time, from, to, n) {
+  if (from < min(time)) from <- min(time)
+  if (to > max(time)) to <- max(time)
+  
+  seq_time <- seq.int(from, to, length.out = n)
+  
+  if (all(seq_time %in% time)) {
+    tk.new <- time
+  } else {
+    tk.new <- unique(c(seq_time, time))
+  }
+  
+  return(sort(tk.new))
 }
