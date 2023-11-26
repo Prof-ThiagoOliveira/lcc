@@ -2,11 +2,9 @@
 % Please edit documentation in R/plot_lpc.R
 \name{Pearson}
 \alias{Pearson}
-\title{Internal Function to Estimate the Sampled Pearson
-  Correlation.}
+\title{Estimate Sampled Pearson Correlation}
 \description{
-This is an internally called functions used to estimate
-  the sampled Pearson correlation.
+Internally called function to estimate the sampled Pearson correlation.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}

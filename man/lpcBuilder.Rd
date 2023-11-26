@@ -2,15 +2,12 @@
 % Please edit documentation in R/lpcBuilder.R
 \name{lpcBuilder}
 \alias{lpcBuilder}
-\title{Internal Function to Estimate the Longitudinal Pearson
-  Correlation.}
+\title{Internal Function to Estimate the Longitudinal Pearson Correlation}
 \description{
-This is an internally called function used to estimate
-  the longitudinal Pearson correlation (LPC).
+Internally used function to estimate the longitudinal Pearson correlation (LPC).
 }
 \details{
-returns a vector or list containing the longitudinal
-  Pearson correlation estimates.
+Returns a vector or list containing the longitudinal Pearson correlation estimates.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}

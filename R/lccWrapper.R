@@ -14,16 +14,13 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal Function to Prepare the \code{lccBuilder}
-##'   Function
+##' @title Internal Function to Prepare the \code{lccBuilder} Function
 ##'
-##' @description This is an internally called function used to prepare
-##'   the \code{\link[lcc]{lccBuilder}} function.
+##' @description Internally called function to prepare the \code{\link[lcc]{lccBuilder}} function.
+##'
+##' @details Returns a vector or list containing the longitudinal concordance correlation estimates.
 ##'
 ##' @usage NULL
-##'
-##' @details returns a vector or list containing the longitudinal
-##'   concordance correlation estimates.
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
@@ -32,16 +29,18 @@ lccWrapper <- function(model, q_f, tk, diffbeta, n.delta) {
   G <- getVarCov(model)
   q_r <- dim(G)[1] - 1
   deltas <- getDelta(model = model)
-  delta <- deltas$delta
-  deltal <- deltas$deltal
-  g <- deltas$g
   sig2_epsilon <- model$sigma^2
-  rho <- lccBuilder(G = G, diffbeta = diffbeta, tk = tk, q_r = q_r,
-                     q_f = q_f, g = g, sig2_epsilon = sig2_epsilon,
-                     delta = delta, deltal = deltal, model = model)
-  if(length(rho)==1){
-    return(rho[[1]])
-  }else(if(sum(is.na(rho[[2]]))!=0){
-    return(rho[[1]])
-  }else(return(rho[[n.delta]])))
+  
+  rho <- lccBuilder(
+    G = G, diffbeta = diffbeta, tk = tk, q_r = q_r,
+    q_f = q_f, g = deltas$g, sig2_epsilon = sig2_epsilon,
+    delta = deltas$delta, deltal = deltas$deltal, model = model
+  )
+  
+  if (length(rho) == 1 || sum(is.na(rho[[2]])) != 0) {
+    rho[[1]]
+  } else {
+    rho[[n.delta]]
+  }
 }
+

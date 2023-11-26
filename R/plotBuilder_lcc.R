@@ -29,7 +29,8 @@
 #' @param ci Logical, indicating if confidence intervals should be included.
 #' @param arg List of graphical arguments.
 #' @param ... Additional arguments for ggplot.
-#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_ribbon labs theme element_text
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_ribbon labs theme 
+#' element_text geom_path
 #' @keywords internal
 plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
                             tk.plot2, ldb, model, ci, arg, ...){

@@ -14,14 +14,14 @@
 #                                                                     #
 #######################################################################
 
-##' @title Internal Function to Summarize Fitted and Sampled Values for
-##'   \code{lcc} Objects
+##' @title Internal Function to Summarize Fitted and Sampled Values for \code{lcc} Objects
 ##'
-##' @description This is an internally called function used to summarize
-##'   fitted and sampled values, and the concordance correlation
-##'   coefficient between them for \code{lcc} objects.
+##' @description Internally called function for summarizing fitted and sampled values, and the 
+##'   concordance correlation coefficient between them for \code{lcc} objects.
 ##'
 ##' @usage NULL
+##'
+##' @details Returns a summary of fitted and sampled values and their concordance correlation.
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
@@ -29,14 +29,14 @@
 ##'
 ##' @keywords internal
 lccSummary<-function(model, q_f, diffbeta, tk,
-                      tk.plot, tk.plot2, rho, ENV.LCC,
-                      rho.pearson, ENV.LPC, Cb, ENV.Cb,
-                      ldb, ci, components){
+                     tk.plot, tk.plot2, rho, ENV.LCC,
+                     rho.pearson, ENV.LPC, Cb, ENV.Cb,
+                     ldb, ci, components){
   if(components==FALSE){
     if(ci==FALSE){
       CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
                    method="method", time="time")
-    if(ldb==1){
+      if(ldb==1){
         comp <- paste0(levels(model$data$method)[2], " vs. ",
                        levels(model$data$method)[1])
         LCC.data<-data.frame("Time"=tk.plot,"LCC"=rho)
@@ -45,50 +45,50 @@ lccSummary<-function(model, q_f, diffbeta, tk,
         GF<-CCC(predict(model), model$data$resp)
         plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data,
                         "gof" = GF, "comp"=comp)
+      }else{
+        LCC.data<-list()
+        comp <- list()
+        for(i in 1:ldb) {
+          comp[[i]] <- paste0(levels(model$data$method)[i+1],
+                              " vs. ", levels(model$data$method)[1])
+          LCC.data[[i]]<-data.frame("Time"=tk.plot,"LCC"=rho[[i]])
+          CCC.data<-data.frame("Time" = tk.plot2, "CCC" = CCC)
+          colnames(CCC.data) <- c("Time", "CCC")
+        }
+        GF<-CCC(predict(model), model$data$resp)
+        plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data, "gof" = GF,
+                        "comp"=comp)
+      }
     }else{
-      LCC.data<-list()
-      comp <- list()
-      for(i in 1:ldb) {
-        comp[[i]] <- paste0(levels(model$data$method)[i+1],
-                            " vs. ", levels(model$data$method)[1])
-        LCC.data[[i]]<-data.frame("Time"=tk.plot,"LCC"=rho[[i]])
+      if(ldb==1){
+        comp = paste0(levels(model$data$method)[2],
+                      " vs. ", levels(model$data$method)[1])
+        CCC<-CCC_lin(dataset=model$data, resp="resp",
+                     subject="subject", method="method", time="time")
+        LCC.data<-data.frame("Time"=tk.plot,"LCC"=rho,
+                             "Lower"=ENV.LCC[1,], "Upper"=ENV.LCC[2,])
         CCC.data<-data.frame("Time" = tk.plot2, "CCC" = CCC)
         colnames(CCC.data) <- c("Time", "CCC")
-      }
-      GF<-CCC(predict(model), model$data$resp)
-      plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data, "gof" = GF,
-                      "comp"=comp)
-    }
-  }else{
-    if(ldb==1){
-      comp = paste0(levels(model$data$method)[2],
-                    " vs. ", levels(model$data$method)[1])
-      CCC<-CCC_lin(dataset=model$data, resp="resp",
-                   subject="subject", method="method", time="time")
-      LCC.data<-data.frame("Time"=tk.plot,"LCC"=rho,
-                           "Lower"=ENV.LCC[1,], "Upper"=ENV.LCC[2,])
-      CCC.data<-data.frame("Time" = tk.plot2, "CCC" = CCC)
-      colnames(CCC.data) <- c("Time", "CCC")
-      GF<-CCC(predict(model), model$data$resp)
-       plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data, "gof" = GF,
-                       "comp" = comp)
-    }else{
-      CCC<-CCC_lin(dataset=model$data, resp="resp",
-                   subject="subject", method="method", time="time")
-      LCC.data<-list()
-      comp <- list()
-      for(i in 1:ldb) {
-        comp[[i]] <- paste0(levels(model$data$method)[i+1],
-                            " vs. ", levels(model$data$method)[1])
-        LCC.data[[i]]<-data.frame("Time" = tk.plot,"LCC"=rho[[i]],
-                                  "Lower" = ENV.LCC[[i]][1,],
-                                  "Upper" = ENV.LCC[[i]][2,])
-        CCC.data<-data.frame("Time" = tk.plot2, "CCC" = CCC)
-        colnames(CCC.data) <- c("Time", "CCC")
-      }
-      GF<-CCC(predict(model), model$data$resp)
-      plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data,
-                      "gof" = GF,"comp" = comp)
+        GF<-CCC(predict(model), model$data$resp)
+        plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data, "gof" = GF,
+                        "comp" = comp)
+      }else{
+        CCC<-CCC_lin(dataset=model$data, resp="resp",
+                     subject="subject", method="method", time="time")
+        LCC.data<-list()
+        comp <- list()
+        for(i in 1:ldb) {
+          comp[[i]] <- paste0(levels(model$data$method)[i+1],
+                              " vs. ", levels(model$data$method)[1])
+          LCC.data[[i]]<-data.frame("Time" = tk.plot,"LCC"=rho[[i]],
+                                    "Lower" = ENV.LCC[[i]][1,],
+                                    "Upper" = ENV.LCC[[i]][2,])
+          CCC.data<-data.frame("Time" = tk.plot2, "CCC" = CCC)
+          colnames(CCC.data) <- c("Time", "CCC")
+        }
+        GF<-CCC(predict(model), model$data$resp)
+        plot.data<-list("fitted"=LCC.data,"sampled"=CCC.data,
+                        "gof" = GF,"comp" = comp)
       }
     }
   }else{
@@ -97,7 +97,7 @@ lccSummary<-function(model, q_f, diffbeta, tk,
                    subject="subject", method="method", time="time")
       Pearson<-Pearson(dataset=model$data, resp="resp",
                        subject="subject", method="method", time="time")
-       if(ldb==1){
+      if(ldb==1){
         comp <- paste0(levels(model$data$method)[2], " vs. ",
                        levels(model$data$method)[1])
         LA <- CCC[[1]]/Pearson[[1]]

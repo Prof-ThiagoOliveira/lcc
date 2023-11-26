@@ -17,7 +17,7 @@
 ##' @title Internal Function to Estimate the Sampled Concordance
 ##'   Correlation Coefficient.
 ##'
-##' @description This is an internally called function used to estimate
+##' @description This function is internally called to estimate
 ##'   the sampled concordance correlation coefficient.
 ##'
 ##' @usage NULL
@@ -27,70 +27,85 @@
 ##' @importFrom stats cor cov
 ##'
 ##' @keywords internal
-CCC_lin<-function(dataset, resp, subject, method, time){
-  Data <- dataset
-  Data<-subset(Data, select = c(resp, method, time, subject))
-  Data_s<-split(Data, Data$method)
-
-  Lin<-function(Y1,Y2,time){
-    data=data.frame(Y1,Y2,time)
-    m1<-with(data,tapply(Y1, time, mean))
-    m2<-with(data,tapply(Y2, time, mean))
-    S1<-with(data,tapply(Y1, time, var))
-    S2<-with(data,tapply(Y2, time, var))
-    S12<-as.data.frame(
-      as.matrix(
-        by(data[,1:2], data$time, function(x) {cov(x$Y1, x$Y2)})
-      )
+CCC_lin <- function(dataset, resp, subject, method, time) {
+  selectedData <- subset(dataset, select = c(resp, method, time, subject))
+  dataByMethod <- split(selectedData, selectedData$method)
+  
+  calculateCCC <- function(Y1, Y2, time) {
+    dataFrame <- data.frame(Y1, Y2, time)
+    means <- with(dataFrame, sapply(list(Y1, Y2), function(Y) tapply(Y, time, mean)))
+    variances <- with(dataFrame, sapply(list(Y1, Y2), function(Y) tapply(Y, time, var)))
+    covariances <- by(dataFrame[, 1:2], dataFrame$time, function(x) cov(x$Y1, x$Y2))
+    
+    dataLin <- data.frame(
+      time = unique(time),
+      M1 = means[[1]],
+      M2 = means[[2]],
+      S1 = variances[[1]],
+      S2 = variances[[2]],
+      S12 = sapply(covariances, '[', 1)
     )
-    Cor<-as.data.frame(
-      as.matrix(
-        by(data[,1:2], data$time, function(x) {cor(x$Y1, x$Y2)})
-      )
-    )
-    data.lin<-data.frame("time"=unique(time),"M1"=as.numeric(m1),
-                         "M2"=as.numeric(m2),"S1"=as.numeric(S1),
-                         "S2"=as.numeric(S2),"S12"=as.numeric(S12[,1]),
-                         "Cor"=as.numeric(Cor[,1]))
-    CCC<-as.data.frame(
-      as.matrix(
-        by(data.lin[,2:6],data.lin$time,
-           function(x){2*x$S12/(x$S1+x$S2+(x$M1-x$M2)^2)})
-      )
-    )
-    return(CCC)
+    
+    CCC.results <- by(dataLin, dataLin$time, function(x) {
+      2 * x$S12 / (x$S1 + x$S2 + (x$M1 - x$M2)^2)
+    })
+    
+    CCC.results <- sapply(CCC.results, function(x) unlist(x))
+    return(as.data.frame(as.matrix(CCC.results)))
   }
-  CCC.Lin<-list()
-  for(i in 2:length(levels(Data$method))){
-    CCC.Lin[[i-1]]<-Lin(Y1=Data_s[[1]]$resp,Y2=Data_s[[i]]$resp,
-                        time=Data$time)
-  }
-  return(CCC.Lin)
+  
+  CCC.Lin <- lapply(seq(2, length(levels(selectedData$method))), function(i) {
+    calculateCCC(Y1 = dataByMethod[[1]]$resp, Y2 = dataByMethod[[i]]$resp, time = selectedData$time)
+  })
+  
+  CCC.Lin
 }
 
-##' @title Internal function to prepare the \code{plotBuilder_lcc}
-##'   function.
+
+##' @title Internal Function to Prepare the \code{plotBuilder_lcc} Function
 ##'
-##' @description This is an internally called function used to prepare
+##' @description This function is internally called to prepare
 ##'   the \code{\link[lcc]{plotBuilder_lcc}} function.
+##'
+##' @usage NULL
+##'##' @title Internal Function to Prepare the \code{plotBuilder_la} Function
+##'
+##' @description This function is internally called to prepare
+##'   the \code{\link[lcc]{plotBuilder_la}} function.
 ##'
 ##' @usage NULL
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
-plot_lcc <- function(rho,ENV.LCC, tk.plot, tk.plot2,ldb, model,
-                     ci, arg, ...) {
-  CCC<-CCC_lin(dataset=model$data, resp="resp", subject="subject",
-               method="method", time="time")
-  if(ci==FALSE){
-    plotBuilder_lcc(rho = rho, tk.plot = tk.plot,
-                 tk.plot2 = tk.plot2, ldb = ldb, CCC=CCC,
-                 model = model, ci=FALSE, arg = arg, ...)
-
-  }else{
-    plotBuilder_lcc(rho = rho, ENV.LCC = ENV.LCC, tk.plot = tk.plot,
-                 tk.plot2 = tk.plot2, ldb = ldb, CCC=CCC,
-                 model = model, ci=TRUE, arg = arg, ...)
+plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
+  CCC <- CCC_lin(dataset = model$data, resp = "resp", subject = "subject", method = "method", time = "time")
+  Pearson <- Pearson(dataset = model$data, resp = "resp", subject = "subject", method = "method", time = "time")
+  
+  if (ci) {
+    plotBuilder_la(CCC = CCC, Pearson = Pearson, ENV.Cb = ENV.Cb, 
+                   tk.plot = tk.plot, tk.plot2 = tk.plot2, ldb = ldb, Cb = Cb, 
+                   model = model, ci = TRUE, arg = arg, ...)
+  } else {
+    plotBuilder_la(CCC = CCC, Pearson = Pearson, tk.plot = tk.plot, 
+                   tk.plot2 = tk.plot2, ldb = ldb, Cb = Cb, model = model, 
+                   ci = FALSE, arg = arg, ...)
   }
 }
+
+##'
+##' @keywords internal
+plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
+  CCC <- CCC_lin(dataset = model$data, resp = "resp", subject = "subject", 
+                 method = "method", time = "time")
+  
+  if (ci) {
+    plotBuilder_lcc(rho = rho, ENV.LCC = ENV.LCC, tk.plot = tk.plot, 
+                    tk.plot2 = tk.plot2, ldb = ldb, CCC = CCC, model = model,
+                    ci = TRUE, arg = arg, ...)
+  } else {
+    plotBuilder_lcc(rho = rho, tk.plot = tk.plot, tk.plot2 = tk.plot2, ldb = ldb,
+                    CCC = CCC, model = model, ci = FALSE, arg = arg, ...)
+  }
+}
+

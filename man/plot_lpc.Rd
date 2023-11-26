@@ -2,11 +2,9 @@
 % Please edit documentation in R/plot_lpc.R
 \name{plot_lpc}
 \alias{plot_lpc}
-\title{Internal function to prepare the
-  \code{\link[lcc]{plotBuilder_lpc}} function.}
+\title{Prepare Plot for LPC Function}
 \description{
-This is an internally called functions used to prepare
-  the \code{\link[lcc]{plotBuilder_lpc}} function.
+Internally called function to prepare data for the `plotBuilder_lpc` function.
 }
 \author{
 Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}

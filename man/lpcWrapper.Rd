@@ -2,14 +2,13 @@
 % Please edit documentation in R/lpcWrapper.R
 \name{lpcWrapper}
 \alias{lpcWrapper}
-\title{Internal Function to Prepare the \code{lpcBuilder}
-  Function}
+\title{Internal Function to Prepare the \code{lpcBuilder} Function}
 \description{
-This is an internally called function used toprepare
+This function is internally called to prepare
   the \code{\link[lcc]{lpcBuilder}} function.
 }
 \details{
-returns a vector or list containing the longitudinal
+Returns a vector or list containing the longitudinal
   Pearson correlation estimates.
 }
 \author{

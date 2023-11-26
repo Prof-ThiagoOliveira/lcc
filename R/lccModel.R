@@ -13,32 +13,24 @@
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
-##' @title Internal Function to Fits a Linear Mixed-Effects Model in the
-##'   Formulation Described in Laird and Ware (1982).
+##' @title Internal Function to Fit a Linear Mixed-Effects Model
 ##'
-##' @description This is an internally called function used to fits a
-##'   linear mixed-effects model; see \code{\link[nlme]{lme}}.
+##' @description Internally used function to fit a linear mixed-effects model, 
+##'   following the formulation described in Laird and Ware (1982). See \code{\link[nlme]{lme}}.
 ##'
 ##' @usage NULL
 ##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom nlme lmeControl pdSymm
-##'
 ##' @importFrom stats model.matrix
-##'
 ##' @importFrom utils capture.output
 ##'
-##' @references Laird, N.M. and Ware, J.H. (1982) Random-Effects Models
-##'   for Longitudinal Data, \emph{Biometrics}, 38, 963–974.
-##'
-##'Pinheiro, J.C. and Bates., D.M. (1996) Unconstrained Parametrizations
-##' for Variance-Covariance Matrices, \emph{Statistics and Computing},
-##' 6, 289–296.
-##'
-##'Pinheiro, J.C., and Bates, D.M. (2000) Mixed-Effects Models in S and
-##' S-PLUS, \emph{Springer}.
+##' @references Laird, N.M. and Ware, J.H. (1982) Random-Effects Models for Longitudinal Data, 
+##'   \emph{Biometrics}, 38, 963–974.
+##'   Pinheiro, J.C. and Bates., D.M. (1996) Unconstrained Parametrizations for Variance-Covariance Matrices, 
+##'   \emph{Statistics and Computing}, 6, 289–296.
+##'   Pinheiro, J.C., and Bates, D.M. (2000) Mixed-Effects Models in S and S-PLUS, \emph{Springer}.
 ##'
 ##' @keywords internal
 lccModel <- function(dataset, resp, subject, method, time, qf, qr,
@@ -46,15 +38,15 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
                      weights.form, lme.control = NULL, method.init,
                      pdmat) {
   if(is.null(lme.control)) lme.control <- lmeControl()
-
+  
   Data <- dataBuilder(dataset = dataset, resp = resp, subject = subject,
                       method = method, time = time, gs = gs)
   Poly<-with(Data,poly(time, degree = qf, raw = TRUE))
   if(interaction == TRUE){
     fixed <- model.matrix( ~ method * Poly, Data)
-    }else{
+  }else{
     fixed <- model.matrix( ~ method + Poly, Data)
-    }
+  }
   Data$fixed <- fixed
   if (length(covar) > 0) {
     pos <- pmatch(covar, names(Data))
@@ -67,11 +59,11 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
       pos <- pos[!nap]
       covar <- covar[!nap]
     }
-
+    
     COVAR<-list()
     for(i in seq_len(length(pos))){
-    COVAR[[i]]<-model.matrix(~Data[,pos[i]])[,-1]
-    colnames(COVAR[[i]])<- paste(covar[[1]][i], levels(Data[,pos[i]])[-1])
+      COVAR[[i]]<-model.matrix(~Data[,pos[i]])[,-1]
+      colnames(COVAR[[i]])<- paste(covar[[1]][i], levels(Data[,pos[i]])[-1])
     }
     Data_covar<-do.call(cbind.data.frame, COVAR)
     Data_covar<-as.matrix(Data_covar)
@@ -82,8 +74,8 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
     }
     fixed <- cbind(fixed, Data_covar)
     Data$fixed <- fixed
-    }
-
+  }
+  
   if(is.null(var.class)) {
     if(qr == 0) {
       model.lme <-
@@ -106,7 +98,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
       }
     }
   } else {
-     .form <- switch(weights.form,
+    .form <- switch(weights.form,
                     "time"        = ~ time,
                     "method"      = ~ 1 | method,
                     "time.ident"  = ~ 1 | time,
