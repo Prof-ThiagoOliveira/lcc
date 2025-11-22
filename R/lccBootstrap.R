@@ -27,7 +27,10 @@
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @importFrom nlme fixef
-##'
+##' @importFrom foreach foreach %dopar%
+##' @importFrom doRNG %dorng%
+##' @importFrom doSNOW registerDoSNOW
+##' @importFrom parallel makeCluster stopCluster
 ##' @keywords internal
 bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              var.class, pdmat, weights.form, show.warnings,
@@ -64,7 +67,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   ## Variance-structure / n_delta
   varStruct <- model$modelStruct$varStruct
   nd_vs <- if (is.null(varStruct)) 1L else
-    length(nlme::coef(varStruct, unconstrained = FALSE))
+    length(coef(varStruct, unconstrained = FALSE))
   use_delta_by_level <- nd_vs > 1L
   
   ## One bootstrap iteration
