@@ -76,21 +76,25 @@ dataBootstrap <- function(model) {
 bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              var.class, pdmat, weights.form,
                              show.warnings, lme.control, method.init,
-                             numCore) {
+                             numCore,
+                             tk, ldb, components = TRUE) {
   
-  # Preallocate outputs
-  Boot_model <- vector("list", nboot)
-  Diff       <- vector("list", nboot)
-  warnings   <- 0L
+  #-------------------------------------------------------------------
+  # Preallocate outputs (no lme objects stored)
+  #-------------------------------------------------------------------
+  LCC_Boot <- vector("list", nboot)
+  LPC_Boot <- if (isTRUE(components)) vector("list", nboot) else NULL
+  Cb_Boot  <- if (isTRUE(components)) vector("list", nboot) else NULL
+  warnings <- 0L
   
-  # -------------------------------------------------------------------
-  # Precompute subject-level split for bootstrap resampling
-  # -------------------------------------------------------------------
-  orig_data   <- model$data
-  subj        <- orig_data$subject
-  n_subj      <- length(unique(subj))
+  #-------------------------------------------------------------------
+  # Subject-level split for bootstrap resampling
+  #-------------------------------------------------------------------
+  orig_data    <- model$data
+  subj         <- orig_data$subject
+  n_subj       <- length(unique(subj))
   split_by_subj <- split(orig_data, subj)
-  subj_seq    <- seq_len(n_subj)
+  subj_seq     <- seq_len(n_subj)
   
   bootstrap_dataset <- function() {
     sample_idx <- sample.int(n_subj, n_subj, replace = TRUE)
@@ -103,10 +107,9 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     do.call(rbind, frames)
   }
   
-  # -------------------------------------------------------------------
-  # Precompute pattern of fixed-effect indices per method
-  # (these do not change across bootstrap samples)
-  # -------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  # Precompute pattern of fixed-effect indices per method (unchanged)
+  #-------------------------------------------------------------------
   base_fx  <- nlme::fixef(model)
   base_lev <- levels(orig_data$method)
   
@@ -123,9 +126,24 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     lapply(pat, function(idx) -fx[idx])
   }
   
-  # -------------------------------------------------------------------
-  # Single bootstrap iteration (used in both serial and parallel code)
-  # -------------------------------------------------------------------
+  ldb_local <- length(pat)
+  if (!missing(ldb) && !is.null(ldb) && ldb_local != ldb) {
+    warning(
+      "bootstrapSamples(): length(pat) (", ldb_local,
+      ") does not match ldb (", ldb, "). Using length(pat)."
+    )
+  }
+  
+  #-------------------------------------------------------------------
+  # Number of variance-structure parameters for delta vs deltal choice
+  #-------------------------------------------------------------------
+  varStruct <- summary(model)$modelStruct$varStruct
+  nd        <- if (is.null(varStruct)) 0L else length(varStruct)
+  use_delta_by_level <- nd > 1L
+  
+  #-------------------------------------------------------------------
+  # Single bootstrap iteration: fit + precompute + LCC/LPC/LA
+  #-------------------------------------------------------------------
   one_bootstrap <- function(i) {
     fit <- lccModel(
       dataset      = bootstrap_dataset(),
@@ -153,38 +171,102 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       boot_mod <- fit$model
     }
     
+    # Precompute once for this bootstrap sample
+    G_i   <- getVarCov(boot_mod)
+    q_r_i <- nrow(G_i) - 1L
+    
+    pre_i <- .precompute_longitudinal(
+      model = boot_mod,
+      tk    = tk,
+      q_f   = q_f,
+      q_r   = q_r_i
+    )
+    
     fx    <- nlme::fixef(boot_mod)
     betas <- compute_betas(fx)
     
-    list(model = boot_mod, betas = betas, wcount = fit$wcount)
+    #----------------------------
+    # LCC (CCC) per bootstrap
+    #----------------------------
+    if (ldb_local == 1L) {
+      rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(betas[[1L]]))
+      CCC_i <- if (length(rho_list) == 1L ||
+                   sum(is.na(rho_list[[2L]])) != 0) {
+        rho_list[[1L]]
+      } else {
+        rho_list[[1L]]  # when ldb==1, n.delta is always 1
+      }
+    } else {
+      CCC_i <- vector("list", ldb_local)
+      for (j in seq_len(ldb_local)) {
+        n_delta <- if (use_delta_by_level) j else 1L
+        rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(betas[[j]]))
+        if (length(rho_list) == 1L ||
+            sum(is.na(rho_list[[2L]])) != 0) {
+          CCC_i[[j]] <- rho_list[[1L]]
+        } else {
+          CCC_i[[j]] <- rho_list[[n_delta]]
+        }
+      }
+    }
+    
+    #----------------------------
+    # LPC + Cb (components)
+    #----------------------------
+    LPC_i <- NULL
+    Cb_i  <- NULL
+    
+    if (isTRUE(components)) {
+      # LPC (Pearson)
+      rho_pearson_list <- .compute_LPC(pre_i)
+      if (ldb_local == 1L) {
+        LPC_i <- rho_pearson_list[[1L]]
+      } else {
+        LPC_i <- vector("list", ldb_local)
+        for (j in seq_len(ldb_local)) {
+          n_delta <- if (use_delta_by_level) j else 1L
+          LPC_i[[j]] <- rho_pearson_list[[n_delta]]
+        }
+      }
+      
+      # Cb (accuracy)
+      if (ldb_local == 1L) {
+        LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(betas[[1L]]))
+        Cb_i    <- LA_list[[1L]]
+      } else {
+        Cb_i <- vector("list", ldb_local)
+        for (j in seq_len(ldb_local)) {
+          n_delta <- if (use_delta_by_level) j else 1L
+          LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(betas[[j]]))
+          Cb_i[[j]] <- LA_list[[n_delta]]
+        }
+      }
+    }
+    
+    list(
+      LCC    = CCC_i,
+      LPC    = LPC_i,
+      Cb     = Cb_i,
+      wcount = fit$wcount
+    )
   }
   
-  # -------------------------------------------------------------------
-  # Without parallelization
-  # -------------------------------------------------------------------
-  if (numCore == 1L) {
-    pb <- txtProgressBar(
-      title = "Processing the bootstrap confidence intervals",
-      style = 3, min = 0, max = nboot
-    )
+  #-------------------------------------------------------------------
+  # Serial vs parallel execution
+  #-------------------------------------------------------------------
+  if (numCore <= 1L) {
     
     for (i in seq_len(nboot)) {
       res <- one_bootstrap(i)
-      Boot_model[[i]] <- res$model
-      Diff[[i]]       <- res$betas
-      warnings        <- warnings + as.integer(res$wcount)
-      
-      setTxtProgressBar(
-        pb, i,
-        label = paste(round(i / nboot * 100, 0), "% done")
-      )
+      LCC_Boot[[i]] <- res$LCC
+      if (isTRUE(components)) {
+        LPC_Boot[[i]] <- res$LPC
+        Cb_Boot[[i]]  <- res$Cb
+      }
+      warnings <- warnings + as.integer(res$wcount)
     }
-    close(pb)
     
   } else {
-    # -----------------------------------------------------------------
-    # With parallelization
-    # -----------------------------------------------------------------
     cl <- parallel::makeCluster(numCore, type = "SOCK")
     doSNOW::registerDoSNOW(cl)
     
@@ -203,18 +285,24 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     close(pb)
     parallel::stopCluster(cl)
     
-    # unpack results
     for (i in seq_len(nboot)) {
-      Boot_model[[i]] <- results[[i]]$model
-      Diff[[i]]       <- results[[i]]$betas
-      warnings        <- warnings + as.integer(results[[i]]$wcount)
+      LCC_Boot[[i]] <- results[[i]]$LCC
+      if (isTRUE(components)) {
+        LPC_Boot[[i]] <- results[[i]]$LPC
+        Cb_Boot[[i]]  <- results[[i]]$Cb
+      }
+      warnings <- warnings + as.integer(results[[i]]$wcount)
     }
   }
   
   cat("\n  Convergence error in", warnings, "out of",
       nboot, "bootstrap samples.\n")
   
-  out <- list(Boot_Model = Boot_model, Diffbetas = Diff)
+  out <- list(
+    LCC_Boot = LCC_Boot,
+    LPC_Boot = LPC_Boot,
+    Cb_Boot  = Cb_Boot
+  )
   class(out) <- "lcc.bootstrap"
   out
 }

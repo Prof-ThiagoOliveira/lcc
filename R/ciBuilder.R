@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 22/11/2025                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -31,9 +31,9 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                       alpha, components, lme.control, method.init,
                       numCore) {
   #-------------------------------------------------------------------
-  # 1. Bootstrap samples (models + fixed-effects differences)
+  # 1. Bootstrap samples
   #-------------------------------------------------------------------
-  Models <- bootstrapSamples(
+  Boot <- bootstrapSamples(
     nboot        = nboot,
     model        = model,
     q_f          = q_f,
@@ -46,28 +46,18 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
     show.warnings = show.warnings,
     lme.control  = lme.control,
     method.init  = method.init,
-    numCore      = numCore
+    numCore      = numCore,
+    tk           = tk,
+    ldb          = ldb,
+    components   = components
   )
   
-  boot_models  <- Models$Boot_Model
-  boot_diffbet <- Models$Diffbetas
+  LCC_Boot <- Boot$LCC_Boot
+  LPC_Boot <- Boot$LPC_Boot
+  Cb_Boot  <- Boot$Cb_Boot
   
   #-------------------------------------------------------------------
-  # 2. Bootstrap LCC (always needed)
-  #-------------------------------------------------------------------
-  LCC_Boot <- lccBootstrap(
-    model_boot = boot_models,
-    diff_boot  = boot_diffbet,
-    ldb        = ldb,
-    nboot      = nboot,
-    tk         = tk,
-    q_f        = q_f
-  )
-  
-  #-------------------------------------------------------------------
-  # 3. Point estimates: LCC (rho), always required
-  #    Note: original code always uses n.delta = 1 here,
-  #    so we keep that behaviour unchanged.
+  # 3. Point estimates: LCC (rho)
   #-------------------------------------------------------------------
   if (ldb == 1L) {
     rho <- lccWrapper(
@@ -88,12 +78,11 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
         diffbeta = as.numeric(diffbeta[[i]])
       )
     }
-    # Same structure as original: data.frame with one column per method
     rho <- as.data.frame(do.call(cbind, rho_list))
   }
   
   #-------------------------------------------------------------------
-  # 4. If we only want LCC, we’re done after lcc_intervals()
+  # 4. If we only want LCC, we're done after lcc_intervals()
   #-------------------------------------------------------------------
   if (!isTRUE(components)) {
     CI <- lcc_intervals(
@@ -107,35 +96,14 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
       LCC_Boot     = LCC_Boot,
       alpha        = alpha
     )
-    # CI has components: list(rho = ..., ENV.LCC = ...)
     return(invisible(CI))
   }
   
   #-------------------------------------------------------------------
-  # 5. Components = TRUE: need LPC and LA as well
-  #-------------------------------------------------------------------
-  LPC_Boot <- lpcBootstrap(
-    model_boot = boot_models,
-    ldb        = ldb,
-    nboot      = nboot,
-    tk         = tk,
-    q_f        = q_f
-  )
-  Cb_Boot  <- laBootstrap(
-    model_boot = boot_models,
-    diff_boot  = boot_diffbet,
-    ldb        = ldb,
-    nboot      = nboot,
-    tk         = tk,
-    q_f        = q_f
-  )
-  
-  #-------------------------------------------------------------------
-  # 6. Point estimates: LPC (rho.pearson) and LA (Cb)
-  #    Keep the original behaviour: n.delta = 1 in ciBuilder.
+  # 5. Components = TRUE: LPC and LA
   #-------------------------------------------------------------------
   if (ldb == 1L) {
-    rho_pearson <- lpcWrapper(
+    rho.pearson <- lpcWrapper(
       model   = model,
       q_f     = q_f,
       tk      = tk,
@@ -149,7 +117,6 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
       tk      = tk,
       diffbeta = as.numeric(diffbeta[[1L]])
     )
-    
   } else {
     rho_pearson_list <- vector("list", ldb)
     Cb_list          <- vector("list", ldb)
@@ -171,16 +138,16 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
       )
     }
     
-    rho_pearson <- as.data.frame(do.call(cbind, rho_pearson_list))
+    rho.pearson <- as.data.frame(do.call(cbind, rho_pearson_list))
     Cb          <- as.data.frame(do.call(cbind, Cb_list))
   }
   
   #-------------------------------------------------------------------
-  # 7. Compute CIs for LCC, LPC, and LA in one place
+  # 6. Delegate construction of CIs to ciCompute()
   #-------------------------------------------------------------------
   CI <- ciCompute(
     rho          = rho,
-    rho.pearson  = rho_pearson,
+    rho.pearson  = rho.pearson,
     Cb           = Cb,
     tk.plot      = tk.plot,
     tk.plot2     = tk.plot2,
@@ -196,6 +163,7 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
   
   invisible(CI)
 }
+
 
 ##' @title Internal Function to Compute the Non-Parametric Bootstrap
 ##'   Interval.
