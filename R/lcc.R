@@ -307,86 +307,155 @@
 ##'
 ##' @export
 lcc <- function(data, resp, subject, method, time,
-                interaction = TRUE, qf = 1, qr = 0, covar = NULL,
-                gs = NULL, pdmat = pdSymm, var.class = NULL,
-                weights.form = NULL, time_lcc = NULL, ci = FALSE,
-                percentileMet = FALSE, alpha = 0.05, nboot = 5000,
-                show.warnings = FALSE, components=FALSE, REML = TRUE,
-                lme.control = NULL,  numCore = 1) {
-  # getting function call
+                interaction   = TRUE,
+                qf            = 1,
+                qr            = 0,
+                covar         = NULL,
+                gs            = NULL,
+                pdmat         = pdSymm,
+                var.class     = NULL,
+                weights.form  = NULL,
+                time_lcc      = NULL,
+                ci            = FALSE,
+                percentileMet = FALSE,
+                alpha         = 0.05,
+                nboot         = 5000,
+                show.warnings = FALSE,
+                components    = FALSE,
+                REML          = TRUE,
+                lme.control   = NULL,
+                numCore       = 1) {
+  
+  # keep original call
   lcc_call <- match.call()
-  #---------------------------------------------------------------------
-  # The init function is used to check the declared arguments
-  #---------------------------------------------------------------------
-  Init<-init(var.class = var.class, weights.form = weights.form,
-             REML = REML, qf = qf, qr = qr, pdmat = pdmat,
-             dataset = data, resp = resp, subject = subject,
-             method = method, time = time, gs = gs, numCore = numCore)
-  pdmat<-Init$pdmat
-  MethodREML<-Init$MethodREML
-  var.class<-Init$var.class
-  #---------------------------------------------------------------------
-  # Getting relevant model information
-  #---------------------------------------------------------------------
-  model.info <- try(lccModel(dataset = data, resp = resp,
-                             subject = subject, pdmat = pdmat,
-                             method = method, time = time, qf = qf,
-                             qr = qr, interaction = interaction,
-                             covar = covar, gs = gs,
-                             var.class = var.class,
-                             weights.form = weights.form,
-                             lme.control = lme.control,
-                             method.init = MethodREML))
-  #---------------------------------------------------------------------
-  # Verifying convergence
-  #---------------------------------------------------------------------
-  if(model.info$wcount == "1") {
-    opt <- options(show.error.messages=FALSE)
-    on.exit(options(opt))
-    stop(message(model.info$message), call.=FALSE)
+  
+  #-------------------------------------------------------------------
+  # 1. Init: checks + resolve pdmat, var.class, REML
+  #-------------------------------------------------------------------
+  init_env <- init(
+    var.class    = var.class,
+    weights.form = weights.form,
+    REML         = REML,
+    qf           = qf,
+    qr           = qr,
+    pdmat        = pdmat,
+    dataset      = data,
+    resp         = resp,
+    subject      = subject,
+    method       = method,
+    time         = time,
+    gs           = gs,
+    numCore      = numCore
+  )
+  
+  pdmat      <- init_env$pdmat
+  MethodREML <- init_env$MethodREML
+  var.class  <- init_env$var.class
+  
+  #-------------------------------------------------------------------
+  # 2. Fit model (lccModel)
+  #-------------------------------------------------------------------
+  model.info <- try(
+    lccModel(
+      dataset     = data,
+      resp        = resp,
+      subject     = subject,
+      pdmat       = pdmat,
+      method      = method,
+      time        = time,
+      qf          = qf,
+      qr          = qr,
+      interaction = interaction,
+      covar       = covar,
+      gs          = gs,
+      var.class   = var.class,
+      weights.form = weights.form,
+      lme.control = lme.control,
+      method.init = MethodREML
+    ),
+    silent = TRUE
+  )
+  
+  # robust error handling for lccModel failure
+  if (inherits(model.info, "try-error")) {
+    stop("Error in 'lccModel': ", conditionMessage(attr(model.info, "condition")),
+         call. = FALSE)
   }
-  #---------------------------------------------------------------------
-  model <- model.info$model
-  q_f <- qf
-  q_r <- qr
-  x<-NULL
-  y<-NULL
-  lme.control <- model.info$lme.control
-  MethodREML<-model.info$method.init
-  tk <- sort(unique(model.info$data$time))
-  lev.lab <- levels(model.info$data$method)
+  
+  #-------------------------------------------------------------------
+  # 3. Check convergence via wcount
+  #-------------------------------------------------------------------
+  if (identical(model.info$wcount, "1")) {
+    stop(model.info$message, call. = FALSE)
+  }
+  
+  #-------------------------------------------------------------------
+  # 4. Extract model + basic info
+  #-------------------------------------------------------------------
+  model        <- model.info$model
+  q_f          <- qf
+  q_r          <- qr
+  lme.control  <- model.info$lme.control
+  MethodREML   <- model.info$method.init
+  tk           <- sort(unique(model.info$data$time))
+  
+  #-------------------------------------------------------------------
+  # 5. Build fixed-effect contrasts (diffbeta) per method
+  #-------------------------------------------------------------------
+  lev.lab    <- levels(model.info$data$method)
   lev.method <- length(lev.lab)
-  lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-  lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-  fx <- fixef(model)
-  pat <- list()
-  #---------------------------------------------------------------------
-  # Obtaining the fixed effect parameters by method to calculate the
-  # systematic differences of expected values between methods.
-  #---------------------------------------------------------------------
-  for(i in 2:lev.method) pat[[i-1]] <- grep(lev.lab$newcol[i], names(fx))
-  beta1 <- fx[-unlist(pat)]
-  betas <- list()
-  for(i in 2:lev.method) betas[[i-1]] <- - fx[pat[[i-1]]]
-  #---------------------------------------------------------------------
-  # Internal function for calculations and graphs
-  #---------------------------------------------------------------------
-  lcc.int_full<-lccInternal(model = model, q_f = q_f, q_r=q_r,
-                            interaction = interaction, tk = tk,
-                            covar = covar,
-                            pdmat = pdmat, diffbeta = betas,
-                            time_lcc = time_lcc, ci = ci,
-                            percentileMet = percentileMet, alpha = alpha,
-                            nboot = nboot, labels = lev.lab,
-                            var.class = var.class, weights.form = weights.form,
-                            show.warnings = show.warnings, components =
-                                                             components,
-                            lme.control = lme.control, method.init =
-                                                         MethodREML,
-                            numCore = numCore)
-  lcc<-list("model" = model, "Summary.lcc" = lcc.int_full[[1]],
-            "data" = data, "plot_info" = lcc.int_full[-1],
-            "call" = lcc_call)
-  class(lcc)<-"lcc"
-  return(invisible(lcc))
+  
+  # create pattern "method<level>" repeated per polynomial degree q_f
+  x <- y <- NULL  # for R CMD check (NSE in transform)
+  lev.lab_df <- unique(merge(rep("method", q_f), lev.lab))
+  lev.lab_df <- transform(lev.lab_df, newcol = paste(x, y, sep = ""))
+  
+  fx  <- fixef(model)
+  pat <- lapply(seq_len(lev.method - 1L), function(i) {
+    grep(lev.lab_df$newcol[i + 1L], names(fx))
+  })
+  
+  # list of -beta_k for each non-reference method
+  betas <- lapply(pat, function(idx) -fx[idx])
+  
+  #-------------------------------------------------------------------
+  # 6. Internal calculations (LCC, LPC, LA, CI, etc.)
+  #-------------------------------------------------------------------
+  lcc_int <- lccInternal(
+    model        = model,
+    q_f          = q_f,
+    q_r          = q_r,
+    interaction  = interaction,
+    tk           = tk,
+    covar        = covar,
+    pdmat        = pdmat,
+    diffbeta     = betas,
+    time_lcc     = time_lcc,
+    ci           = ci,
+    percentileMet = percentileMet,
+    alpha        = alpha,
+    nboot        = nboot,
+    labels       = lev.lab_df,
+    var.class    = var.class,
+    weights.form = weights.form,
+    show.warnings = show.warnings,
+    components   = components,
+    lme.control  = lme.control,
+    method.init  = MethodREML,
+    numCore      = numCore
+  )
+  
+  #-------------------------------------------------------------------
+  # 7. Build final lcc object
+  #-------------------------------------------------------------------
+  out <- list(
+    "model"      = model,
+    "Summary.lcc" = lcc_int[[1L]],
+    "data"       = data,
+    "plot_info"  = lcc_int[-1L],
+    "call"       = lcc_call
+  )
+  class(out) <- "lcc"
+  
+  invisible(out)
 }

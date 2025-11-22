@@ -27,28 +27,38 @@
 #' @keywords internal
 Pearson <- function(dataset, resp, subject, method, time) {
   selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData$method)
+  dataByMethod <- split(selectedData, selectedData[[method]])
+  methodLevels <- levels(selectedData[[method]])
   
-  calculateCorrelation <- function(Y1, Y2, time) {
-    dataFrame <- data.frame(Y1, Y2, time)
-    correlations <- by(dataFrame[, 1:2], dataFrame$time, 
-                       function(x) cor(x$Y1, x$Y2))
-    as.data.frame(as.matrix(correlations))
+  calculateCorrelation_fast <- function(Y1, Y2, time) {
+    n        <- length(time)
+    time_fac <- as.factor(time)
+    idx_by_t <- split(seq_len(n), time_fac)
+    
+    Y1_full  <- rep(Y1, length.out = n)
+    Y2_full  <- rep(Y2, length.out = n)
+    
+    cor_vec <- vapply(
+      idx_by_t,
+      function(idx) cor(Y1_full[idx], Y2_full[idx]),
+      numeric(1L)
+    )
+    
+    data.frame(V1 = unname(cor_vec))
   }
   
-  pearsonResults <- list()
-  methodLevels <- levels(selectedData$method)
-  
-  for (i in 2:length(methodLevels)) {
-    pearsonResults[[i - 1]] <- calculateCorrelation(
-      Y1 = dataByMethod[[1]]$resp, 
-      Y2 = dataByMethod[[i]]$resp, 
-      time = selectedData$time
+  pearsonResults <- vector("list", length(methodLevels) - 1L)
+  for (i in seq(2L, length(methodLevels))) {
+    pearsonResults[[i - 1L]] <- calculateCorrelation_fast(
+      Y1   = dataByMethod[[1L]][[resp]],
+      Y2   = dataByMethod[[i]][[resp]],
+      time = selectedData[[time]]
     )
   }
   
   pearsonResults
 }
+
 
 #' @title Prepare Plot for LPC Function
 #'

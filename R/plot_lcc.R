@@ -28,35 +28,46 @@
 ##'
 ##' @keywords internal
 CCC_lin <- function(dataset, resp, subject, method, time) {
+  # We assume here that `dataset` has already been prepared by dataBuilder
   selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData$method)
+  dataByMethod <- split(selectedData, selectedData[[method]])
+  methodLevels <- levels(selectedData[[method]])
   
-  calculateCCC <- function(Y1, Y2, time) {
-    dataFrame <- data.frame(Y1, Y2, time)
-    means <- with(dataFrame, sapply(list(Y1, Y2), function(Y) tapply(Y, time, mean)))
-    variances <- with(dataFrame, sapply(list(Y1, Y2), function(Y) tapply(Y, time, var)))
-    covariances <- by(dataFrame[, 1:2], dataFrame$time, function(x) cov(x$Y1, x$Y2))
+  calculateCCC_fast <- function(Y1, Y2, time) {
+    n          <- length(time)
+    time_fac   <- as.factor(time)
+    idx_by_t   <- split(seq_len(n), time_fac)
+
+    Y1_full    <- rep(Y1, length.out = n)
+    Y2_full    <- rep(Y2, length.out = n)
     
-    dataLin <- data.frame(
-      time = unique(time),
-      M1 = means[[1]],
-      M2 = means[[2]],
-      S1 = variances[[1]],
-      S2 = variances[[2]],
-      S12 = sapply(covariances, '[', 1)
+    ccc_vec <- vapply(
+      idx_by_t,
+      function(idx) {
+        y1 <- Y1_full[idx]
+        y2 <- Y2_full[idx]
+        m1 <- mean(y1)
+        m2 <- mean(y2)
+        s1 <- var(y1)
+        s2 <- var(y2)
+        s12 <- cov(y1, y2)
+        2 * s12 / (s1 + s2 + (m1 - m2)^2)
+      },
+      numeric(1L)
     )
-    
-    CCC.results <- by(dataLin, dataLin$time, function(x) {
-      2 * x$S12 / (x$S1 + x$S2 + (x$M1 - x$M2)^2)
-    })
-    
-    CCC.results <- sapply(CCC.results, function(x) unlist(x))
-    return(as.data.frame(as.matrix(CCC.results)))
+    data.frame(V1 = unname(ccc_vec))
   }
   
-  CCC.Lin <- lapply(seq(2, length(levels(selectedData$method))), function(i) {
-    calculateCCC(Y1 = dataByMethod[[1]]$resp, Y2 = dataByMethod[[i]]$resp, time = selectedData$time)
-  })
+  CCC.Lin <- lapply(
+    seq(2L, length(methodLevels)),
+    function(i) {
+      calculateCCC_fast(
+        Y1   = dataByMethod[[1L]][[resp]],
+        Y2   = dataByMethod[[i]][[resp]],
+        time = selectedData[[time]]
+      )
+    }
+  )
   
   CCC.Lin
 }

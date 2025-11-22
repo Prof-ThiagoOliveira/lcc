@@ -33,9 +33,11 @@
 ##' # Example usage:
 ##' # CCC(c(1, 2, 3), c(3, 2, 1))
 CCC <- function(Y1, Y2) {
-  m1 <- mean(Y1)
-  m2 <- mean(Y2)
-  S12 <- cov(Y1, Y2)
-  CCC_lin <- 2 * S12 / (var(Y1) + var(Y2) + (m1 - m2)^2)
-  return(CCC_lin)
+  m1  <- mean(Y1)
+  m2  <- mean(Y2)
+  v1  <- var(Y1)
+  v2  <- var(Y2)
+  s12 <- cov(Y1, Y2)
+  
+  2 * s12 / (v1 + v2 + (m1 - m2)^2)
 }

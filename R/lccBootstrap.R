@@ -37,21 +37,27 @@
 ##' @importFrom parallel makeCluster stopCluster
 ##'
 ##' @keywords internal
+dataBootstrap <- function(model) {
+  data   <- model$data
+  subj   <- data$subject
+  n_subj <- length(unique(subj))
+  
+  # split once per call
+  split_by_subj <- split(data, subj)
+  
+  # sample subject indices with replacement
+  sample_idx <- sample.int(n_subj, n_subj, replace = TRUE)
+  
+  frames <- lapply(seq_along(sample_idx), function(i) {
+    idx <- sample_idx[i]
+    df  <- split_by_subj[[idx]]
+    df$subject <- factor(i, levels = seq_len(n_subj))
+    df
+  })
+  
+  do.call(rbind, frames)
+}
 
-dataBootstrap<-function(model){
-N<-length(levels(model$data$subject))
-Dataset<-model$data
-subject<-NULL
-sample_data<-sample(as.character(unique(model$data$subject)),
-                    N,replace=TRUE)
-Frame<-list(NA)
-for(i in 1:N){
-  Frame[[i]]<-subset(Dataset, subject==sample_data[i])
-  Frame[[i]]$subject<-c(rep(i,length(Frame[[i]][,1])))
-}
-Boot_Dataset<-do.call(rbind.data.frame, Frame)
-return(Boot_Dataset)
-}
 
 ##' @title Internal functions to estimate fixed effects and variance
 ##'   components.
@@ -67,270 +73,148 @@ return(Boot_Dataset)
 ##' @importFrom nlme fixef
 ##'
 ##' @keywords internal
-bootstrapSamples<-function(nboot, model, q_f, q_r, interaction, covar,
-                           var.class, pdmat, weights.form,
-                           show.warnings, lme.control, method.init,
-                           numCore){
-  Dataset_boot<-list(NA)
-  Boot_model<-list(NA)
-  Diff<-list(NA)
-  warnings <- 0
-  #---------------------------------------------------------------------
+bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
+                             var.class, pdmat, weights.form,
+                             show.warnings, lme.control, method.init,
+                             numCore) {
+  
+  # Preallocate outputs
+  Boot_model <- vector("list", nboot)
+  Diff       <- vector("list", nboot)
+  warnings   <- 0L
+  
+  # -------------------------------------------------------------------
+  # Precompute subject-level split for bootstrap resampling
+  # -------------------------------------------------------------------
+  orig_data   <- model$data
+  subj        <- orig_data$subject
+  n_subj      <- length(unique(subj))
+  split_by_subj <- split(orig_data, subj)
+  subj_seq    <- seq_len(n_subj)
+  
+  bootstrap_dataset <- function() {
+    sample_idx <- sample.int(n_subj, n_subj, replace = TRUE)
+    frames <- lapply(seq_along(sample_idx), function(i) {
+      idx <- sample_idx[i]
+      df  <- split_by_subj[[idx]]
+      df$subject <- factor(i, levels = subj_seq)
+      df
+    })
+    do.call(rbind, frames)
+  }
+  
+  # -------------------------------------------------------------------
+  # Precompute pattern of fixed-effect indices per method
+  # (these do not change across bootstrap samples)
+  # -------------------------------------------------------------------
+  base_fx  <- nlme::fixef(model)
+  base_lev <- levels(orig_data$method)
+  
+  x <- y <- NULL
+  lev_lab_df <- unique(merge(rep("method", q_f), base_lev))
+  lev_lab_df <- transform(lev_lab_df, newcol = paste(x, y, sep = ""))
+  
+  pat <- lapply(
+    seq(2L, length(base_lev)),
+    function(j) grep(lev_lab_df$newcol[j], names(base_fx))
+  )
+  
+  compute_betas <- function(fx) {
+    lapply(pat, function(idx) -fx[idx])
+  }
+  
+  # -------------------------------------------------------------------
+  # Single bootstrap iteration (used in both serial and parallel code)
+  # -------------------------------------------------------------------
+  one_bootstrap <- function(i) {
+    fit <- lccModel(
+      dataset      = bootstrap_dataset(),
+      resp         = "resp",
+      subject      = "subject",
+      covar        = covar,
+      method       = "method",
+      time         = "time",
+      qf           = q_f,
+      qr           = q_r,
+      interaction  = interaction,
+      pdmat        = pdmat,
+      var.class    = var.class,
+      weights.form = weights.form,
+      lme.control  = lme.control,
+      method.init  = method.init
+    )
+    
+    if (fit$wcount == 1L) {
+      boot_mod <- model
+      if (show.warnings) {
+        cat("\n  Estimation problem on bootstrap sample", i, "\n")
+      }
+    } else {
+      boot_mod <- fit$model
+    }
+    
+    fx    <- nlme::fixef(boot_mod)
+    betas <- compute_betas(fx)
+    
+    list(model = boot_mod, betas = betas, wcount = fit$wcount)
+  }
+  
+  # -------------------------------------------------------------------
   # Without parallelization
-  #---------------------------------------------------------------------
-  if (numCore == 1){
+  # -------------------------------------------------------------------
+  if (numCore == 1L) {
     pb <- txtProgressBar(
       title = "Processing the bootstrap confidence intervals",
-      style = 3, min = 0, max = nboot)
-    for(i in 1:nboot){
-      lccModel.fit <- lccModel(dataset=dataBootstrap(model=model), resp="resp",
-                               subject="subject", covar = covar,
-                               method="method", time="time",
-                               qf=q_f, qr=q_r,
-                               interaction = interaction, pdmat = pdmat,
-                               var.class = var.class,
-                               weights.form = weights.form,
-                               lme.control = lme.control,
-                               method.init = method.init)
-      x<-NULL
-      y<-NULL
-      if(lccModel.fit$wcount == 1) {
-        Boot_model[[i]] <- model
-        tk <- sort(unique(Boot_model[[i]]$data$time))
-        lev.lab <- levels(Boot_model[[i]]$data$method)
-        lev.facA <- length(lev.lab)
-        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-        fx <- fixef(Boot_model[[i]])
-        if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
-      } else {
-        Boot_model[[i]] <- lccModel.fit$model
-        tk <- sort(unique(Boot_model[[i]]$data$time))
-        lev.lab <- levels(Boot_model[[i]]$data$method)
-        lev.facA <- length(lev.lab)
-        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-        fx <- fixef(Boot_model[[i]])
-      }
-      warnings <- warnings + lccModel.fit$wcount
-      pat <- list()
-      for(j in 2:lev.facA) pat[[j-1]] <- grep(lev.lab$newcol[j], names(fx))
-      beta1 <- fx[-unlist(pat)]
-      betas <- list()
-      for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
-      Diff[[i]]<-betas
-      #-----------------------------------------------------------------
-      # print
-      #-----------------------------------------------------------------
-      #cat("Sample number: ", i, "\n")
-      setTxtProgressBar(pb, i, label=paste( round(i/nboot*100, 0),
-                                           "% done"))
+      style = 3, min = 0, max = nboot
+    )
+    
+    for (i in seq_len(nboot)) {
+      res <- one_bootstrap(i)
+      Boot_model[[i]] <- res$model
+      Diff[[i]]       <- res$betas
+      warnings        <- warnings + as.integer(res$wcount)
+      
+      setTxtProgressBar(
+        pb, i,
+        label = paste(round(i / nboot * 100, 0), "% done")
+      )
     }
-  }else {
-    #===================================================================
-    # With parallelizarion
-    #===================================================================
-    # Sampling data
-    cl <- makeCluster(numCore, type = "SOCK")
-    registerDoSNOW(cl)
-    pb <- txtProgressBar(max=nboot, style=3)
+    close(pb)
+    
+  } else {
+    # -----------------------------------------------------------------
+    # With parallelization
+    # -----------------------------------------------------------------
+    cl <- parallel::makeCluster(numCore, type = "SOCK")
+    doSNOW::registerDoSNOW(cl)
+    
+    pb <- txtProgressBar(max = nboot, style = 3)
     progress <- function(n) setTxtProgressBar(pb, n)
-    opts <- list(progress=progress)
-    #-------------------------------------------------------------------
-    lccModel.fit <- foreach(i = 1:nboot, .options.snow = opts) %dorng% {
-      lccModel(dataset = dataBootstrap(model=model), resp = "resp",
-               subject = "subject", covar = covar,
-               method = "method", time="time",
-               qf = q_f, qr = q_r,
-               interaction = interaction, pdmat = pdmat,
-               var.class = var.class,
-               weights.form = weights.form,
-               lme.control = lme.control,
-               method.init = method.init)
+    opts <- list(progress = progress)
+    
+    results <- foreach::foreach(
+      i = seq_len(nboot),
+      .options.snow = opts,
+      .packages = c("nlme")
+    ) %dorng% {
+      one_bootstrap(i)
     }
-    stopCluster(cl)
-    #-------------------------------------------------------------------
-    for(i in 1:nboot){
-      x<-NULL
-      y<-NULL
-      if(lccModel.fit[[i]]$wcount == 1) {
-        Boot_model[[i]] <- model
-        tk <- sort(unique(Boot_model[[i]]$data$time))
-        lev.lab <- levels(Boot_model[[i]]$data$method)
-        lev.facA <- length(lev.lab)
-        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-        fx <- fixef(Boot_model[[i]])
-        if(show.warnings) cat("\n", "  Estimation problem on bootstrap sample", i, "\n")
-      } else {
-        Boot_model[[i]] <- lccModel.fit[[i]]$model
-        tk <- sort(unique(Boot_model[[i]]$data$time))
-        lev.lab <- levels(Boot_model[[i]]$data$method)
-        lev.facA <- length(lev.lab)
-        lev.lab<-unique(merge(rep("method",q_f),lev.lab))
-        lev.lab<-transform(lev.lab,newcol=paste(x,y, sep = ""))
-        fx <- fixef(Boot_model[[i]])
-      }
-      warnings <- warnings + lccModel.fit[[i]]$wcount
-      pat <- list()
-      for(j in 2:lev.facA) pat[[j-1]] <- grep(lev.lab$newcol[j], names(fx))
-      beta1 <- fx[-unlist(pat)]
-      betas <- list()
-      for(j in 2:lev.facA) betas[[j-1]] <- - fx[pat[[j-1]]]
-      Diff[[i]]<-betas
+    
+    close(pb)
+    parallel::stopCluster(cl)
+    
+    # unpack results
+    for (i in seq_len(nboot)) {
+      Boot_model[[i]] <- results[[i]]$model
+      Diff[[i]]       <- results[[i]]$betas
+      warnings        <- warnings + as.integer(results[[i]]$wcount)
     }
   }
-  cat("\n", "  Convergence error in", warnings, "out of",
-                             nboot, "bootstrap samples.", "\n")
-  lcc.bootstrap <- list("Boot_Model" = Boot_model, "Diffbetas"=Diff)
-  class(lcc.bootstrap) <- "lcc.bootstrap"
-  return(lcc.bootstrap)
-}
-
-##' @title Internal functions to generate longitudinal concordance
-##'   correlation samples.
-##'
-##' @description This is an internally called functions used to generate
-##'   longitudinal concordance correlation samples.
-##'
-##' @usage NULL
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @keywords internal
-lccBootstrap<-function(model_boot, diff_boot, ldb, nboot, tk, q_f){
-  CCC_Boot<-list(NA)
-  if(ldb == 1) {
-    for(i in 1:nboot){
-      CCC_Boot[[i]] <-
-        lccWrapper(model = model_boot[[i]], q_f = q_f,
-                   n.delta = 1, tk = tk,
-                   diffbeta = as.numeric(diff_boot[[i]][[1]]))
-    }
-    return(CCC_Boot)
-  } else {
-    nd<-length(summary(model_boot[[1]])$modelStruct$varStruct)
-    if(nd<=1){
-      CCC_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          CCC_l[[j]] <-
-            lccWrapper(model = model_boot[[i]], q_f = q_f, n.delta = 1,
-                       tk = tk,
-                       diffbeta = as.numeric(diff_boot[[i]][[j]]))
-        }
-        CCC_Boot[[i]]<-CCC_l
-      }
-    } else{
-      CCC_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          CCC_l[[j]] <-
-            lccWrapper(model = model_boot[[i]], q_f = q_f, n.delta = j,
-                       tk = tk,
-                       diffbeta = as.numeric(diff_boot[[i]][[j]]))
-        }
-        CCC_Boot[[i]]<-CCC_l
-      }
-    }
-    return(CCC_Boot)
-  }
-}
-
-##' @title Internal functions to generate longitudinal Pearson
-##'   correlation samples.
-##'
-##' @description This is an internally called functions used to generate
-##'   longitudinal Pearson correlation samples.
-##'
-##' @usage NULL
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @keywords internal
-lpcBootstrap<-function(model_boot, ldb, nboot, tk, q_f){
-  LPC_Boot<-list(NA)
-  if(ldb == 1) {
-    for(i in 1:nboot){
-      LPC_Boot[[i]] <-
-        lpcWrapper(model = model_boot[[i]], q_f = q_f, n.delta = 1,
-                   tk = tk)
-    }
-    return(LPC_Boot)
-  } else {
-    nd<-length(summary(model_boot[[1]])$modelStruct$varStruct)
-    if(nd<=1){
-      LPC_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          LPC_l[[j]] <-
-            lpcWrapper(model = model_boot[[i]], q_f = q_f, n.delta = 1,
-                       tk = tk)
-        }
-        LPC_Boot[[i]]<-LPC_l
-      }
-    } else{
-      LPC_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          LPC_l[[j]] <-
-            lpcWrapper(model = model_boot[[i]], q_f = q_f, n.delta = j,
-                       tk = tk)
-        }
-        LPC_Boot[[i]]<-LPC_l
-      }
-    }
-    return(LPC_Boot)
-  }
-}
-
-##' @title Internal functions to generate longitudinal accuracy samples.
-##'
-##' @description This is an internally called functions used to generate
-##'   longitudinal caccuracy samples.
-##'
-##' @usage NULL
-##'
-##' @author Thiago de Paula Oliveira,
-##'   \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @keywords internal
-laBootstrap<-function(model_boot, diff_boot, ldb, nboot, tk, q_f){
-  Cb_Boot<-list(NA)
-  if(ldb == 1) {
-    for(i in 1:nboot){
-      Cb_Boot[[i]] <-
-        laWrapper(model = model_boot[[i]], q_f = q_f, n.delta = 1,
-                  tk = tk, diffbeta = as.numeric(diff_boot[[i]][[1]]))
-    }
-    return(Cb_Boot)
-  } else {
-    nd<-length(summary(model_boot[[1]])$modelStruct$varStruct)
-    if(nd<=1){
-      Cb_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          Cb_l[[j]] <-
-            laWrapper(model = model_boot[[i]], q_f = q_f, n.delta = 1,
-                      tk = tk,
-                      diffbeta = as.numeric(diff_boot[[i]][[j]]))
-        }
-        Cb_Boot[[i]]<-Cb_l
-      }
-    } else{
-      Cb_l <- list()
-      for(i in 1:nboot){
-        for(j in 1:ldb)  {
-          Cb_l[[j]] <-
-            laWrapper(model = model_boot[[i]], q_f = q_f, n.delta = j,
-                      tk = tk,
-                      diffbeta = as.numeric(diff_boot[[i]][[j]]))
-        }
-        Cb_Boot[[i]]<-Cb_l
-      }
-    }
-    return(Cb_Boot)
-  }
+  
+  cat("\n  Convergence error in", warnings, "out of",
+      nboot, "bootstrap samples.\n")
+  
+  out <- list(Boot_Model = Boot_model, Diffbetas = Diff)
+  class(out) <- "lcc.bootstrap"
+  out
 }

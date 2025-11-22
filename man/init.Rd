@@ -4,6 +4,9 @@
 \alias{init}
 \title{Internal Function to Prepare \code{\link[lcc]{lccModel}}
   Function}
+\value{
+No return value, called for side effects
+}
 \description{
 This is an internally called function used to verify
   the specification of variance-covariance matrices and likelihood

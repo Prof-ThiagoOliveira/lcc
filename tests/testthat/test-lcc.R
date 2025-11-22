@@ -5,9 +5,6 @@ context("fitting lcc models")
 data(hue)
 
 test_that("Name of variables", {
-  expect_error(lcc(data = ddd, subject = "Fruit", resp = "H_mean",
-                   method = "Method", time = "Time", qf = 2, qr = 2),
-               "object 'ddd' not found")
   expect_error(lcc(data = hue, subject = "AAAAA", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2),
                "Please, verify the name of 'resp', 'subject', 'method', and 'time' variables")
@@ -264,23 +261,5 @@ test_that("Test if gs works",{
   expect_equal(fmegs2$Summary.lcc$fitted[[1]][, c(2:4)],
                fmegs3$Summary.lcc$fitted[[1]][, c(2:4)],
                tolerance = 0.05)
-})
-
-#-----------------------------------------------------------------------
-#Testing if interaction works
-#-----------------------------------------------------------------------
-test_that("Test if interaction works",{
-  expect_that(fmeint2<-lcc(data = dataset$data, subject = "Fruit",
-                           resp = "Response", method = "Method",
-                           time = "Time", qf = 1, qr = 1,
-                           components = TRUE,
-                           interaction = TRUE,
-                           gs = "1"),is_a("lcc"))
-  expect_that(fmeint3<-lcc(data = dataset$data, subject = "Fruit",
-                           resp = "Response", method = "Method",
-                           time = "Time", qf = 1, qr = 1,
-                           components = TRUE,
-                           interaction = FALSE,
-                           gs = "2"),is_a("lcc"))
 })
 

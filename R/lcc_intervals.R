@@ -27,69 +27,94 @@
 ##' @importFrom stats quantile sd qnorm
 ##'
 ##' @keywords internal
-lcc_intervals<-function(rho, tk.plot, tk.plot2, ldb, model, ci,
-                        percentileMet, LCC_Boot, alpha){
-  ZFisher<-function(x){
-    1/2*log((1+x)/(1-x))
+lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
+                          percentileMet, LCC_Boot, alpha) {
+  # Fisher z transform and its inverse
+  ZFisher      <- function(x) 0.5 * log((1 + x) / (1 - x))
+  ZFisher_inv  <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
+  
+  # percentileMet may come as "TRUE"/"FALSE" or logical
+  percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
+  
+  if (ldb == 1L) {
+    # LCC_Boot is a list over bootstrap samples, each element is a numeric vector over time
+    ENV.LCC <- .build_ci_from_boot(
+      boot_list     = LCC_Boot,
+      alpha         = alpha,
+      transform     = if (!percentile) ZFisher else NULL,
+      inv_transform = if (!percentile) ZFisher_inv else NULL,
+      percentile    = percentile
+    )
+    
+  } else {
+    # LCC_Boot is a list over bootstrap samples; each [[b]] is a list over methods (ldb)
+    ENV.LCC <- vector("list", ldb)
+    
+    for (i in seq_len(ldb)) {
+      # Collect i-th method from each bootstrap replicate, keeping NULLs if whole replicate is NULL
+      boot_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
+      
+      ENV.LCC[[i]] <- .build_ci_from_boot(
+        boot_list     = boot_i,
+        alpha         = alpha,
+        transform     = if (!percentile) ZFisher else NULL,
+        inv_transform = if (!percentile) ZFisher_inv else NULL,
+        percentile    = percentile
+      )
+    }
   }
-  if(ldb == 1) {
-  LCC_IC <- matrix(0, ncol=length(LCC_Boot), nrow=length(LCC_Boot[[1]]))
-  if(percentileMet=="TRUE"){
-    for(i in seq_len(length(LCC_Boot))) {
-      if(is.null(LCC_Boot[[i]])==FALSE){
-        LCC_IC[,i] <- LCC_Boot[[i]]
-      }else(cat(i,"\n"))
+  
+  # Keep return structure unchanged
+  CI.LCC <- list("rho" = rho, "ENV.LCC" = ENV.LCC)
+  CI.LCC
 }
-    ENV.LCC <- apply(LCC_IC, 1, quantile, probs=c(alpha/2,1-alpha/2))
-  }else{
-    for(i in seq_len(length(LCC_Boot))) {
-      if(is.null(LCC_Boot[[i]])==FALSE){
-        LCC_IC[,i] <- ZFisher(LCC_Boot[[i]])
-      }else(cat(i,"\n"))
-    }
-    SE<-apply(LCC_IC, 1, sd)
-    mean<-apply(LCC_IC, 1, mean)
-    ENV.LCC<-matrix(NA, nrow = 2, ncol = length(SE))
-    for(i in seq_len(length(SE))){
-      ENV.LCC[,i]<-c(mean[i], mean[i])-
-        c(qnorm(1-alpha/2)*SE[i],qnorm(alpha/2)*SE[i])
-    }
-    ENV.LCC<-(exp(2*ENV.LCC)-1)/(exp(2*ENV.LCC)+1)
+
+
+#' @keywords Internal
+.build_ci_from_boot <- function(boot_list, alpha,
+                                transform = NULL, inv_transform = NULL,
+                                percentile = FALSE) {
+  # boot_list: list of numeric vectors, one per bootstrap replicate
+  # (elements may be NULL; they are dropped)
+  
+  if (length(boot_list) == 0L) {
+    return(NULL)
   }
-  CI.LCC<-list("rho"=rho,"ENV.LCC"=ENV.LCC)
-  }else{
-    LCC_IC<-list()
-    ENV.LCC<-list()
-    SE_LCC<-list()
-    mean_LCC<-list()
-    for(i in seq_len(ldb)){
-      LCC_IC[[i]] <- matrix(0, ncol=length(LCC_Boot),
-                            nrow=length(LCC_Boot[[1]][[i]]))
-      if(percentileMet=="TRUE"){
-       for(j in seq_len(length(LCC_Boot))) {
-        if(is.null(LCC_Boot[[j]])==FALSE){
-          LCC_IC[[i]][,j] <- LCC_Boot[[j]][[i]]
-        }else(cat(i,"\n"))
-      }
-       ENV.LCC[[i]] <- apply(LCC_IC[[i]], 1, quantile,
-                             probs=c(alpha/2,1-alpha/2))
-      }else{
-        for(j in seq_len(length(LCC_Boot))) {
-          if(is.null(LCC_Boot[[j]])==FALSE){
-            LCC_IC[[i]][,j] <- ZFisher(LCC_Boot[[j]][[i]])
-          }else(cat(i,"\n"))
-        }
-        SE_LCC[[i]]<-apply(LCC_IC[[i]], 1, sd)
-        mean_LCC[[i]]<-apply(LCC_IC[[i]], 1, mean)
-        ENV.LCC[[i]]<-matrix(NA, nrow = 2, ncol = length(SE_LCC[[i]]))
-        for(k in seq_len(length(SE_LCC[[i]]))){
-          ENV.LCC[[i]][,k]<-c(mean_LCC[[i]][k], mean_LCC[[i]][k])-
-            c(qnorm(1-alpha/2)*SE_LCC[[i]][k],qnorm(alpha/2)*SE_LCC[[i]][k])
-        }
-        ENV.LCC[[i]]<-(exp(2*ENV.LCC[[i]])-1)/(exp(2*ENV.LCC[[i]])+1)
-        }
-      }
-    CI.LCC<-list("rho"=rho,"ENV.LCC"=ENV.LCC)
+  
+  not_null <- !vapply(boot_list, is.null, logical(1L))
+  
+  # if all bootstrap replicates are NULL, we can't build CI
+  if (!any(not_null)) {
+    return(NULL)
   }
- return(CI.LCC)
+  
+  boot_list <- boot_list[not_null]
+  
+  # rows: time, cols: bootstrap replicates
+  boot_mat <- do.call(cbind, boot_list)
+  
+  if (percentile) {
+    ci <- apply(
+      boot_mat, 1L, quantile,
+      probs = c(alpha / 2, 1 - alpha / 2)
+    )
+    return(ci)
+  }
+  
+  # transform-based normal approximation
+  if (!is.null(transform)) {
+    boot_mat <- transform(boot_mat)
+  }
+  
+  se <- apply(boot_mat, 1L, sd)
+  mu <- apply(boot_mat, 1L, mean)
+  z  <- stats::qnorm(1 - alpha / 2)
+  
+  ci <- rbind(mu - z * se, mu + z * se)
+  
+  if (!is.null(inv_transform)) {
+    ci <- inv_transform(ci)
+  }
+  
+  ci
 }
