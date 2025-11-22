@@ -14,6 +14,10 @@
 #                                                                     #
 #######################################################################
 
+# --------------------------------------------------------------------
+# Shared CI transforms + helper used by both lcc_intervals() and ciCompute()
+# --------------------------------------------------------------------
+
 ##' @title Internal Functions to Compute the Non-Parametric Confidence
 ##'   Intervals for LCC.
 ##'
@@ -27,17 +31,18 @@
 ##' @importFrom stats quantile sd qnorm
 ##'
 ##' @keywords internal
+##' @keywords internal
 lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
                           percentileMet, LCC_Boot, alpha) {
-  # Fisher z transform and its inverse
-  ZFisher      <- function(x) 0.5 * log((1 + x) / (1 - x))
-  ZFisher_inv  <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
+  ## Fisher z transform and its inverse
+  ZFisher     <- function(x) 0.5 * log((1 + x) / (1 - x))
+  ZFisher_inv <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
   
-  # percentileMet may come as "TRUE"/"FALSE" or logical
+  ## percentileMet may come as "TRUE"/"FALSE" or logical
   percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
   
   if (ldb == 1L) {
-    # LCC_Boot is a list over bootstrap samples, each element is a numeric vector over time
+    ## LCC_Boot is list over bootstrap samples; each element numeric over time
     ENV.LCC <- .build_ci_from_boot(
       boot_list     = LCC_Boot,
       alpha         = alpha,
@@ -45,15 +50,11 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
       inv_transform = if (!percentile) ZFisher_inv else NULL,
       percentile    = percentile
     )
-    
   } else {
-    # LCC_Boot is a list over bootstrap samples; each [[b]] is a list over methods (ldb)
+    ## LCC_Boot is list over bootstrap samples; each [[b]] is list over methods
     ENV.LCC <- vector("list", ldb)
-    
     for (i in seq_len(ldb)) {
-      # Collect i-th method from each bootstrap replicate, keeping NULLs if whole replicate is NULL
       boot_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-      
       ENV.LCC[[i]] <- .build_ci_from_boot(
         boot_list     = boot_i,
         alpha         = alpha,
@@ -64,44 +65,34 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
     }
   }
   
-  # Keep return structure unchanged
   CI.LCC <- list("rho" = rho, "ENV.LCC" = ENV.LCC)
   CI.LCC
 }
 
-
-#' @keywords Internal
+##' @keywords Internal
 .build_ci_from_boot <- function(boot_list, alpha,
                                 transform = NULL, inv_transform = NULL,
                                 percentile = FALSE) {
-  # boot_list: list of numeric vectors, one per bootstrap replicate
-  # (elements may be NULL; they are dropped)
+  ## boot_list: list over bootstrap replicates; each element is a
+  ## numeric vector over time (or NULL for failed fits)
   
-  if (length(boot_list) == 0L) {
-    return(NULL)
+  ## Drop NULL or all-NA replicates
+  boot_list <- boot_list[!vapply(boot_list, is.null, logical(1L))]
+  if (!length(boot_list)) {
+    return(matrix(NA_real_, nrow = 2L, ncol = 0L))
   }
   
-  not_null <- !vapply(boot_list, is.null, logical(1L))
-  
-  # if all bootstrap replicates are NULL, we can't build CI
-  if (!any(not_null)) {
-    return(NULL)
-  }
-  
-  boot_list <- boot_list[not_null]
-  
-  # rows: time, cols: bootstrap replicates
+  ## Coerce to matrix: rows = time points; cols = bootstrap replicates
   boot_mat <- do.call(cbind, boot_list)
   
   if (percentile) {
-    ci <- apply(
-      boot_mat, 1L, quantile,
-      probs = c(alpha / 2, 1 - alpha / 2)
-    )
+    lower <- apply(boot_mat, 1L, stats::quantile, probs = alpha / 2)
+    upper <- apply(boot_mat, 1L, stats::quantile, probs = 1 - alpha / 2)
+    ci    <- rbind(lower, upper)
     return(ci)
   }
   
-  # transform-based normal approximation
+  ## Normal-approximation on a transformed scale
   if (!is.null(transform)) {
     boot_mat <- transform(boot_mat)
   }
@@ -117,4 +108,25 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
   }
   
   ci
+}
+
+ZFisher <- function(x) 0.5 * log((1 + x) / (1 - x))
+ZFisher_inv <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
+
+Arcsin <- function(x) asin(sqrt(x))
+Arcsin_inv <- function(x) sign(x) * sin(x)^2
+
+build_ci_metric <- function(boot_list, alpha,
+                            transform, inv_transform,
+                            percentileMet) {
+  # percentileMet may be logical or "TRUE"/"FALSE"
+  percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
+  
+  .build_ci_from_boot(
+    boot_list     = boot_list,
+    alpha         = alpha,
+    transform     = if (!percentile) transform else NULL,
+    inv_transform = if (!percentile) inv_transform else NULL,
+    percentile    = percentile
+  )
 }

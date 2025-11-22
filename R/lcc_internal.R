@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 22/11/2025                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
@@ -26,7 +26,6 @@
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br} and Rafael de Andrade Moral,
 ##'   \email{rafael_moral@@yahoo.com.br}
 ##'
-##' @keywords internal
 ##' @keywords internal
 lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                         pdmat, diffbeta, time_lcc, ci, percentileMet,
@@ -59,135 +58,138 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
     }
   }
   
+  # Number of method comparisons (pairs vs reference)
   ldb <- length(diffbeta)
   
-  # number of variance-structure parameters
-  varStruct <- summary(model)$modelStruct$varStruct
-  nd <- length(varStruct)
+  # Variance-structure information (used to choose n.delta)
+  varcomp   <- summary(model)
+  varStruct <- varcomp$modelStruct$varStruct
+  nd        <- length(varStruct)
   
-  # Predeclare objects (used later when ci == FALSE)
-  rho            <- NULL
-  rho.ret        <- NULL
-  rho.pearson    <- NULL
+  # Preallocate objects
+  rho             <- NULL
+  rho.ret         <- NULL
+  rho.pearson     <- NULL
   rho.pearson.ret <- NULL
-  Cb             <- NULL
-  Cb.ret         <- NULL
-  CI             <- NULL
+  Cb              <- NULL
+  Cb.ret          <- NULL
+  CI              <- NULL
   
   #===================================================================
   # Case 1: no bootstrap confidence intervals
   #===================================================================
   if (!ci) {
+    # Precompute longitudinal kernel once for this model and tk.plot
+    G       <- nlme::getVarCov(model)
+    q_r_eff <- nrow(G) - 1L
+    pre     <- .precompute_longitudinal(
+      model = model, tk = tk.plot, q_f = q_f, q_r = q_r_eff
+    )
+    
     #---------------------------------------------------------------
     # ldb == 1 (two methods)
     #---------------------------------------------------------------
     if (ldb == 1L) {
-      rho <- lccWrapper(
-        model   = model,
-        q_f     = q_f,
-        n.delta = 1L,
-        tk      = tk.plot,
-        diffbeta = as.numeric(diffbeta[[1L]])
-      )
+      beta1 <- as.numeric(diffbeta[[1L]])
+      
+      # LCC
+      rho_list <- .compute_LCC(pre, diffbeta = beta1)
+      rho      <- rho_list[[1L]]  # for ldb == 1, n.delta is always 1
       
       if (components) {
-        rho.pearson <- lpcWrapper(
-          model   = model,
-          q_f     = q_f,
-          tk      = tk.plot,
-          n.delta = 1L
-        )
-        Cb <- laWrapper(
-          model   = model,
-          q_f     = q_f,
-          n.delta = 1L,
-          tk      = tk.plot,
-          diffbeta = as.numeric(diffbeta[[1L]])
-        )
+        # LPC
+        rho_pearson_list <- .compute_LPC(pre)
+        rho.pearson      <- rho_pearson_list[[1L]]
+        
+        # Accuracy component (Cb)
+        LA_list <- .compute_LA(pre, diffbeta = beta1)
+        Cb      <- LA_list[[1L]]
       }
       
       summary.lcc <- lccSummary(
-        q_f        = q_f,
-        diffbeta   = diffbeta,
-        tk         = tk,
-        tk.plot    = tk.plot,
-        tk.plot2   = tk.plot2,
-        rho        = rho,
+        model       = model,
+        q_f         = q_f,
+        diffbeta    = diffbeta,
+        tk          = tk,
+        tk.plot     = tk.plot,
+        tk.plot2    = tk.plot2,
+        rho         = rho,
+        ENV.LCC     = NULL,
         rho.pearson = rho.pearson,
-        Cb         = Cb,
-        model      = model,
-        ldb        = ldb,
-        ci         = FALSE,
-        components = components
+        ENV.LPC     = NULL,
+        Cb          = Cb,
+        ENV.Cb      = NULL,
+        ldb         = ldb,
+        ci          = FALSE,
+        components  = components
       )
       
     } else {
       #-------------------------------------------------------------
       # ldb > 1 (more than two methods)
-      # nd controls which n.delta we use:
       #   nd <= 1: n.delta = 1 for all pairs
       #   nd  > 1: n.delta = i for i-th pair
       #-------------------------------------------------------------
       rho_list <- vector("list", ldb)
+      
       for (i in seq_len(ldb)) {
-        n_delta <- if (nd <= 1L) 1L else i
-        rho_list[[i]] <- lccWrapper(
-          model   = model,
-          q_f     = q_f,
-          n.delta = n_delta,
-          tk      = tk.plot,
-          diffbeta = as.numeric(diffbeta[[i]])
-        )
+        beta_i  <- as.numeric(diffbeta[[i]])
+        rho_all <- .compute_LCC(pre, diffbeta = beta_i)
+        
+        if (length(rho_all) == 1L || sum(is.na(rho_all[[2L]])) != 0) {
+          # fallback as in lccWrapper()
+          rho_list[[i]] <- rho_all[[1L]]
+        } else {
+          n_delta <- if (nd <= 1L) 1L else i
+          rho_list[[i]] <- rho_all[[n_delta]]
+        }
       }
-      rho.ret <- as.data.frame(do.call(cbind.data.frame, rho_list))
+      rho.ret <- as.data.frame(do.call(cbind, rho_list))
       
       if (components) {
-        rho.pearson_list <- vector("list", ldb)
-        Cb_list          <- vector("list", ldb)
+        # LPC: computed once, then indexed by n.delta
+        rho_pearson_all <- .compute_LPC(pre)
+        rho.pearson.ret <- vector("list", ldb)
+        Cb_list         <- vector("list", ldb)
         
         for (i in seq_len(ldb)) {
           n_delta <- if (nd <= 1L) 1L else i
           
-          rho.pearson_list[[i]] <- lpcWrapper(
-            model   = model,
-            q_f     = q_f,
-            n.delta = n_delta,
-            tk      = tk.plot
-          )
+          # LPC
+          rho.pearson.ret[[i]] <- rho_pearson_all[[n_delta]]
           
-          Cb_list[[i]] <- laWrapper(
-            model   = model,
-            q_f     = q_f,
-            n.delta = n_delta,
-            tk      = tk.plot,
-            diffbeta = as.numeric(diffbeta[[i]])
-          )
+          # Cb
+          beta_i  <- as.numeric(diffbeta[[i]])
+          LA_list <- .compute_LA(pre, diffbeta = beta_i)
+          Cb_list[[i]] <- LA_list[[n_delta]]
         }
         
-        rho.pearson.ret <- as.data.frame(do.call(cbind.data.frame, rho.pearson_list))
-        Cb.ret          <- as.data.frame(do.call(cbind.data.frame, Cb_list))
+        rho.pearson.ret <- as.data.frame(do.call(cbind, rho.pearson.ret))
+        Cb.ret          <- as.data.frame(do.call(cbind, Cb_list))
       }
       
       summary.lcc <- lccSummary(
-        q_f        = q_f,
-        diffbeta   = diffbeta,
-        tk         = tk,
-        tk.plot    = tk.plot,
-        tk.plot2   = tk.plot2,
-        rho        = rho.ret,
+        model       = model,
+        q_f         = q_f,
+        diffbeta    = diffbeta,
+        tk          = tk,
+        tk.plot     = tk.plot,
+        tk.plot2    = tk.plot2,
+        rho         = rho.ret,
+        ENV.LCC     = NULL,
         rho.pearson = rho.pearson.ret,
-        Cb         = Cb.ret,
-        model      = model,
-        ldb        = ldb,
-        ci         = FALSE,
-        components = components
+        ENV.LPC     = NULL,
+        Cb          = Cb.ret,
+        ENV.Cb      = NULL,
+        ldb         = ldb,
+        ci          = FALSE,
+        components  = components
       )
     }
     
   } else {
     #=================================================================
-    # Case 2: bootstrap confidence intervals (ci == TRUE)
-    #   (logic for nd <= 1 and nd > 1 is identical here)
+    # Case 2: bootstrap confidence intervals
     #=================================================================
     CI <- ciBuilder(
       model        = model,
@@ -215,26 +217,26 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
     )
     
     summary.lcc <- lccSummary(
-      q_f        = q_f,
-      diffbeta   = diffbeta,
-      tk         = tk,
-      tk.plot    = tk.plot,
-      tk.plot2   = tk.plot2,
-      rho        = CI$rho,
+      model       = model,
+      q_f         = q_f,
+      diffbeta    = diffbeta,
+      tk          = tk,
+      tk.plot     = tk.plot,
+      tk.plot2    = tk.plot2,
+      rho         = CI$rho,
+      ENV.LCC     = CI$ENV.LCC,
       rho.pearson = CI$LPC,
-      Cb         = CI$Cb,
-      ldb        = ldb,
-      model      = model,
-      ENV.LCC    = CI$ENV.LCC,
-      ENV.LPC    = CI$ENV.LPC,
-      ENV.Cb     = CI$ENV.Cb,
-      ci         = TRUE,
-      components = components
+      ENV.LPC     = CI$ENV.LPC,
+      Cb          = CI$Cb,
+      ENV.Cb      = CI$ENV.Cb,
+      ldb         = ldb,
+      ci          = TRUE,
+      components  = components
     )
   }
   
   #===================================================================
-  # Build internal object
+  # Build internal object used by lcc() and lccPlot()
   #===================================================================
   internal_lcc <- list(
     "Summary.lcc" = summary.lcc,

@@ -182,23 +182,17 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
 ##'
 ##' @keywords internal
 ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
-                      ci, percentileMet, LCC_Boot, LPC_Boot, Cb_Boot,
-                      alpha) {
-  #-------------------------------------------------------------------
-  # Transformations
-  #-------------------------------------------------------------------
-  ZFisher <- function(x) 0.5 * log((1 + x) / (1 - x))
+                      ci, percentileMet, LCC_Boot, LPC_Boot, Cb_Boot, alpha) {
+  ## Fisher transform and inverse
+  ZFisher     <- function(x) 0.5 * log((1 + x) / (1 - x))
   ZFisher_inv <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
   
-  Arcsin <- function(x) asin(sqrt(x))
-  Arcsin_inv <- function(x) sign(x) * sin(x)^2
+  ## Arcsin-sqrt transform for accuracy
+  Arcsin     <- function(x) asin(sqrt((1 + x) / 2))
+  Arcsin_inv <- function(x) 2 * (sin(x))^2 - 1
   
-  # percentileMet may be logical or "TRUE"/"FALSE"
   percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
   
-  #-------------------------------------------------------------------
-  # Helper to build CI for one metric and one method (or single-method)
-  #-------------------------------------------------------------------
   build_ci_metric <- function(boot_list, alpha, transform, inv_transform) {
     .build_ci_from_boot(
       boot_list     = boot_list,
@@ -209,79 +203,39 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     )
   }
   
-  #-------------------------------------------------------------------
-  # ldb == 1: each *_Boot is a list of numeric vectors
-  #-------------------------------------------------------------------
   if (ldb == 1L) {
-    ENV.LCC <- build_ci_metric(
-      boot_list     = LCC_Boot,
-      alpha         = alpha,
-      transform     = ZFisher,
-      inv_transform = ZFisher_inv
-    )
-    
-    ENV.LPC <- build_ci_metric(
-      boot_list     = LPC_Boot,
-      alpha         = alpha,
-      transform     = ZFisher,
-      inv_transform = ZFisher_inv
-    )
-    
-    ENV.Cb <- build_ci_metric(
-      boot_list     = Cb_Boot,
-      alpha         = alpha,
-      transform     = Arcsin,
-      inv_transform = Arcsin_inv
-    )
-    
+    ## Each *_Boot is list over bootstrap samples, numeric over time
+    ENV.LCC <- build_ci_metric(LCC_Boot, alpha, ZFisher, ZFisher_inv)
+    ENV.LPC <- build_ci_metric(LPC_Boot, alpha, ZFisher, ZFisher_inv)
+    ENV.Cb  <- build_ci_metric(Cb_Boot,  alpha, Arcsin,  Arcsin_inv)
   } else {
-    #---------------------------------------------------------------
-    # ldb > 1: each *_Boot[[b]] is a list over methods (length ldb)
-    #---------------------------------------------------------------
+    ## Each *_Boot[[b]] is a list over method combinations (ldb)
     ENV.LCC <- vector("list", ldb)
     ENV.LPC <- vector("list", ldb)
     ENV.Cb  <- vector("list", ldb)
     
     for (i in seq_len(ldb)) {
-      # Extract i-th method across bootstrap replicates
-      boot_LCC_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-      boot_LPC_i <- lapply(LPC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-      boot_Cb_i  <- lapply(Cb_Boot,  function(x) if (!is.null(x)) x[[i]] else NULL)
+      LCC_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
+      LPC_i <- lapply(LPC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
+      Cb_i  <- lapply(Cb_Boot,  function(x) if (!is.null(x)) x[[i]] else NULL)
       
-      ENV.LCC[[i]] <- build_ci_metric(
-        boot_list     = boot_LCC_i,
-        alpha         = alpha,
-        transform     = ZFisher,
-        inv_transform = ZFisher_inv
-      )
-      
-      ENV.LPC[[i]] <- build_ci_metric(
-        boot_list     = boot_LPC_i,
-        alpha         = alpha,
-        transform     = ZFisher,
-        inv_transform = ZFisher_inv
-      )
-      
-      ENV.Cb[[i]] <- build_ci_metric(
-        boot_list     = boot_Cb_i,
-        alpha         = alpha,
-        transform     = Arcsin,
-        inv_transform = Arcsin_inv
-      )
+      ENV.LCC[[i]] <- build_ci_metric(LCC_i, alpha, ZFisher, ZFisher_inv)
+      ENV.LPC[[i]] <- build_ci_metric(LPC_i, alpha, ZFisher, ZFisher_inv)
+      ENV.Cb[[i]]  <- build_ci_metric(Cb_i,  alpha, Arcsin,  Arcsin_inv)
     }
   }
   
-  #-------------------------------------------------------------------
-  # Return structure unchanged
-  #-------------------------------------------------------------------
-  CI.LCC <- list(
-    "rho"     = rho,
-    "ENV.LCC" = ENV.LCC,
-    "LPC"     = rho.pearson,
-    "ENV.LPC" = ENV.LPC,
-    "Cb"      = Cb,
-    "ENV.Cb"  = ENV.Cb
+  CI <- list(
+    rho      = rho,
+    LPC      = rho.pearson,
+    Cb       = Cb,
+    ENV.LCC  = ENV.LCC,
+    ENV.LPC  = ENV.LPC,
+    ENV.Cb   = ENV.Cb,
+    tk.plot  = tk.plot,
+    tk.plot2 = tk.plot2,
+    ldb      = ldb
   )
   
-  CI.LCC
+  CI
 }

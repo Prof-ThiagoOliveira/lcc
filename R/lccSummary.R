@@ -9,7 +9,7 @@
 # copyright (c) 2017-18, Thiago P. Oliveira                           #
 #                                                                     #
 # First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
+# Last update: 22/11/2025                                             #
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
