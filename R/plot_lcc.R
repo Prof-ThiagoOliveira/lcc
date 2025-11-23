@@ -47,15 +47,16 @@
 #'   \email{thiago.paula.oliveira@@alumni.usp.br}
 #' @export
 lccPlot <- function(obj, type = "lcc", control = list(), ...) {
-  if (!inherits(obj, "lcc"))
+  if (!inherits(obj, "lcc")) {
     stop("Object must inherit from class \"lcc\"", call. = FALSE)
+  }
   
-  ## Base control defaults (modernised)
+  ## Base defaults
   plot.cons <- plotControl(
-    shape       = 16,        # solid points
-    colour      = "#1B4F72", # muted blue
-    size        = 0.7,       # line width (mm)
-    ci_fill     = NULL,      # defaults set just below
+    shape       = 16,
+    colour      = "#1B4F72",
+    size        = 0.7,
+    ci_fill     = NULL,
     ci_alpha    = NULL,
     point_alpha = NULL,
     xlab        = "Time",
@@ -64,7 +65,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   if (type == "lpc") plot.cons$ylab <- "LPC"
   if (type == "la")  plot.cons$ylab <- "LA"
   
-  ## User overrides
+  ## Apply user overrides from 'control'
   if (length(control)) {
     nms <- names(control)
     if (!is.list(control) || is.null(nms)) {
@@ -88,13 +89,12 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
     }
   }
   
-  ## Fill in modern defaults for new elements if user did not specify
+  ## Fill in defaults for CI aesthetics if still NULL
   if (is.null(plot.cons$ci_fill))     plot.cons$ci_fill     <- plot.cons$colour
   if (is.null(plot.cons$ci_alpha))    plot.cons$ci_alpha    <- 0.15
   if (is.null(plot.cons$point_alpha)) plot.cons$point_alpha <- 0.8
   
-  ## Standard arguments from fitted lcc object
-  nd         <- obj$plot_info$nd
+  ## Extract plotting info from fitted lcc object
   model      <- obj$model
   tk.plot    <- obj$plot_info$tk.plot
   tk.plot2   <- obj$plot_info$tk.plot2
@@ -103,59 +103,53 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   components <- obj$plot_info$components
   
   if (!components && type != "lcc") {
-    stop(
-      "'lpc' and 'la' plots are only available if 'components = TRUE' ",
-      "in the 'lcc' call",
-      call. = FALSE
-    )
+    stop("'lpc' and 'la' plots are only available if 'components = TRUE' in the 'lcc' call",
+         call. = FALSE)
   }
   
-  ## Helper to call the correct internal plot_* wrapper
-  call_plotter <- function(type, ci) {
-    if (type == "lcc") {
-      plot_lcc(
-        rho     = obj$plot_info$rho,
-        ENV.LCC = if (ci) obj$plot_info$ENV.LCC else NULL,
-        tk.plot = tk.plot,
-        tk.plot2 = tk.plot2,
-        ldb     = ldb,
-        model   = model,
-        ci      = ci,
-        arg     = plot.cons,
-        ...
-      )
-    } else if (type == "lpc") {
-      plot_lpc(
-        LPC     = obj$plot_info$rho.pearson,
-        ENV.LPC = if (ci) obj$plot_info$ENV.LPC else NULL,
-        tk.plot = tk.plot,
-        tk.plot2 = tk.plot2,
-        ldb     = ldb,
-        model   = model,
-        ci      = ci,
-        arg     = plot.cons,
-        ...
-      )
-    } else if (type == "la") {
-      plot_la(
-        Cb      = obj$plot_info$Cb,
-        ENV.Cb  = if (ci) obj$plot_info$ENV.LA else NULL,
-        tk.plot = tk.plot,
-        tk.plot2 = tk.plot2,
-        ldb     = ldb,
-        model   = model,
-        ci      = ci,
-        arg     = plot.cons,
-        ...
-      )
-    } else {
-      stop("Unknown 'type' in lccPlot: ", type, call. = FALSE)
-    }
+  ## Dispatch to internal plotters, all of which RETURN a ggplot object
+  res <- switch(
+    type,
+    "lcc" = plot_lcc(
+      rho      = obj$plot_info$rho,
+      ENV.LCC  = if (ci) obj$plot_info$ENV.LCC else NULL,
+      tk.plot  = tk.plot,
+      tk.plot2 = tk.plot2,
+      ldb      = ldb,
+      model    = model,
+      ci       = ci,
+      arg      = plot.cons,
+      ...
+    ),
+    "lpc" = plot_lpc(
+      LPC      = obj$plot_info$rho.pearson,
+      ENV.LPC  = if (ci) obj$plot_info$ENV.LPC else NULL,
+      tk.plot  = tk.plot,
+      tk.plot2 = tk.plot2,
+      ldb      = ldb,
+      model    = model,
+      ci       = ci,
+      arg      = plot.cons,
+      ...
+    ),
+    "la"  = plot_la(
+      Cb       = obj$plot_info$Cb,
+      ENV.Cb   = if (ci) obj$plot_info$ENV.LA else NULL,
+      tk.plot  = tk.plot,
+      tk.plot2 = tk.plot2,
+      ldb      = ldb,
+      model    = model,
+      ci       = ci,
+      arg      = plot.cons,
+      ...
+    ),
+    stop("Unknown 'type' in lccPlot: ", type, call. = FALSE)
+  )
+  
+  ## Optionally print for interactive use
+  if (isTRUE(plot.cons$plot)) {
+    print(res)
   }
   
-  lccplot <- call_plotter(type = type, ci = ci)
-  invisible(lccplot)
+  invisible(res)
 }
-
-
-
