@@ -4,7 +4,7 @@
 \alias{.precompute_longitudinal}
 \title{Internal helper to precompute longitudinal quantities}
 \usage{
-.precompute_longitudinal(model, tk, q_f, q_r)
+.precompute_longitudinal(model, tk, q_f, q_r, basis = NULL)
 }
 \description{
 Precomputes quantities (polynomial bases, tGt, deltas, etc.)

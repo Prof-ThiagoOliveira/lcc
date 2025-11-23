@@ -12,48 +12,40 @@
 ##'
 ##' @keywords internal
 CCC_lin <- function(dataset, resp, subject, method, time) {
-  # We assume here that `dataset` has already been prepared by dataBuilder
-  selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData[[method]])
-  methodLevels <- levels(selectedData[[method]])
+  df <- dataset[, c(resp, method, time, subject)]
+  names(df) <- c("resp", "method", "time", "subject")
+  method_levels <- levels(df$method)
   
-  calculateCCC_fast <- function(Y1, Y2, time) {
-    n          <- length(time)
-    time_fac   <- as.factor(time)
-    idx_by_t   <- split(seq_len(n), time_fac)
-    
-    Y1_full    <- rep(Y1, length.out = n)
-    Y2_full    <- rep(Y2, length.out = n)
-    
-    ccc_vec <- vapply(
-      idx_by_t,
-      function(idx) {
-        y1 <- Y1_full[idx]
-        y2 <- Y2_full[idx]
-        m1 <- mean(y1)
-        m2 <- mean(y2)
-        s1 <- var(y1)
-        s2 <- var(y2)
-        s12 <- cov(y1, y2)
-        2 * s12 / (s1 + s2 + (m1 - m2)^2)
-      },
-      numeric(1L)
+  calculateCCC_fast <- function(df_time) {
+    wide <- reshape(
+      df_time[, c("subject", "method", "resp")],
+      idvar   = "subject",
+      timevar = "method",
+      direction = "wide"
     )
-    data.frame(V1 = unname(ccc_vec))
+    cols <- grep("^resp\\.", names(wide))
+    if (length(cols) < 2L) return(NA_real_)
+    y1 <- wide[[cols[1L]]]
+    y2 <- wide[[cols[2L]]]
+    keep <- stats::complete.cases(y1, y2)
+    if (sum(keep) < 2L) return(NA_real_)
+    m1  <- mean(y1[keep])
+    m2  <- mean(y2[keep])
+    s1  <- stats::var(y1[keep])
+    s2  <- stats::var(y2[keep])
+    s12 <- stats::cov(y1[keep], y2[keep])
+    2 * s12 / (s1 + s2 + (m1 - m2)^2)
   }
   
-  CCC.Lin <- lapply(
-    seq(2L, length(methodLevels)),
+  split_time <- split(df, df$time)
+  
+  lapply(
+    seq(2L, length(method_levels)),
     function(i) {
-      calculateCCC_fast(
-        Y1   = dataByMethod[[1L]][[resp]],
-        Y2   = dataByMethod[[i]][[resp]],
-        time = selectedData[[time]]
-      )
+      vals <- vapply(split_time, calculateCCC_fast, numeric(1L))
+      data.frame(V1 = unname(vals))
     }
   )
-  
-  CCC.Lin
 }
 
 
@@ -69,37 +61,34 @@ CCC_lin <- function(dataset, resp, subject, method, time) {
 #'
 #' @keywords internal
 Pearson <- function(dataset, resp, subject, method, time) {
-  selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData[[method]])
-  methodLevels <- levels(selectedData[[method]])
+  df <- dataset[, c(resp, method, time, subject)]
+  names(df) <- c("resp", "method", "time", "subject")
+  method_levels <- levels(df$method)
+  split_time <- split(df, df$time)
   
-  calculateCorrelation_fast <- function(Y1, Y2, time) {
-    n        <- length(time)
-    time_fac <- as.factor(time)
-    idx_by_t <- split(seq_len(n), time_fac)
-    
-    Y1_full  <- rep(Y1, length.out = n)
-    Y2_full  <- rep(Y2, length.out = n)
-    
-    cor_vec <- vapply(
-      idx_by_t,
-      function(idx) cor(Y1_full[idx], Y2_full[idx]),
-      numeric(1L)
+  calculateCorrelation_fast <- function(df_time) {
+    wide <- reshape(
+      df_time[, c("subject", "method", "resp")],
+      idvar   = "subject",
+      timevar = "method",
+      direction = "wide"
     )
-    
-    data.frame(V1 = unname(cor_vec))
+    cols <- grep("^resp\\.", names(wide))
+    if (length(cols) < 2L) return(NA_real_)
+    y1 <- wide[[cols[1L]]]
+    y2 <- wide[[cols[2L]]]
+    keep <- stats::complete.cases(y1, y2)
+    if (sum(keep) < 2L) return(NA_real_)
+    stats::cor(y1[keep], y2[keep])
   }
   
-  pearsonResults <- vector("list", length(methodLevels) - 1L)
-  for (i in seq(2L, length(methodLevels))) {
-    pearsonResults[[i - 1L]] <- calculateCorrelation_fast(
-      Y1   = dataByMethod[[1L]][[resp]],
-      Y2   = dataByMethod[[i]][[resp]],
-      time = selectedData[[time]]
-    )
-  }
-  
-  pearsonResults
+  lapply(
+    seq(2L, length(method_levels)),
+    function(i) {
+      vals <- vapply(split_time, calculateCorrelation_fast, numeric(1L))
+      data.frame(V1 = unname(vals))
+    }
+  )
 }
 #######################################################################
 #                                                                     #

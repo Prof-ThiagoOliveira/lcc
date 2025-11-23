@@ -3,20 +3,13 @@
 #######################################################################
 
 ##' @keywords internal
-plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
-  CCC <- CCC_lin(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
-  
+plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg,
+                     CCC_vals, ...) {
   plotBuilder_lcc(
     rho      = rho,
     ENV.LCC  = ENV.LCC,
     tk.plot  = tk.plot,
-    CCC      = CCC,
+    CCC      = CCC_vals,
     tk.plot2 = tk.plot2,
     ldb      = ldb,
     model    = model,
@@ -35,25 +28,18 @@ plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) 
 #' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 #'
 #' @keywords internal
-plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
-  Pearson <- Pearson(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
-  
+plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg,
+                     Pearson_vals, ...) {
   plotBuilder_lpc(
-    LPC     = LPC,
-    ENV.LPC = ENV.LPC,
-    tk.plot = tk.plot,
-    Pearson = Pearson,
-    tk.plot2 = tk.plot2,
-    ldb     = ldb,
-    model   = model,
-    ci      = ci,
-    arg     = arg,
+    LPC          = LPC,
+    ENV.LPC      = ENV.LPC,
+    tk.plot      = tk.plot,
+    Pearson_vals = Pearson_vals,
+    tk.plot2     = tk.plot2,
+    ldb          = ldb,
+    model        = model,
+    ci           = ci,
+    arg          = arg,
     ...
   )
 }
@@ -68,33 +54,19 @@ plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) 
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
-plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
-  CCC <- CCC_lin(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
-  Pearson <- Pearson(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
-  
+plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg,
+                    CCC_vals, Pearson_vals, ...) {
   plotBuilder_la(
-    CCC     = CCC,
-    Pearson = Pearson,
-    Cb      = Cb,
-    ENV.Cb  = ENV.Cb,
-    tk.plot = tk.plot,
-    tk.plot2 = tk.plot2,
-    ldb     = ldb,
-    model   = model,
-    ci      = ci,
-    arg     = arg,
+    CCC_vals     = CCC_vals,
+    Pearson_vals = Pearson_vals,
+    Cb           = Cb,
+    ENV.Cb       = ENV.Cb,
+    tk.plot      = tk.plot,
+    tk.plot2     = tk.plot2,
+    ldb          = ldb,
+    model        = model,
+    ci           = ci,
+    arg          = arg,
     ...
   )
 }
@@ -132,12 +104,15 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
   ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
   ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
   point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
+  clamp01 <- function(x) pmin(pmax(x, 0), 1)
+  
+  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   if (!ci) {
     ## No CI
     if (ldb == 1L) {
-      data_plot  <- data.frame(LCC = rho,          Time = tk.plot)
-      data_plot2 <- data.frame(CCC = CCC[[1L]]$V1, Time = tk.plot2)
+      data_plot  <- data.frame(LCC = clamp01(rho),          Time = tk.plot)
+      data_plot2 <- data.frame(CCC = clamp01(CCC[[1L]]$V1), Time = tk.plot2)
       
       Plot <- ggplot2::ggplot(data_plot, ggplot2::aes(x = Time, y = LCC)) +
         ggplot2::geom_path(colour = arg$colour, linewidth = arg$size) +
@@ -160,12 +135,12 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       for (i in seq_len(ldb)) {
         lab_i <- level_label(i)
         data_main[[i]] <- data.frame(
-          LCC   = rho[, i],
+          LCC   = clamp01(rho[, i]),
           Time  = tk.plot,
           Level = lab_i
         )
         data_ccc[[i]] <- data.frame(
-          CCC   = CCC[[i]]$V1,
+          CCC   = clamp01(CCC[[i]]$V1),
           Time  = tk.plot2,
           Level = lab_i
         )
@@ -190,13 +165,13 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
     ## With CI
     if (ldb == 1L) {
       data_plot <- data.frame(
-        LCC       = rho,
+        LCC       = clamp01(rho),
         Time      = tk.plot,
-        lower_rho = t(ENV.LCC)[, 1L],
-        upper_rho = t(ENV.LCC)[, 2L]
+        lower_rho = clamp01(t(ENV.LCC)[, 1L]),
+        upper_rho = clamp01(t(ENV.LCC)[, 2L])
       )
       data_plot2 <- data.frame(
-        CCC  = CCC[[1L]]$V1,
+        CCC  = clamp01(CCC[[1L]]$V1),
         Time = tk.plot2
       )
       
@@ -229,14 +204,14 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
         lab_i <- level_label(i)
         env_i <- ENV.LCC[[i]]
         data_main[[i]] <- data.frame(
-          LCC       = rho[, i],
+          LCC       = clamp01(rho[, i]),
           Time      = tk.plot,
-          lower_rho = t(env_i)[, 1L],
-          upper_rho = t(env_i)[, 2L],
+          lower_rho = clamp01(t(env_i)[, 1L]),
+          upper_rho = clamp01(t(env_i)[, 2L]),
           Level     = lab_i
         )
         data_ccc[[i]] <- data.frame(
-          CCC   = CCC[[i]]$V1,
+          CCC   = clamp01(CCC[[i]]$V1),
           Time  = tk.plot2,
           Level = lab_i
         )
@@ -281,7 +256,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
 ##' @importFrom ggplot2 ggplot geom_line geom_point geom_ribbon labs theme element_text facet_wrap
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @keywords internal
-plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
+plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
                             tk.plot2, ldb, model, ci, arg, ...) {
   
   method_levels <- levels(model$data$method)
@@ -295,8 +270,8 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
   
   if (!ci) {
     if (ldb == 1L) {
-      data_plot  <- data.frame(LPC = LPC,                 Time = tk.plot)
-      data_plot2 <- data.frame(Pearson = Pearson[[1L]]$V1, Time = tk.plot2)
+      data_plot  <- data.frame(LPC = LPC,                      Time = tk.plot)
+      data_plot2 <- data.frame(Pearson = Pearson_vals[[1L]]$V1, Time = tk.plot2)
       
       Plot <- ggplot2::ggplot(data_plot, ggplot2::aes(x = Time, y = LPC)) +
         ggplot2::geom_line(colour = arg$colour, linewidth = arg$size) +
@@ -324,7 +299,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
           Level = lab_i
         )
         data_pear[[i]] <- data.frame(
-          Pearson = Pearson[[i]]$V1,
+          Pearson = Pearson_vals[[i]]$V1,
           Time    = tk.plot2,
           Level   = lab_i
         )
@@ -348,13 +323,13 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
   } else {
     if (ldb == 1L) {
       data_plot <- data.frame(
-        LPC        = LPC,
+        LPC        = clamp01(LPC),
         Time       = tk.plot,
-        lower_LPC  = t(ENV.LPC)[, 1L],
-        upper_LPC  = t(ENV.LPC)[, 2L]
+        lower_LPC  = clamp01(t(ENV.LPC)[, 1L]),
+        upper_LPC  = clamp01(t(ENV.LPC)[, 2L])
       )
       data_plot2 <- data.frame(
-        Pearson = Pearson[[1L]]$V1,
+        Pearson = Pearson_vals[[1L]]$V1,
         Time    = tk.plot2
       )
       
@@ -387,14 +362,14 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
         lab_i <- level_label(i)
         env_i <- ENV.LPC[[i]]
         data_main[[i]] <- data.frame(
-          LPC       = LPC[, i],
+          LPC       = clamp01(LPC[, i]),
           Time      = tk.plot,
-          lower_LPC = t(env_i)[, 1L],
-          upper_LPC = t(env_i)[, 2L],
+          lower_LPC = clamp01(t(env_i)[, 1L]),
+          upper_LPC = clamp01(t(env_i)[, 2L]),
           Level     = lab_i
         )
         data_pear[[i]] <- data.frame(
-          Pearson = Pearson[[i]]$V1,
+          Pearson = Pearson_vals[[i]]$V1,
           Time    = tk.plot2,
           Level   = lab_i
         )
@@ -440,7 +415,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
 ##'
 ##' @importFrom ggplot2 ggplot geom_line geom_point geom_ribbon labs theme element_text ggtitle
 ##' @keywords internal
-plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
+plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
                            tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
   
   method_levels <- levels(model$data$method)
@@ -448,7 +423,7 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
   
-  LA_fun <- function(i) CCC[[i]]$V1 / Pearson[[i]]$V1
+  LA_fun <- function(i) CCC_vals[[i]]$V1 / Pearson_vals[[i]]$V1
   
   ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
   ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
@@ -456,7 +431,7 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
   
   if (!ci) {
     if (ldb == 1L) {
-      data_plot  <- data.frame(LA = Cb,         Time = tk.plot)
+      data_plot  <- data.frame(LA = clamp01(Cb),         Time = tk.plot)
       data_plot2 <- data.frame(Cb = LA_fun(1L), Time = tk.plot2)
       
       Plot <- ggplot2::ggplot(data_plot, ggplot2::aes(x = Time, y = LA)) +
@@ -479,11 +454,11 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
       data_la   <- vector("list", ldb)
       for (i in seq_len(ldb)) {
         lab_i <- level_label(i)
-        data_main[[i]] <- data.frame(
-          LA    = Cb[, i],
-          Time  = tk.plot,
-          Level = lab_i
-        )
+          data_main[[i]] <- data.frame(
+            LA    = clamp01(Cb[, i]),
+            Time  = tk.plot,
+            Level = lab_i
+          )
         data_la[[i]] <- data.frame(
           Cb    = LA_fun(i),
           Time  = tk.plot2,

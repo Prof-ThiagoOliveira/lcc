@@ -61,8 +61,23 @@ print.lcc <- function(x, digits = NULL, ...){
   BIC <- BIC(x[1]$model)
   logLik <- c(x[1]$model$logLik)
   print(data.frame(AIC, BIC, logLik, row.names = " "), digits = digits, ...)
-  cat("\n")
-  print(x$Summary.lcc$fitted, digits =  digits,  ...)
+  
+  # Compact preview of fitted values; avoid dumping full tables
+  preview_fitted <- function(obj, max_rows = 6L) {
+    if (is.data.frame(obj)) {
+      utils::head(obj, max_rows)
+    } else if (is.list(obj)) {
+      lapply(obj, function(elem) {
+        if (is.data.frame(elem)) utils::head(elem, max_rows) else elem
+      })
+    } else {
+      obj
+    }
+  }
+  
+  cat("\nFitted values preview (use fitted() for full output):\n")
+  print(preview_fitted(x$Summary.lcc$fitted), digits = digits, ...)
+  
   dd <- x$model$dims
   Ngrps <- dd$ngrps[1:dd$Q]
   cat("\n")
@@ -180,17 +195,28 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
     gof <- x$gof
     cat(paste0(" gof: ", round(gof, 4)), "\n")
     cat("\n")
+    
+    # Avoid printing large fitted tables; show only a preview
+    preview <- function(obj, n = 6L) {
+      if (is.data.frame(obj)) {
+        utils::head(obj, n)
+      } else if (is.list(obj)) {
+        lapply(obj, function(el) if (is.data.frame(el)) utils::head(el, n) else el)
+      } else {
+        obj
+      }
+    }
     if (inherits(x$comp, "character")) {
       if (is.null(x$info$ENV.LCC)) {
         cat(x$comp, "\n")
-        fitted <- x$fitted
+        fitted <- preview(x$fitted)
         print(fitted, digits = digits,  ...)
       }else{
         cat(paste0(" Lower and upper bound of ", (1-x$plot_info$alpha)*100,"%"), "bootstrap confidence interval", "\n")
         cat(" Number of bootstrap samples: ", x$plot_info$nboot, "\n")
         cat("\n")
         cat(x$comp, "\n")
-        fitted <- x$fitted
+        fitted <- preview(x$fitted)
         print(fitted, digits = digits,  ...)
       }
     }else{
@@ -198,8 +224,8 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
       if(is.null(x$info$ENV.LCC)){
         for(i in 1:summ){
           cat(x$comp[[i]], "\n")
-          fitted <- x$fitted
-          print(fitted[[i]],  digits = digits, ...)
+          fitted <- preview(x$fitted[[i]])
+          print(fitted,  digits = digits, ...)
           cat("\n")
         }
       }else{
@@ -406,10 +432,19 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
         names(resd) <- c("Min","Q1","Med","Q3","Max")
       }
       obj$residuals <- resd
-      ## generating the final obj
+	      ## generating the final obj (avoid carrying full data/long call)
+	      obj$data <- NULL
+	      if (!is.null(obj$call)) {
+	        obj$call$data <- NULL
+	      }
       aux <- logLik(obj)
       obj$BIC <- BIC(aux)
       obj$AIC <- AIC(aux)
+      ## Drop heavy data/call components from printed summary
+      obj$data <- NULL
+      if (!is.null(obj$call)) {
+        obj$call$data <- as.name("omitted")
+      }
       structure(obj, verbose = verbose, oClass = class(obj),
                 class = c("summary.lcc", "model", class(obj)))
     }

@@ -6,10 +6,19 @@
 ##' @description Precomputes quantities (polynomial bases, tGt, deltas, etc.)
 ##'   that are shared across LCC, LPC and LA for a given model and time grid.
 ##' @keywords internal
-.precompute_longitudinal <- function(model, tk, q_f, q_r) {
-  # Polynomial bases
-  Tk_r <- outer(tk, 0:q_r, `^`)
-  Tk_f <- outer(tk, 0:q_f, `^`)
+.precompute_longitudinal <- function(model, tk, q_f, q_r, basis = NULL) {
+  # Polynomial bases (reuse if provided and compatible)
+  if (!is.null(basis) &&
+      identical(basis$tk, tk) &&
+      isTRUE(all.equal(basis$q_f, q_f)) &&
+      isTRUE(all.equal(basis$q_r, q_r)) &&
+      !is.null(basis$Tk_f) && !is.null(basis$Tk_r)) {
+    Tk_r <- basis$Tk_r
+    Tk_f <- basis$Tk_f
+  } else {
+    Tk_r <- outer(tk, 0:q_r, `^`)
+    Tk_f <- outer(tk, 0:q_f, `^`)
+  }
   
   # Random-effect variance part: tGt = diag(Tk_r %*% G %*% t(Tk_r))
   G  <- getVarCov(model)

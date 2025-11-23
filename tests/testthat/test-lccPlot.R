@@ -144,7 +144,7 @@ test_that("LCC, LPC and LA plot test", {
     ),
     is_a("lcc")
   )
-  expect_silent(p1 <- lccPlot(fme1))
+  expect_silent(p1 <- suppressWarnings(lccPlot(fme1)))
   expect_s3_class(p1, "ggplot")
   
   # Components TRUE
@@ -157,7 +157,7 @@ test_that("LCC, LPC and LA plot test", {
     ),
     is_a("lcc")
   )
-  expect_silent(p2 <- lccPlot(fme2))
+  expect_silent(p2 <- suppressWarnings(lccPlot(fme2)))
   expect_s3_class(p2, "ggplot")
   
   # More than two methods
@@ -169,7 +169,7 @@ test_that("LCC, LPC and LA plot test", {
     ),
     is_a("lcc")
   )
-  expect_silent(p3 <- lccPlot(fme3))
+  expect_silent(p3 <- suppressWarnings(lccPlot(fme3)))
   expect_s3_class(p3, "ggplot")
   
   # Components TRUE
@@ -182,7 +182,7 @@ test_that("LCC, LPC and LA plot test", {
     ),
     is_a("lcc")
   )
-  expect_silent(p4 <- lccPlot(fme4))
+  expect_silent(p4 <- suppressWarnings(lccPlot(fme4)))
   expect_s3_class(p4, "ggplot")
 })
 
@@ -201,7 +201,7 @@ test_that("Confidence intervals plot", {
     ),
     is_a("lcc")
   )
-  expect_silent(p5 <- lccPlot(fme5))
+  expect_silent(p5 <- suppressWarnings(lccPlot(fme5)))
   expect_s3_class(p5, "ggplot")
   
   # Components TRUE
@@ -214,7 +214,7 @@ test_that("Confidence intervals plot", {
     ),
     is_a("lcc")
   )
-  expect_silent(p6 <- lccPlot(fme6))
+  expect_silent(p6 <- suppressWarnings(lccPlot(fme6)))
   expect_s3_class(p6, "ggplot")
   
   # More than two methods
@@ -227,7 +227,7 @@ test_that("Confidence intervals plot", {
     ),
     is_a("lcc")
   )
-  expect_silent(p7 <- lccPlot(fme7))
+  expect_silent(p7 <- suppressWarnings(lccPlot(fme7)))
   expect_s3_class(p7, "ggplot")
   
   # Components TRUE
@@ -240,7 +240,7 @@ test_that("Confidence intervals plot", {
     ),
     is_a("lcc")
   )
-  expect_silent(p8 <- lccPlot(fme8))
+  expect_silent(p8 <- suppressWarnings(lccPlot(fme8)))
   expect_s3_class(p8, "ggplot")
 })
 
@@ -260,15 +260,13 @@ test_that("labels, shape and colour", {
   )
   
   ## LCC
-  expect_silent(
-    p_lcc <- lccPlot(
-      fm, type = "lcc",
-      control = list(
-        shape = 2, colour = "red", size = 2,
-        xlab = "Time (hours)", ylab = "Longitudinal CC"
-      )
+  expect_silent(p_lcc <- suppressWarnings(lccPlot(
+    fm, type = "lcc",
+    control = list(
+      shape = 2, colour = "red", size = 2,
+      xlab = "Time (hours)", ylab = "Longitudinal CC"
     )
-  )
+  )))
   expect_s3_class(p_lcc, "ggplot")
   expect_identical(p_lcc$labels$x, "Time (hours)")
   expect_identical(p_lcc$labels$y, "Longitudinal CC")
@@ -277,29 +275,25 @@ test_that("labels, shape and colour", {
   expect_identical(p_lcc$layers[[2]]$aes_params$shape, 2)
   
   ## LPC
-  expect_silent(
-    p_lpc <- lccPlot(
-      fm, type = "lpc",
-      control = list(
-        shape = 2, colour = "red", size = 2,
-        xlab = "Time (hours)", ylab = "Longitudinal PC"
-      )
+  expect_silent(p_lpc <- suppressWarnings(lccPlot(
+    fm, type = "lpc",
+    control = list(
+      shape = 2, colour = "red", size = 2,
+      xlab = "Time (hours)", ylab = "Longitudinal PC"
     )
-  )
+  )))
   expect_s3_class(p_lpc, "ggplot")
   expect_identical(p_lpc$labels$x, "Time (hours)")
   expect_identical(p_lpc$labels$y, "Longitudinal PC")
   
   ## LA
-  expect_silent(
-    p_la <- lccPlot(
-      fm, type = "la",
-      control = list(
-        shape = 2, colour = "red", size = 2,
-        xlab = "Time (hours)", ylab = "Longitudinal Accuracy"
-      )
+  expect_silent(p_la <- suppressWarnings(lccPlot(
+    fm, type = "la",
+    control = list(
+      shape = 2, colour = "red", size = 2,
+      xlab = "Time (hours)", ylab = "Longitudinal Accuracy"
     )
-  )
+  )))
   expect_s3_class(p_la, "ggplot")
   expect_identical(p_la$labels$x, "Time (hours)")
   expect_identical(p_la$labels$y, "Longitudinal Accuracy")

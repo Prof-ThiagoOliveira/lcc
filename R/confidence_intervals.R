@@ -73,17 +73,22 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
 .build_ci_from_boot <- function(boot_list, alpha,
                                 transform = NULL, inv_transform = NULL,
                                 percentile = FALSE) {
-  ## boot_list: list over bootstrap replicates; each element is a
-  ## numeric vector over time (or NULL for failed fits)
+  ## boot_list: list over bootstrap replicates (vectors), or matrix with
+  ## rows = time points and cols = replicates.
   
-  ## Drop NULL or all-NA replicates
-  boot_list <- boot_list[!vapply(boot_list, is.null, logical(1L))]
-  if (!length(boot_list)) {
-    return(matrix(NA_real_, nrow = 2L, ncol = 0L))
+  if (is.matrix(boot_list)) {
+    boot_mat <- boot_list
+    if (!ncol(boot_mat)) {
+      return(matrix(NA_real_, nrow = 2L, ncol = 0L))
+    }
+  } else {
+    ## Drop NULL or all-NA replicates
+    boot_list <- boot_list[!vapply(boot_list, is.null, logical(1L))]
+    if (!length(boot_list)) {
+      return(matrix(NA_real_, nrow = 2L, ncol = 0L))
+    }
+    boot_mat <- do.call(cbind, boot_list)
   }
-  
-  ## Coerce to matrix: rows = time points; cols = bootstrap replicates
-  boot_mat <- do.call(cbind, boot_list)
   
   if (percentile) {
     lower <- apply(boot_mat, 1L, stats::quantile, probs = alpha / 2)

@@ -37,19 +37,28 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              tk, diffbeta, ldb, components,
                              lme.control, method.init, numCore) {
   ## Pre-allocate
-  LCC_Boot <- vector("list", nboot)
-  LPC_Boot <- if (components) vector("list", nboot) else NULL
-  Cb_Boot  <- if (components) vector("list", nboot) else NULL
+  n_tk     <- length(tk)
+  LCC_Boot <- if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
+  LPC_Boot <- if (components) {
+    if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
+  } else NULL
+  Cb_Boot  <- if (components) {
+    if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
+  } else NULL
   
   warnings <- 0L
+  fail_indices <- integer(0L)
   
-  Data  <- model$data
-  Data2 <- split(Data, Data$subject)
+  Data           <- model$data
+  subj_idx_list  <- split(seq_len(nrow(Data)), Data$subject)
+  subj_names     <- names(subj_idx_list)
+  n_subj         <- length(subj_idx_list)
   
-  ## Subject-level bootstrap
+  ## Subject-level bootstrap via indices to reduce copying
   split_by_subject <- function() {
-    id <- sample(names(Data2), length(Data2), replace = TRUE)
-    do.call("rbind", Data2[id])
+    id  <- sample.int(n_subj, n_subj, replace = TRUE)
+    idx <- unlist(subj_idx_list[id], use.names = FALSE)
+    Data[idx, , drop = FALSE]
   }
   
   ## Fixed-effects pattern (same as in lccInternal)
@@ -69,6 +78,15 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   nd_vs <- if (is.null(varStruct)) 1L else
     length(coef(varStruct, unconstrained = FALSE))
   use_delta_by_level <- nd_vs > 1L
+  
+  ## Precompute polynomial bases for tk/q_f/q_r to reuse in .precompute_longitudinal
+  basis_template <- list(
+    tk   = tk,
+    q_f  = q_f,
+    q_r  = q_r,
+    Tk_f = outer(tk, 0:q_f, `^`),
+    Tk_r = outer(tk, 0:q_r, `^`)
+  )
   
   ## One bootstrap iteration
   one_bootstrap <- function(i) {
@@ -108,7 +126,8 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       model = boot_mod,
       tk    = tk,
       q_f   = q_f,
-      q_r   = q_r_i
+      q_r   = q_r_i,
+      basis = if (q_r_i == q_r) basis_template else NULL
     )
     
     fx_boot       <- nlme::fixef(boot_mod)
@@ -195,12 +214,23 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     for (i in seq_len(nboot)) {
       res <- one_bootstrap(i)
       
-      LCC_Boot[[i]] <- res$LCC
-      if (isTRUE(components)) {
-        LPC_Boot[[i]] <- res$LPC
-        Cb_Boot[[i]]  <- res$Cb
+      if (ldb == 1L) {
+        LCC_Boot[, i] <- res$LCC
+        if (isTRUE(components)) {
+          LPC_Boot[, i] <- res$LPC
+          Cb_Boot[, i]  <- res$Cb
+        }
+      } else {
+        LCC_Boot[[i]] <- res$LCC
+        if (isTRUE(components)) {
+          LPC_Boot[[i]] <- res$LPC
+          Cb_Boot[[i]]  <- res$Cb
+        }
       }
-      warnings <- warnings + as.integer(res$wcount)
+      if (res$wcount > 0L) {
+        warnings <- warnings + as.integer(res$wcount)
+        fail_indices <- c(fail_indices, i)
+      }
       
       utils::setTxtProgressBar(pb, i)
     }
@@ -227,18 +257,32 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     
     for (i in seq_along(results)) {
       res <- results[[i]]
-      LCC_Boot[[i]] <- res$LCC
-      if (isTRUE(components)) {
-        LPC_Boot[[i]] <- res$LPC
-        Cb_Boot[[i]]  <- res$Cb
+      if (ldb == 1L) {
+        LCC_Boot[, i] <- res$LCC
+        if (isTRUE(components)) {
+          LPC_Boot[, i] <- res$LPC
+          Cb_Boot[, i]  <- res$Cb
+        }
+      } else {
+        LCC_Boot[[i]] <- res$LCC
+        if (isTRUE(components)) {
+          LPC_Boot[[i]] <- res$LPC
+          Cb_Boot[[i]]  <- res$Cb
+        }
       }
-      warnings <- warnings + as.integer(res$wcount)
+      if (res$wcount > 0L) {
+        warnings <- warnings + as.integer(res$wcount)
+        fail_indices <- c(fail_indices, i)
+      }
     }
   }
   
   if (show.warnings) {
     cat("\n  Convergence error in", warnings, "out of",
         nboot, "bootstrap samples.\n")
+    if (length(fail_indices)) {
+      cat("  Failed sample indices:", paste(fail_indices, collapse = ", "), "\n")
+    }
   }
   
   out <- list(

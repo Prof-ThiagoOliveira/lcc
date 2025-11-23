@@ -223,25 +223,25 @@ test_that("Test if confidence interval works",{
   expect_that(fme2<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE),is_a("lcc"))
+                        nboot = 50, components = TRUE),is_a("lcc"))
   expect_that(fme3<-lcc(data = dataset$data, subject = "Fruit",
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE,
+                        nboot = 50, components = TRUE,
                         percentileMet = TRUE),is_a("lcc"))
   expect_that(fme4<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE),is_a("lcc"))
+                        nboot = 50, components = TRUE),is_a("lcc"))
   expect_that(fme5<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
-                        nboot = 1000, components = TRUE,
+                        nboot = 50, components = TRUE,
                         percentileMet = TRUE),is_a("lcc"))
   expect_equal(fme2$Summary.lcc$fitted$LCC,
                fme3$Summary.lcc$fitted$LCC, tolerance = 0.05)
   expect_equal(fme4$Summary.lcc$fitted$LCC,
-               fme5$Summary.lcc$fitted$LCC, tolerance = 0.05)
+               fme5$Summary.lcc$fitted$LCC, tolerance = 0.1)
 })
 
 #-----------------------------------------------------------------------

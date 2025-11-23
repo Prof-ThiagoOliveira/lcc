@@ -107,6 +107,25 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
          call. = FALSE)
   }
   
+  # Precompute CCC/Pearson once per call to avoid re-splitting data
+  CCC_vals <- CCC_lin(
+    dataset = model$data,
+    resp    = "resp",
+    subject = "subject",
+    method  = "method",
+    time    = "time"
+  )
+  Pearson_vals <- NULL
+  if (type != "lcc") {
+    Pearson_vals <- Pearson(
+      dataset = model$data,
+      resp    = "resp",
+      subject = "subject",
+      method  = "method",
+      time    = "time"
+    )
+  }
+  
   ## Dispatch to internal plotters, all of which RETURN a ggplot object
   res <- switch(
     type,
@@ -119,6 +138,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
       model    = model,
       ci       = ci,
       arg      = plot.cons,
+      CCC_vals = CCC_vals,
       ...
     ),
     "lpc" = plot_lpc(
@@ -130,6 +150,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
       model    = model,
       ci       = ci,
       arg      = plot.cons,
+      Pearson_vals = Pearson_vals,
       ...
     ),
     "la"  = plot_la(
@@ -141,6 +162,8 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
       model    = model,
       ci       = ci,
       arg      = plot.cons,
+      CCC_vals = CCC_vals,
+      Pearson_vals = Pearson_vals,
       ...
     ),
     stop("Unknown 'type' in lccPlot: ", type, call. = FALSE)

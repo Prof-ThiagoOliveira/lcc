@@ -100,7 +100,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
       for (i in seq_along(pos)) {
         mm <- model.matrix(~ Data[, pos[i]])[, -1, drop = FALSE]
         ## Preserve original naming convention (even though it is a bit odd)
-        colnames(mm) <- paste(covar[[1]][i], levels(Data[, pos[i]])[-1])
+        colnames(mm) <- paste(covar[i], levels(Data[, pos[i]])[-1])
         COVAR[[i]] <- mm
       }
       
