@@ -46,17 +46,20 @@
 #' @author Thiago de Paula Oliveira,
 #'   \email{thiago.paula.oliveira@@alumni.usp.br}
 #' @export
-lccPlot <- function(obj, type = "lcc", control = list(), .) {
+lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   if (!inherits(obj, "lcc"))
     stop("Object must inherit from class \"lcc\"", call. = FALSE)
   
-  ## Base control defaults
+  ## Base control defaults (modernised)
   plot.cons <- plotControl(
-    shape  = 1,
-    colour = "black",
-    size   = 0.5,
-    xlab   = "Time",
-    ylab   = "LCC"
+    shape       = 16,        # solid points
+    colour      = "#1B4F72", # muted blue
+    size        = 0.7,       # line width (mm)
+    ci_fill     = NULL,      # defaults set just below
+    ci_alpha    = NULL,
+    point_alpha = NULL,
+    xlab        = "Time",
+    ylab        = "LCC"
   )
   if (type == "lpc") plot.cons$ylab <- "LPC"
   if (type == "la")  plot.cons$ylab <- "LA"
@@ -85,6 +88,11 @@ lccPlot <- function(obj, type = "lcc", control = list(), .) {
     }
   }
   
+  ## Fill in modern defaults for new elements if user did not specify
+  if (is.null(plot.cons$ci_fill))     plot.cons$ci_fill     <- plot.cons$colour
+  if (is.null(plot.cons$ci_alpha))    plot.cons$ci_alpha    <- 0.15
+  if (is.null(plot.cons$point_alpha)) plot.cons$point_alpha <- 0.8
+  
   ## Standard arguments from fitted lcc object
   nd         <- obj$plot_info$nd
   model      <- obj$model
@@ -105,118 +113,49 @@ lccPlot <- function(obj, type = "lcc", control = list(), .) {
   ## Helper to call the correct internal plot_* wrapper
   call_plotter <- function(type, ci) {
     if (type == "lcc") {
-      if (ci) {
-        ENV.LCC <- obj$plot_info$ENV.LCC
-        plot_lcc(
-          rho     = obj$plot_info$rho,
-          ENV.LCC = ENV.LCC,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = TRUE,
-          arg     = plot.cons,
-          .
-        )
-      } else {
-        plot_lcc(
-          rho     = obj$plot_info$rho,
-          ENV.LCC = NULL,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = FALSE,
-          arg     = plot.cons,
-          .
-        )
-      }
+      plot_lcc(
+        rho     = obj$plot_info$rho,
+        ENV.LCC = if (ci) obj$plot_info$ENV.LCC else NULL,
+        tk.plot = tk.plot,
+        tk.plot2 = tk.plot2,
+        ldb     = ldb,
+        model   = model,
+        ci      = ci,
+        arg     = plot.cons,
+        ...
+      )
     } else if (type == "lpc") {
-      if (ci) {
-        ENV.LPC <- obj$plot_info$ENV.LPC
-        plot_lpc(
-          LPC     = obj$plot_info$rho.pearson,
-          ENV.LPC = ENV.LPC,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = TRUE,
-          arg     = plot.cons,
-          .
-        )
-      } else {
-        plot_lpc(
-          LPC     = obj$plot_info$rho.pearson,
-          ENV.LPC = NULL,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = FALSE,
-          arg     = plot.cons,
-          .
-        )
-      }
+      plot_lpc(
+        LPC     = obj$plot_info$rho.pearson,
+        ENV.LPC = if (ci) obj$plot_info$ENV.LPC else NULL,
+        tk.plot = tk.plot,
+        tk.plot2 = tk.plot2,
+        ldb     = ldb,
+        model   = model,
+        ci      = ci,
+        arg     = plot.cons,
+        ...
+      )
     } else if (type == "la") {
-      if (ci) {
-        ENV.Cb <- obj$plot_info$ENV.LA
-        plot_la(
-          Cb      = obj$plot_info$Cb,
-          ENV.Cb  = ENV.Cb,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = TRUE,
-          arg     = plot.cons,
-          .
-        )
-      } else {
-        plot_la(
-          Cb      = obj$plot_info$Cb,
-          ENV.Cb  = NULL,
-          tk.plot = tk.plot,
-          tk.plot2 = tk.plot2,
-          ldb     = ldb,
-          model   = model,
-          ci      = FALSE,
-          arg     = plot.cons,
-          .
-        )
-      }
+      plot_la(
+        Cb      = obj$plot_info$Cb,
+        ENV.Cb  = if (ci) obj$plot_info$ENV.LA else NULL,
+        tk.plot = tk.plot,
+        tk.plot2 = tk.plot2,
+        ldb     = ldb,
+        model   = model,
+        ci      = ci,
+        arg     = plot.cons,
+        ...
+      )
     } else {
       stop("Unknown 'type' in lccPlot: ", type, call. = FALSE)
     }
   }
   
-  ## ci / no-ci handled only through ENV.* arguments
   lccplot <- call_plotter(type = type, ci = ci)
-  
   invisible(lccplot)
 }
 
 
-##' @keywords internal
-plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
-  CCC <- CCC_lin(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
-  
-  plotBuilder_lcc(
-    rho     = rho,
-    ENV.LCC = ENV.LCC,
-    tk.plot = tk.plot,
-    CCC     = CCC,
-    tk.plot2 = tk.plot2,
-    ldb     = ldb,
-    model   = model,
-    ci      = ci,
-    arg     = arg,
-    .
-  )
-}
+

@@ -44,21 +44,42 @@
 #' @importFrom ggplot2 ggplot aes
 #'
 #' @keywords internal
-plotControl <- function(plot = TRUE,
-                        shape = 1,
-                        colour = "black",
-                        size = 0.5,
-                        xlab = "Time",
-                        ylab = "LCC") {
+plotControl <- function(plot        = TRUE,
+                        shape       = 16,
+                        colour      = "#1B4F72",
+                        size        = 0.7,
+                        ci_fill     = NULL,
+                        ci_alpha    = NULL,
+                        point_alpha = NULL,
+                        xlab        = "Time",
+                        ylab        = "LCC") {
   list(
-    plot   = plot,
-    shape  = shape,
-    colour = colour,
-    size   = size,
-    xlab   = xlab,
-    ylab   = ylab
+    plot        = plot,
+    shape       = shape,
+    colour      = colour,
+    size        = size,
+    ci_fill     = ci_fill,
+    ci_alpha    = ci_alpha,
+    point_alpha = point_alpha,
+    xlab        = xlab,
+    ylab        = ylab
   )
 }
+
+#' Internal base theme used by all ggplot-based summaries
+#' @keywords Internal
+.lcc_default_theme <- function() {
+  ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(
+      panel.grid.minor   = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_blank(),
+      legend.position    = "bottom",
+      plot.title         = element_text(hjust = 0.5, face = "bold"),
+      strip.background   = ggplot2::element_blank(),
+      strip.text         = element_text(face = "bold")
+    )
+}
+
 
 ##' @title Internal Function to Estimate the Sampled Concordance
 ##'   Correlation Coefficient.
@@ -164,6 +185,33 @@ Pearson <- function(dataset, resp, subject, method, time) {
   pearsonResults
 }
 
+#######################################################################
+# Internal wrappers: plot_lcc / plot_lpc / plot_la
+#######################################################################
+
+##' @keywords internal
+plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
+  CCC <- CCC_lin(
+    dataset = model$data,
+    resp    = "resp",
+    subject = "subject",
+    method  = "method",
+    time    = "time"
+  )
+  
+  plotBuilder_lcc(
+    rho     = rho,
+    ENV.LCC = ENV.LCC,
+    tk.plot = tk.plot,
+    CCC     = CCC,
+    tk.plot2 = tk.plot2,
+    ldb     = ldb,
+    model   = model,
+    ci      = ci,
+    arg     = arg,
+    ...
+  )
+}
 
 #' @title Prepare Plot for LPC Function
 #'
@@ -174,7 +222,7 @@ Pearson <- function(dataset, resp, subject, method, time) {
 #' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 #'
 #' @keywords internal
-plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
+plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
   Pearson <- Pearson(
     dataset = model$data,
     resp    = "resp",
@@ -193,7 +241,7 @@ plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
     model   = model,
     ci      = ci,
     arg     = arg,
-    .
+    ...
   )
 }
 
@@ -207,7 +255,7 @@ plot_lpc <- function(LPC, ENV.LPC, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##'
 ##' @keywords internal
-plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
+plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
   CCC <- CCC_lin(
     dataset = model$data,
     resp    = "resp",
@@ -234,9 +282,13 @@ plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
     model   = model,
     ci      = ci,
     arg     = arg,
-    .
+    ...
   )
 }
+
+#######################################################################
+# Low-level builders: LCC / LPC / LA
+#######################################################################
 
 #' Generate a Longitudinal Concordance Correlation Plot
 #'
@@ -257,29 +309,41 @@ plot_la <- function(Cb, ENV.Cb, tk.plot, tk.plot2, ldb, model, ci, arg, .) {
 #' element_text geom_path
 #' @keywords internal
 plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
-                            tk.plot2, ldb, model, ci, arg, .) {
+                            tk.plot2, ldb, model, ci, arg, ...) {
   
   method_levels <- levels(model$data$method)
   level_label <- function(i) {
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
   
+  ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
+  ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
+  point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
+  
   if (!ci) {
     ## -----------------------------------------------------------------
     ## No CI
     ## -----------------------------------------------------------------
     if (ldb == 1L) {
-      data_plot  <- data.frame(LCC = rho,         Time = tk.plot)
+      data_plot  <- data.frame(LCC = rho,          Time = tk.plot)
       data_plot2 <- data.frame(CCC = CCC[[1L]]$V1, Time = tk.plot2)
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LCC)) +
         geom_path(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = CCC),
-                   shape = arg$shape) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data = data_plot2,
+          aes(x = Time, y = CCC),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_ccc  <- vector("list", ldb)
@@ -301,11 +365,15 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LCC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = CCC),
-                   shape = arg$shape) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = CCC),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
     
@@ -327,16 +395,29 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LCC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = CCC),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_rho, ymax = upper_rho),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = FALSE,
+          data        = data_plot,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = CCC),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_ccc  <- vector("list", ldb)
@@ -361,15 +442,23 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LCC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = CCC),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_rho, ymax = upper_rho),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = TRUE,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = CCC),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
   }
@@ -388,27 +477,38 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
 ##' @keywords internal
 plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
-                            tk.plot2, ldb, model, ci, arg, .) {
+                            tk.plot2, ldb, model, ci, arg, ...) {
   
   method_levels <- levels(model$data$method)
   level_label <- function(i) {
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
   
+  ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
+  ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
+  point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
+  
   if (!ci) {
-    ## No CI
     if (ldb == 1L) {
-      data_plot  <- data.frame(LPC = LPC,              Time = tk.plot)
+      data_plot  <- data.frame(LPC = LPC,                 Time = tk.plot)
       data_plot2 <- data.frame(Pearson = Pearson[[1L]]$V1, Time = tk.plot2)
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LPC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Pearson),
-                   shape = arg$shape) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Pearson),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_pear <- vector("list", ldb)
@@ -430,16 +530,19 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LPC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Pearson),
-                   shape = arg$shape) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Pearson),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
     
   } else {
-    ## With CI
     if (ldb == 1L) {
       data_plot <- data.frame(
         LPC        = LPC,
@@ -454,16 +557,29 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LPC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Pearson),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_LPC, ymax = upper_LPC),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = FALSE,
+          data        = data_plot,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Pearson),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_pear <- vector("list", ldb)
@@ -488,15 +604,23 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LPC)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Pearson),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_LPC, ymax = upper_LPC),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = TRUE,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Pearson),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
   }
@@ -516,7 +640,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson,
 ##' @importFrom ggplot2 ggplot geom_line geom_point geom_ribbon labs theme element_text ggtitle
 ##' @keywords internal
 plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
-                           tk.plot, tk.plot2, ldb, model, ci, arg, .) {
+                           tk.plot, tk.plot2, ldb, model, ci, arg, ...) {
   
   method_levels <- levels(model$data$method)
   level_label <- function(i) {
@@ -526,20 +650,31 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
   ## Helper: LA(t) = CCC(t) / Pearson(t)
   get_LA_vec <- function(i) CCC[[i]]$V1 / Pearson[[i]]$V1
   
+  ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
+  ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
+  point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
+  
   if (!ci) {
-    ## No CI
     if (ldb == 1L) {
-      data_plot  <- data.frame(LA  = Cb,           Time = tk.plot)
+      data_plot  <- data.frame(LA  = Cb,             Time = tk.plot)
       data_plot2 <- data.frame(Cb  = get_LA_vec(1L), Time = tk.plot2)
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LA)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Cb),
-                   shape = arg$shape) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Cb),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_la   <- vector("list", ldb)
@@ -561,16 +696,19 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LA)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Cb),
-                   shape = arg$shape) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Cb),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
     
   } else {
-    ## With CI
     if (ldb == 1L) {
       data_plot <- data.frame(
         LA       = Cb,
@@ -585,16 +723,29 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LA)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Cb),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_LA, ymax = upper_LA),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = FALSE,
+          data        = data_plot,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        ggtitle(level_label(1L)) +
-        labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Cb),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        labs(
+          x     = arg$xlab,
+          y     = arg$ylab,
+          title = level_label(1L)
+        ) +
+        .lcc_default_theme()
       print(Plot)
+      
     } else {
       data_main <- vector("list", ldb)
       data_la   <- vector("list", ldb)
@@ -619,15 +770,23 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
       
       Plot <- ggplot(data_plot, aes(x = Time, y = LA)) +
         geom_line(colour = arg$colour, linewidth = arg$size) +
-        geom_point(data = data_plot2, aes(x = Time, y = Cb),
-                   shape = arg$shape) +
         geom_ribbon(
           aes(ymin = lower_LA, ymax = upper_LA),
-          fill = "grey70", alpha = 0.3, show.legend = TRUE
+          inherit.aes = TRUE,
+          fill        = ci_fill,
+          alpha       = ci_alpha,
+          colour      = NA,
+          show.legend = FALSE
         ) +
-        facet_wrap(~Level, .) +
+        geom_point(
+          data  = data_plot2,
+          aes(x = Time, y = Cb),
+          shape = arg$shape,
+          alpha = point_alpha
+        ) +
+        facet_wrap(~Level) +
         labs(x = arg$xlab, y = arg$ylab) +
-        theme(plot.title = element_text(hjust = 0.5))
+        .lcc_default_theme()
       print(Plot)
     }
   }

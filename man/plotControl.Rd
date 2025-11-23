@@ -6,9 +6,12 @@
 \usage{
 plotControl(
   plot = TRUE,
-  shape = 1,
-  colour = "black",
-  size = 0.5,
+  shape = 16,
+  colour = "#1B4F72",
+  size = 0.7,
+  ci_fill = NULL,
+  ci_alpha = NULL,
+  point_alpha = NULL,
   xlab = "Time",
   ylab = "LCC"
 )

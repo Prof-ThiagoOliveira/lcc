@@ -4,7 +4,7 @@
 \alias{plotBuilder_lcc}
 \title{Generate a Longitudinal Concordance Correlation Plot}
 \usage{
-plotBuilder_lcc(rho, ENV.LCC, tk.plot, CCC, tk.plot2, ldb, model, ci, arg, .)
+plotBuilder_lcc(rho, ENV.LCC, tk.plot, CCC, tk.plot2, ldb, model, ci, arg, ...)
 }
 \arguments{
 \item{rho}{Vector of LCC values.}

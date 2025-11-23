@@ -4,7 +4,7 @@
 \alias{lccPlot}
 \title{Plot Fitted Curves from an \code{lcc} Object}
 \usage{
-lccPlot(obj, type = "lcc", control = list(), .)
+lccPlot(obj, type = "lcc", control = list(), ...)
 }
 \arguments{
 \item{obj}{An object inheriting from class "lcc", representing a fitted lcc model.}
