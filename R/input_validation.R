@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: init.R                                                        #
+# File: input_validation.R                                            #
 # Contains: init function                                             #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
@@ -14,21 +14,6 @@
 #                                                                     #
 #######################################################################
 
-#######################################################################
-#                                                                     #
-# Package: lcc                                                        #
-#                                                                     #
-# File: init.R                                                        #
-# Contains: init function                                             #
-#                                                                     #
-# Written by Thiago de Paula Oliveira                                 #
-# copyright (c) 2017-18, Thiago P. Oliveira                           #
-#                                                                     #
-# First version: 11/10/2017                                           #
-# Last update: 29/07/2019                                             #
-# License: GNU General Public License version 2 (June, 1991) or later #
-#                                                                     #
-#######################################################################
 
 ##' @title Internal Function to Prepare \code{\link[lcc]{lccModel}}
 ##'   Function

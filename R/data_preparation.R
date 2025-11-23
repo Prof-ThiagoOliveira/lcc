@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: dataBuilder.R                                                 #
+# File: data_preparation.R                                            #
 # Contains: dataBuilder function                                      #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #

@@ -1,10 +1,10 @@
 ########################################################################
 # Package: lcc                                                         #
 #                                                                      #
-# File: lccBootstrap.R                                                 #
+# File: bootstrap_longitudinal.R                                       #
 #                                                                      #
-# Contains: dataBootstrap, bootstrapSamples, lccBootstrap,             #
-# lpcBootstrap, laBootstrap                                            #
+# Contains: bootstrapSamples, lccBootstrap,                            #
+#            lpcBootstrap, laBootstrap                                 #
 #                                                                      #
 # Written by Thiago de Paula Oliveira                                  #
 # copyright (c) 2017-18, Thiago P. Oliveira                            #
@@ -248,4 +248,130 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   )
   class(out) <- "lcc.bootstrap"
   out
+}
+# lccBootstrap / lpcBootstrap / laBootstrap                           #
+#######################################################################
+
+##' @keywords internal
+lccBootstrap <- function(model_boot, diff_boot, ldb, nboot, tk, q_f) {
+  CCC_Boot <- vector("list", nboot)
+  
+  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
+  use_delta_by_level <- nd > 1L
+  
+  for (i in seq_len(nboot)) {
+    model_i <- model_boot[[i]]
+    G_i     <- getVarCov(model_i)
+    q_r_i   <- nrow(G_i) - 1L
+    
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
+    
+    if (ldb == 1L) {
+      CCC_Boot[[i]] <- {
+        rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(diff_boot[[i]][[1L]]))
+        # same selection rule as lccWrapper
+        if (length(rho_list) == 1L || sum(is.na(rho_list[[2L]])) != 0) {
+          rho_list[[1L]]
+        } else {
+          rho_list[[1L]]  # when ldb==1, n.delta is always 1
+        }
+      }
+    } else {
+      CCC_i <- vector("list", ldb)
+      for (j in seq_len(ldb)) {
+        n_delta <- if (use_delta_by_level) j else 1L
+        rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(diff_boot[[i]][[j]]))
+        if (length(rho_list) == 1L || sum(is.na(rho_list[[2L]])) != 0) {
+          CCC_i[[j]] <- rho_list[[1L]]
+        } else {
+          CCC_i[[j]] <- rho_list[[n_delta]]
+        }
+      }
+      CCC_Boot[[i]] <- CCC_i
+    }
+  }
+  
+  CCC_Boot
+}
+
+##' @keywords internal
+lpcBootstrap <- function(model_boot, ldb, nboot, tk, q_f) {
+  LPC_Boot <- vector("list", nboot)
+  
+  if (ldb == 1L) {
+    for (i in seq_len(nboot)) {
+      model_i <- model_boot[[i]]
+      G_i     <- getVarCov(model_i)
+      q_r_i   <- nrow(G_i) - 1L
+      
+      pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
+      rho_pearson_list <- .compute_LPC(pre_i)
+      
+      LPC_Boot[[i]] <- rho_pearson_list[[1L]]
+    }
+    return(LPC_Boot)
+  }
+  
+  # ldb > 1
+  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
+  use_delta_by_level <- nd > 1L
+  
+  for (i in seq_len(nboot)) {
+    model_i <- model_boot[[i]]
+    G_i     <- getVarCov(model_i)
+    q_r_i   <- nrow(G_i) - 1L
+    
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
+    rho_pearson_list <- .compute_LPC(pre_i)
+    
+    LPC_i <- vector("list", ldb)
+    for (j in seq_len(ldb)) {
+      n_delta <- if (use_delta_by_level) j else 1L
+      LPC_i[[j]] <- rho_pearson_list[[n_delta]]
+    }
+    LPC_Boot[[i]] <- LPC_i
+  }
+  
+  LPC_Boot
+}
+
+##' @keywords internal
+laBootstrap <- function(model_boot, diff_boot, ldb, nboot, tk, q_f) {
+  Cb_Boot <- vector("list", nboot)
+  
+  if (ldb == 1L) {
+    for (i in seq_len(nboot)) {
+      model_i <- model_boot[[i]]
+      G_i     <- getVarCov(model_i)
+      q_r_i   <- nrow(G_i) - 1L
+      
+      pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
+      LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(diff_boot[[i]][[1L]]))
+      
+      Cb_Boot[[i]] <- LA_list[[1L]]
+    }
+    return(Cb_Boot)
+  }
+  
+  # ldb > 1
+  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
+  use_delta_by_level <- nd > 1L
+  
+  for (i in seq_len(nboot)) {
+    model_i <- model_boot[[i]]
+    G_i     <- getVarCov(model_i)
+    q_r_i   <- nrow(G_i) - 1L
+    
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
+    
+    Cb_i <- vector("list", ldb)
+    for (j in seq_len(ldb)) {
+      n_delta <- if (use_delta_by_level) j else 1L
+      LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(diff_boot[[i]][[j]]))
+      Cb_i[[j]] <- LA_list[[n_delta]]
+    }
+    Cb_Boot[[i]] <- Cb_i
+  }
+  
+  Cb_Boot
 }

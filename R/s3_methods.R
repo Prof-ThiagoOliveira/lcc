@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: lcc.R                                                         #
+# File: s3_methods.R                                                  #
 # Contains: generic methods                                           #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #

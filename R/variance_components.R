@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: getDelta.R                                                    #
+# File: variance_components.R                                         #
 # Contains: getDelta function                                         #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
