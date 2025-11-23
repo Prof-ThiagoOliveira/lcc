@@ -2,14 +2,13 @@
 % Please edit documentation in R/lcc.R
 \name{lcc}
 \alias{lcc}
-\title{Longitudinal Concordance Correlation (LCC) Estimated by Fixed
-  Effects and Variance Components using a Polynomial Mixed-Effects
-  Regression Model}
+\title{Longitudinal concordance correlation (LCC) from polynomial mixed
+  effects regression models using fixed effects and variance components}
 \usage{
 lcc(data, resp, subject, method, time, interaction, qf,
     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
     percentileMet, alpha, nboot, show.warnings, components,
-    REML, lme.control,  numCore)
+    REML, lme.control, numCore)
 }
 \arguments{
 \item{data}{an object of class \code{data.frame}.}
@@ -21,134 +20,144 @@ data set.}
 data set.}
 
 \item{method}{character string. Name of the method variable in the
-data set. The first level of method is used as the gold-standard
-method.}
+data set. The first level of \code{method} is used as the
+gold-standard method.}
 
 \item{time}{character string. Name of the time variable in the data
 set.}
 
-\item{interaction}{an option to estimate the interaction effect
-between \code{method} and \code{time}. If \code{TRUE}, the
-default, interaction effect is estimated. If \code{FALSE} only the
-main effects of time and method are estimated.}
+\item{interaction}{logical. Indicates whether to estimate the
+interaction between \code{method} and \code{time}. If \code{TRUE}
+(the default), both main effects and their interaction are
+estimated. If \code{FALSE}, only the main effects of time and
+method are estimated.}
 
-\item{qf}{an integer specifying the degree time polynomial trends,
-normally 1, 2 or 3. (Degree 0 is not allowed). Default is
-\code{qf=1}}
+\item{qf}{integer. Degree of the polynomial time trend, usually
+1, 2, or 3 (degree 0 is not allowed). Default is \code{qf = 1}.}
 
-\item{qr}{an integer specifying random effects terms to account for
-subject-to-subject variation.  Note that \code{qr=0} specifies a
-random intercept (form \code{~ 1|subject}); \code{qr=1} specifies
-random intercept and slope (form \code{~ time|subject}). If
-\code{qr=qf=q}, with \eqn{q \ge 1}, random effects at subject
-level are added to all terms of the time polynomial regression
-(form \code{~ poly(time, q, raw = TRUE)|subject}). Default is
-\code{qr=0}.}
+\item{qr}{integer. Degree of the random-effects polynomial in time
+used to model subject-to-subject variation. Note that
+\code{qr = 0} specifies a random intercept (form
+\code{~ 1 | subject}); \code{qr = 1} specifies random intercept
+and slope (form \code{~ time | subject}). If \code{qr = qf = q},
+with \eqn{q \ge 1}, random effects at the subject level are added
+to all terms of the time polynomial regression (form
+\code{~ poly(time, q, raw = TRUE) | subject}). Default is
+\code{qr = 0}.}
 
-\item{covar}{character vector. Name of the covariates to be included
-in the model as fixed effects. Default to \code{NULL}, never
-include.}
+\item{covar}{character vector. Names of covariates to be included
+in the model as fixed effects. Defaults to \code{NULL}, meaning
+that no additional covariates are included.}
 
-\item{gs}{character string. Name of method level which represents
-the gold-standard. Default is the first level of method.}
+\item{gs}{character string. Name of the level of \code{method} that
+represents the gold-standard. Defaults to the first level of
+\code{method}.}
 
-\item{pdmat}{standard classes of positive-definite matrix structures
-defined in the \code{\link[nlme]{pdClasses}} function. The
-different positive-definite matrices structures available in the
-\code{lcc} function are \code{pdSymm}, the default,
-\code{pdLogChol}, \code{pdDiag}, \code{pdIdent},
-\code{pdCompSymm}, and \code{pdNatural}.}
+\item{pdmat}{standard classes of positive-definite matrix
+structures defined in \code{\link[nlme]{pdClasses}}. The
+available positive-definite matrix structures in \code{lcc} are
+\code{pdSymm} (the default), \code{pdLogChol}, \code{pdDiag},
+\code{pdIdent}, \code{pdCompSymm}, and \code{pdNatural}.}
 
-\item{var.class}{standard classes of variance functions to model the
-variance structure of within-group errors using covariates, see
-\code{\link[nlme]{varClasses}}. Default to \code{NULL}, correspond
-to homoscedastic within-group errors. Available standard classes:
-\describe{ \item{\code{varIdent}:}{allows different variances
-according to the levels of the stratification variable.}
-\item{\code{varExp}:}{exponential function of the variance
-covariate; see \code{\link[nlme]{varExp}}.}}}
+\item{var.class}{standard classes of variance functions used to
+model the variance structure of within-subject errors using
+covariates; see \code{\link[nlme]{varClasses}}. Defaults to
+\code{NULL}, which corresponds to homoscedastic within-subject
+errors. Available standard classes include:
+\describe{
+  \item{\code{varIdent}:}{allows different variances according to
+    the levels of a stratification variable.}
+  \item{\code{varExp}:}{exponential function of the variance
+    covariate; see \code{\link[nlme]{varExp}}.}
+}}
 
-\item{weights.form}{character string. An one-sided formula
-specifying a variance covariate and, optionally, a grouping factor
-for the variance parameters in the \code{var.class}. If
-\code{var.class=varIdent}, the option ``method'', form
-\code{~1|method} or ``time.ident'', form \code{~1|time}, must be
-used in the \code{weights.form} argument. If
-\code{var.class=varExp}, the option ``time'', form \code{~time},
-or ``both'', form \code{~time|method}, must be used in the
-\code{weights.form} argument.}
+\item{weights.form}{character string. A one-sided formula
+specifying a variance covariate and, optionally, a grouping
+factor for the variance parameters in \code{var.class}. If
+\code{var.class = varIdent}, the options \code{"method"} (form
+\code{~ 1 | method}) or \code{"time.ident"} (form
+\code{~ 1 | time}) must be used in \code{weights.form}. If
+\code{var.class = varExp}, the options \code{"time"} (form
+\code{~ time}) or \code{"both"} (form \code{~ time | method})
+must be used in \code{weights.form}.}
 
-\item{time_lcc}{regular sequence for time variable merged with
-  specific or experimental time values used for LCC, LPC, and LA
-  predictions. Default is \code{NULL}. The list may contain the
-  following components: \describe{ \item{\code{time}:}{a vector of
-  specific or experimental time values of given length. The
-  experimental time values are used as default.  }
-  \item{\code{from}:}{the starting (minimum) value of time
-  variable.}
+\item{time_lcc}{list or \code{NULL}. Regular sequence for the time
+variable, merged with specific or experimental time values used
+for LCC, LPC, and LA predictions. Defaults to \code{NULL}. The
+list may contain the following components:
+\describe{
+  \item{\code{time}:}{a vector of specific or experimental time
+    values. The experimental time values are used by default.}
+  \item{\code{from}:}{the starting (minimum) value of the time
+    variable.}
+  \item{\code{to}:}{the end (maximum) value of the time
+    variable.}
+  \item{\code{n}:}{integer specifying the desired length of the
+    sequence. Values of \code{n} between 30 and 50 are usually
+    adequate.}
+}}
 
-\item{\code{to}:}{the end (maximum) value of time variable.}
+\item{ci}{logical. If \code{TRUE}, non-parametric bootstrap
+confidence intervals are calculated for the LCC, LPC, and LA
+statistics and printed in the output. Default is \code{FALSE}.}
 
-\item{\code{n}:}{an integer specifying the desired length of the
-sequence. Generally, \code{n} between 30 and 50 is adequate.}  }}
+\item{percentileMet}{logical. Method used to calculate the
+non-parametric bootstrap intervals. If \code{FALSE} (the default),
+the normal approximation method is used. If \code{TRUE}, the
+percentile method is used instead.}
 
-\item{ci}{an optional non-parametric boostrap confidence interval
-calculated for the LCC, LPC and LA statistics. If \code{TRUE}
-confidence intervals are calculated and printed in the
-output. Default is \code{FALSE}.}
+\item{alpha}{significance level. Default is \code{0.05}.}
 
-\item{percentileMet}{an optional method for calculating the
-non-parametric bootstrap intervals. If \code{FALSE}, the default,
-is the normal approximation method. If \code{TRUE}, the percentile
-method is used instead.}
+\item{nboot}{integer. Number of bootstrap samples. Default is
+\code{5000}.}
 
-\item{alpha}{significance level. Default is 0.05.}
+\item{show.warnings}{logical. Controls the display of convergence
+warnings in the bootstrap samples. If \code{TRUE}, the indices of
+bootstrap samples with convergence errors are shown. If
+\code{FALSE} (the default), only the total number of convergence
+errors is reported.}
 
-\item{nboot}{an integer specifying the number of bootstrap
-samples. Default is 5,000.}
+\item{components}{logical. If \code{TRUE}, estimates and confidence
+intervals for LPC and LA are printed in the output. If
+\code{FALSE} (the default), only estimates and confidence
+intervals for the LCC statistic are provided.}
 
-\item{show.warnings}{an optional argument that shows the number of
-convergence errors in the bootstrap samples. If \code{TRUE} shows
-in which bootstrap sample the error occurred. If \code{FALSE}, the
-default, shows the total number of convergence errors.}
+\item{REML}{logical. If \code{TRUE} (the default), the model is fit
+by maximising the restricted log-likelihood. If \code{FALSE}, the
+full log-likelihood is maximised.}
 
-\item{components}{an option to print LPC and LA statistics. If
-\code{TRUE} the estimates and confidence intervals for LPC and LA
-are printed in the output. If \code{FALSE}, the default, provides
-estimates and confidence interval only for the LCC statistic.}
+\item{lme.control}{list. Control values for the estimation
+algorithm, replacing the defaults of
+\code{\link[nlme]{lmeControl}} in the \pkg{nlme} package. Defaults
+to \code{NULL}. The returned list is passed as the \code{control}
+argument to \code{\link[nlme]{lme}}.}
 
-\item{REML}{if \code{TRUE}, the default, the model is fit by
-maximizing the restricted log-likelihood. If \code{FALSE} the
-log-likelihood is maximized.}
-
-\item{lme.control}{a list of control values for the estimation
-algorithm to replace the default values of the function
-\code{\link[nlme]{lmeControl}} available in the \code{\link{nlme}}
-package. Defaults to an empty list. The returned list is used as
-the control argument for the \code{lme} function.}
-
-\item{numCore}{number of cores used in parallel during bootstrapping
-computation. Default is 1.}
+\item{numCore}{integer. Number of cores used in parallel during
+bootstrap computation. Default is \code{1}.}
 }
 \value{
-an object of class lcc. The output is a list with the
-  following components: \item{model}{summary of the polynomial
-  mixed-effects regression model.} \item{Summary.lcc}{fitted values
-  for the  LCC  or LCC, LPC and LA (if \code{components=TRUE});
-  concordance correlation coefficient (CCC) between methods for each
-  level of \code{time} as sampled values, and the CCC between
-  mixed-effects model predicted values and observed values from data
-  as goodness of fit (gof)}
-  \item{data}{the input dataset.}
+An object of class \code{lcc}. The output is a list with
+  the following components:
+  \item{model}{summary of the polynomial mixed-effects regression
+    model.}
+  \item{Summary.lcc}{fitted values for LCC, or for LCC, LPC, and LA
+    if \code{components = TRUE}; the concordance correlation
+    coefficient (CCC) between methods at each sampled value of
+    \code{time}, and the CCC between mixed-effects model
+    predictions and observed data as a goodness-of-fit measure
+    (gof).}
+  \item{data}{the input data set.}
 }
 \description{
-The \code{lcc} function gives fitted values and
-  non-parametric bootstrap confidence intervals for LCC,
-  longitudinal Pearson correlation (LPC), and longitudinal accuracy
-  (LA) statistics. These statistics can be estimated using different
-  structures for the variance-covariance matrix for random effects
-  and variance functions to model heteroscedasticity among the
-  within-group errors using or not the time as a covariate.
+The \code{lcc} function computes fitted values and
+  non-parametric bootstrap confidence intervals for the longitudinal
+  concordance correlation (LCC), longitudinal Pearson correlation (LPC),
+  and longitudinal accuracy (LA).
+
+  These statistics are estimated from a polynomial mixed-effects model
+  with flexible variance-covariance structures for random effects and
+  variance functions that can model heteroscedastic within-subject
+  errors, with or without time as a covariate.
 }
 \examples{
 data(hue)
@@ -158,126 +167,178 @@ fm1 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
            method = "Method", time = "Time", qf = 2, qr = 2)
 print(fm1)
 summary(fm1)
-summary(fm1, type="model")
+summary(fm1, type = "model")
 lccPlot(fm1) +
- ylim(0,1) +
- geom_hline(yintercept = 1, linetype = "dashed") +
- scale_x_continuous(breaks = seq(1,max(hue$Time),2))
+  ylim(0, 1) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(1, max(hue$Time), 2))
 
 ## Estimating longitudinal Pearson correlation and longitudinal
-#accuracy
+## accuracy
 fm2 <- update(fm1, components = TRUE)
 summary(fm2)
 lccPlot(fm2) +
- ylim(0,1) +
- geom_hline(yintercept = 1, linetype = "dashed") +
- scale_x_continuous(breaks = seq(1,max(hue$Time),2)) +
- theme_bw()
+  ylim(0, 1) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(1, max(hue$Time), 2)) +
+  theme_bw()
 
 \dontrun{
 ## A grid of points as the Time variable for prediction
-fm3 <- update(fm2, time_lcc = list(from = min(hue$Time),
-           to = max(hue$Time), n=40))
+fm3 <- update(
+  fm2,
+  time_lcc = list(
+    from = min(hue$Time),
+    to   = max(hue$Time),
+    n    = 40
+  )
+)
 summary(fm3)
 lccPlot(fm3) +
- ylim(0,1) +
- geom_hline(yintercept = 1, linetype = "dashed") +
- scale_x_continuous(breaks = seq(1,max(hue$Time),2)) +
- theme_bw()
+  ylim(0, 1) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(1, max(hue$Time), 2)) +
+  theme_bw()
 }
 
 ## Including an exponential variance function using time as a
-#covariate.
-fm4 <- update(fm2,time_lcc = list(from = min(hue$Time),
-              to = max(hue$Time), n=30), var.class=varExp,
-              weights.form="time")
-summary(fm4,  type="model")
+## covariate
+fm4 <- update(
+  fm2,
+  time_lcc    = list(from = min(hue$Time),
+                     to   = max(hue$Time),
+                     n    = 30),
+  var.class   = varExp,
+  weights.form = "time"
+)
+summary(fm4, type = "model")
 fitted(fm4)
 fitted(fm4, type = "lpc")
 fitted(fm4, type = "la")
 lccPlot(fm4) +
- geom_hline(yintercept = 1, linetype = "dashed")
+  geom_hline(yintercept = 1, linetype = "dashed")
 lccPlot(fm4, type = "lpc") +
- geom_hline(yintercept = 1, linetype = "dashed")
+  geom_hline(yintercept = 1, linetype = "dashed")
 lccPlot(fm4, type = "la") +
- geom_hline(yintercept = 1, linetype = "dashed")
+  geom_hline(yintercept = 1, linetype = "dashed")
 
 \dontrun{
 ## Non-parametric confidence interval with 500 bootstrap samples
 fm5 <- update(fm1, ci = TRUE, nboot = 500)
 summary(fm5)
 lccPlot(fm5) +
- geom_hline(yintercept = 1, linetype = "dashed")
+  geom_hline(yintercept = 1, linetype = "dashed")
 }
 
-## Considering three methods of color evaluation
+## Considering three methods of colour evaluation
 \dontrun{
 data(simulated_hue)
 attach(simulated_hue)
-fm6 <- lcc(data = simulated_hue, subject = "Fruit",
-           resp = "Hue", method = "Method", time = "Time",
-           qf = 2, qr = 1, components = TRUE,
-           time_lcc = list(n=50, from=min(Time), to=max(Time)))
+fm6 <- lcc(
+  data     = simulated_hue,
+  subject  = "Fruit",
+  resp     = "Hue",
+  method   = "Method",
+  time     = "Time",
+  qf       = 2,
+  qr       = 1,
+  components = TRUE,
+  time_lcc = list(
+    n    = 50,
+    from = min(Time),
+    to   = max(Time)
+  )
+)
 summary(fm6)
 lccPlot(fm6, scales = "free")
-lccPlot(fm6, type="lpc", scales = "free")
-lccPlot(fm6, type="la", scales = "free")
+lccPlot(fm6, type = "lpc", scales = "free")
+lccPlot(fm6, type = "la", scales = "free")
 detach(simulated_hue)
 }
 
 ## Including an additional covariate in the linear predictor
-## (randomized block design)
+## (randomised block design)
 \dontrun{
 data(simulated_hue_block)
 attach(simulated_hue_block)
-fm7 <- lcc(data = simulated_hue_block, subject = "Fruit",
-           resp = "Hue", method = "Method",time = "Time",
-           qf = 2, qr = 1, components = TRUE, covar = c("Block"),
-           time_lcc = list(n=50, from=min(Time), to=max(Time)))
+fm7 <- lcc(
+  data      = simulated_hue_block,
+  subject   = "Fruit",
+  resp      = "Hue",
+  method    = "Method",
+  time      = "Time",
+  qf        = 2,
+  qr        = 1,
+  components = TRUE,
+  covar     = c("Block"),
+  time_lcc  = list(
+    n    = 50,
+    from = min(Time),
+    to   = max(Time)
+  )
+)
 summary(fm7)
-lccPlot(fm7, scales="free")
+lccPlot(fm7, scales = "free")
 detach(simulated_hue_block)
 }
 
-## Testing interaction effect between time and method
+## Testing the interaction effect between time and method
 fm8 <- update(fm1, interaction = FALSE)
 anova(fm1, fm8)
 
 \dontrun{
-## Using parallel computing with 3 cores, and a set.seed(123)
-to verify model reproducibility.
+## Using parallel computing with 3 cores, and set.seed(123) to
+## verify model reproducibility
 set.seed(123)
-fm9 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
-              method = "Method", time = "Time", qf = 2, qr = 2,
-              ci=TRUE, nboot = 30, numCore = 3)
+fm9 <- lcc(
+  data     = hue,
+  subject  = "Fruit",
+  resp     = "H_mean",
+  method   = "Method",
+  time     = "Time",
+  qf       = 2,
+  qr       = 2,
+  ci       = TRUE,
+  nboot    = 30,
+  numCore  = 3
+)
 
-# Repeating same model with same set seed.
+## Repeating the same model with the same seed
 set.seed(123)
-fm10 <- lcc(data = hue, subject = "Fruit", resp = "H_mean",
-              method = "Method", time = "Time", qf = 2, qr = 2,
-              ci=TRUE, nboot = 30, numCore = 3)
+fm10 <- lcc(
+  data     = hue,
+  subject  = "Fruit",
+  resp     = "H_mean",
+  method   = "Method",
+  time     = "Time",
+  qf       = 2,
+  qr       = 2,
+  ci       = TRUE,
+  nboot    = 30,
+  numCore  = 3
+)
 
-## Verifying if both fitted values and confidence intervals
-are identical
-identical(fm9$Summary.lcc$fitted,fm10$Summary.lcc$fitted)
+## Verifying that fitted values and confidence intervals are
+## identical
+identical(fm9$Summary.lcc$fitted, fm10$Summary.lcc$fitted)
 }
 
 }
 \references{
-Lin, L. A Concordance Correlation Coefficient to
-  Evaluate Reproducibility. \emph{Biometrics}, 45, n. 1, 255-268,
+Lin, L. A concordance correlation coefficient to
+  evaluate reproducibility. \emph{Biometrics}, 45(1), 255–268,
   1989.
 
-Oliveira, T.P.; Hinde, J.; Zocchi S.S. Longitudinal
-  Concordance Correlation Function Based on Variance Components: An
-  Application in Fruit Color Analysis. \emph{Journal of
-  Agricultural, Biological, and Environmental Statistics}, v. 23,
-  n. 2, 233–254, 2018.
+Oliveira, T. P.; Hinde, J.; Zocchi, S. S.
+  Longitudinal concordance correlation function based on variance
+  components: an application in fruit colour analysis.
+  \emph{Journal of Agricultural, Biological, and Environmental
+  Statistics}, 23(2), 233–254, 2018.
 
-Oliveira, T.P.; Moral, R.A.; Zocchi, S.S.; Demetrio,
-  C.G.B.; Hinde, J. lcc: an R packageto estimate the concordance
-  correlation, Pearson correlation, and accuracy over
-  time. \emph{PeerJ}, 8:c9850, 2020. DOI:10.7717/peerj.9850
+Oliveira, T. P.; Moral, R. A.; Zocchi, S. S.;
+  Demetrio, C. G. B.; Hinde, J. lcc: an R package to estimate the
+  concordance correlation, Pearson correlation, and accuracy over
+  time. \emph{PeerJ}, 8:e9850, 2020. DOI:10.7717/peerj.9850
 }
 \seealso{
 \code{\link{summary.lcc}}, \code{\link{fitted.lcc}},
@@ -285,11 +346,13 @@ Oliveira, T.P.; Moral, R.A.; Zocchi, S.S.; Demetrio,
   \code{\link{plot.lcc}}, \code{\link{coef.lcc}},
   \code{\link{ranef.lcc}}, \code{\link{vcov.lcc}},
   \code{\link{getVarCov.lcc}}, \code{\link{residuals.lcc}},
-   \code{\link{AIC.lcc}}
+  \code{\link{AIC.lcc}}
 }
 \author{
 Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br}, Rafael de Andrade Moral, John Hinde
+  \email{thiago.paula.oliveira@alumni.usp.br},
+  Rafael de Andrade Moral,
+  John Hinde
 }
 \keyword{ggplot2}
 \keyword{nlme}

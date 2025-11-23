@@ -2,19 +2,25 @@
 % Please edit documentation in R/lccModel.R
 \name{lccModel}
 \alias{lccModel}
-\title{Internal Function to Fit a Linear Mixed-Effects Model}
+\title{Internal function to fit a linear mixed-effects model}
 \description{
-Internally used function to fit a linear mixed-effects model, 
-  following the formulation described in Laird and Ware (1982). See \code{\link[nlme]{lme}}.
+Internal helper to fit a linear mixed-effects model,
+  following the formulation described in Laird and Ware (1982).
+  See \code{\link[nlme]{lme}} for details.
 }
 \references{
-Laird, N.M. and Ware, J.H. (1982) Random-Effects Models for Longitudinal Data, 
-  \emph{Biometrics}, 38, 963–974.
-  Pinheiro, J.C. and Bates., D.M. (1996) Unconstrained Parametrizations for Variance-Covariance Matrices, 
+Laird, N. M.; Ware, J. H. (1982). Random-effects models
+  for longitudinal data. \emph{Biometrics}, 38, 963–974.
+
+Pinheiro, J. C.; Bates, D. M. (1996). Unconstrained
+  parametrizations for variance–covariance matrices.
   \emph{Statistics and Computing}, 6, 289–296.
-  Pinheiro, J.C., and Bates, D.M. (2000) Mixed-Effects Models in S and S-PLUS, \emph{Springer}.
+
+Pinheiro, J. C.; Bates, D. M. (2000). Mixed-effects
+  models in S and S-PLUS. Springer.
 }
 \author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
+Thiago de Paula Oliveira,
+  \email{thiago.paula.oliveira@alumni.usp.br}
 }
 \keyword{internal}
