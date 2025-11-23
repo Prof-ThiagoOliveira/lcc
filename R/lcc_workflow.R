@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: lcc_internal.R                                                #
+# File: lcc_workflow.R                                                #
 # Contains: lccInternal function                                      #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #

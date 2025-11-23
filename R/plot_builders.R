@@ -1,192 +1,4 @@
 #######################################################################
-#                                                                     #
-# Package: lcc                                                        #
-#                                                                     #
-# File: plotBuilder_lcc.R                                             #
-# Contains: plotBuilder_lcc function                                  #
-#                                                                     #
-# Written by Thiago de Paula Oliveira                                 #
-# copyright (c) 2017-18, Thiago P. Oliveira                           #
-#                                                                     #
-# First version: 11/10/2017                                           #
-# Last update: 23/11/2025                                             #
-# License: GNU General Public License version 2 (June, 1991) or later #
-#                                                                     #
-#######################################################################
-
-#' Control Settings for \code{lcc} Plots
-#'
-#' This function customizes the graphical control settings for plots of the 
-#' \code{lcc} class. It allows for the adjustment of various aspects such as 
-#' shape, color, and size of plot elements, as well as axis labels. The function 
-#' returns a list containing all these settings, which can be used in plotting 
-#' functions for \code{lcc} objects.
-#'
-#' @param plot Logical flag to include an initial plot. If set to \code{TRUE}, 
-#'   a \code{\link[ggplot2]{ggplot}} object with an initial plot for \code{lcc} 
-#'   class is returned. Defaults to \code{TRUE}.
-#' @param shape Numeric value specifying the shape of points in the plot. 
-#'   Acceptable values are from 0 to 25, and 32 to 127. See 
-#'   \code{\link[ggplot2]{aes}} for details on setting shape. Default is \code{1}.
-#' @param colour String specifying the color of lines in the plot. 
-#'   Default color is \code{"black"}.
-#' @param size Numeric value specifying the size of lines in the plot, given in 
-#'   millimeters. See \code{\link[ggplot2]{aes}} for details on setting size. 
-#'   Default is \code{0.5}.
-#' @param xlab Title for the x-axis, defaulting to \code{"Time"}.
-#' @param ylab Title for the y-axis, defaulting to \code{"LCC"}.
-#'
-#' @return A list with the specified graphical parameters.
-#'
-#' @author Thiago de Paula Oliveira,
-#'   \email{thiago.paula.oliveira@@alumni.usp.br}
-#'
-#' @importFrom ggplot2 ggplot aes
-#'
-#' @keywords internal
-plotControl <- function(plot        = TRUE,
-                        shape       = 16,
-                        colour      = "#1B4F72",
-                        size        = 0.7,
-                        ci_fill     = NULL,
-                        ci_alpha    = NULL,
-                        point_alpha = NULL,
-                        xlab        = "Time",
-                        ylab        = "LCC") {
-  list(
-    plot        = plot,
-    shape       = shape,
-    colour      = colour,
-    size        = size,
-    ci_fill     = ci_fill,
-    ci_alpha    = ci_alpha,
-    point_alpha = point_alpha,
-    xlab        = xlab,
-    ylab        = ylab
-  )
-}
-
-
-#' Internal base theme used by all ggplot-based summaries
-#' @keywords Internal
-.lcc_default_theme <- function() {
-  ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(
-      panel.grid.minor   = ggplot2::element_blank(),
-      panel.grid.major.x = ggplot2::element_blank(),
-      legend.position    = "bottom",
-      plot.title         = ggplot2::element_text(hjust = 0.5, face = "bold"),
-      strip.background   = ggplot2::element_blank(),
-      strip.text         = ggplot2::element_text(face = "bold")
-    )
-}
-
-
-##' @title Internal Function to Estimate the Sampled Concordance
-##'   Correlation Coefficient.
-##'
-##' @description This function is internally called to estimate
-##'   the sampled concordance correlation coefficient.
-##'
-##' @usage NULL
-##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
-##'
-##' @importFrom stats cor cov
-##'
-##' @keywords internal
-CCC_lin <- function(dataset, resp, subject, method, time) {
-  # We assume here that `dataset` has already been prepared by dataBuilder
-  selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData[[method]])
-  methodLevels <- levels(selectedData[[method]])
-  
-  calculateCCC_fast <- function(Y1, Y2, time) {
-    n          <- length(time)
-    time_fac   <- as.factor(time)
-    idx_by_t   <- split(seq_len(n), time_fac)
-    
-    Y1_full    <- rep(Y1, length.out = n)
-    Y2_full    <- rep(Y2, length.out = n)
-    
-    ccc_vec <- vapply(
-      idx_by_t,
-      function(idx) {
-        y1 <- Y1_full[idx]
-        y2 <- Y2_full[idx]
-        m1 <- mean(y1)
-        m2 <- mean(y2)
-        s1 <- var(y1)
-        s2 <- var(y2)
-        s12 <- cov(y1, y2)
-        2 * s12 / (s1 + s2 + (m1 - m2)^2)
-      },
-      numeric(1L)
-    )
-    data.frame(V1 = unname(ccc_vec))
-  }
-  
-  CCC.Lin <- lapply(
-    seq(2L, length(methodLevels)),
-    function(i) {
-      calculateCCC_fast(
-        Y1   = dataByMethod[[1L]][[resp]],
-        Y2   = dataByMethod[[i]][[resp]],
-        time = selectedData[[time]]
-      )
-    }
-  )
-  
-  CCC.Lin
-}
-
-
-#' @title Estimate Sampled Pearson Correlation
-#'
-#' @description Internally called function to estimate the sampled Pearson correlation.
-#'
-#' @usage NULL
-#'
-#' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
-#'
-#' @importFrom stats cor
-#'
-#' @keywords internal
-Pearson <- function(dataset, resp, subject, method, time) {
-  selectedData <- subset(dataset, select = c(resp, method, time, subject))
-  dataByMethod <- split(selectedData, selectedData[[method]])
-  methodLevels <- levels(selectedData[[method]])
-  
-  calculateCorrelation_fast <- function(Y1, Y2, time) {
-    n        <- length(time)
-    time_fac <- as.factor(time)
-    idx_by_t <- split(seq_len(n), time_fac)
-    
-    Y1_full  <- rep(Y1, length.out = n)
-    Y2_full  <- rep(Y2, length.out = n)
-    
-    cor_vec <- vapply(
-      idx_by_t,
-      function(idx) cor(Y1_full[idx], Y2_full[idx]),
-      numeric(1L)
-    )
-    
-    data.frame(V1 = unname(cor_vec))
-  }
-  
-  pearsonResults <- vector("list", length(methodLevels) - 1L)
-  for (i in seq(2L, length(methodLevels))) {
-    pearsonResults[[i - 1L]] <- calculateCorrelation_fast(
-      Y1   = dataByMethod[[1L]][[resp]],
-      Y2   = dataByMethod[[i]][[resp]],
-      time = selectedData[[time]]
-    )
-  }
-  
-  pearsonResults
-}
-
-#######################################################################
 # Internal wrappers: plot_lcc / plot_lpc / plot_la
 #######################################################################
 
@@ -774,3 +586,18 @@ plotBuilder_la <- function(CCC, Pearson, Cb, ENV.Cb,
   
   Plot
 }
+#######################################################################
+#                                                                     #
+# Package: lcc                                                        #
+#                                                                     #
+# File: plot_builders.R                                               #
+# Contains: plot_lcc, plot_lpc, plot_la and plot builders             #
+#                                                                     #
+# Written by Thiago de Paula Oliveira                                 #
+# copyright (c) 2017-18, Thiago P. Oliveira                           #
+#                                                                     #
+# First version: 11/10/2017                                           #
+# Last update: 23/11/2025                                             #
+# License: GNU General Public License version 2 (June, 1991) or later #
+#                                                                     #
+#######################################################################

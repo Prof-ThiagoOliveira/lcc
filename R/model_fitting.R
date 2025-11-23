@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: lccModel.R                                                    #
+# File: model_fitting.R                                               #
 # Contains: lccModel function                                         #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #

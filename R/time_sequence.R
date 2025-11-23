@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: time_lcc.R                                                    #
+# File: time_sequence.R                                               #
 # Contains: time_lcc function                                         #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #

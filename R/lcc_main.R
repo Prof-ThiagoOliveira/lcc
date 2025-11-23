@@ -2,7 +2,7 @@
 #                                                                     #
 # Package: lcc                                                        #
 #                                                                     #
-# File: lcc.R                                                         #
+# File: lcc_main.R                                                    #
 # Contains: lcc function                                              #
 #                                                                     #
 # Written by Thiago de Paula Oliveira                                 #
