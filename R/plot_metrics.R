@@ -15,18 +15,20 @@ CCC_lin <- function(dataset, resp, subject, method, time) {
   df <- dataset[, c(resp, method, time, subject)]
   names(df) <- c("resp", "method", "time", "subject")
   method_levels <- levels(df$method)
+  ref_level     <- method_levels[1L]
   
-  calculateCCC_fast <- function(df_time) {
+  calculateCCC_fast <- function(df_time, target_level) {
     wide <- reshape(
       df_time[, c("subject", "method", "resp")],
       idvar   = "subject",
       timevar = "method",
       direction = "wide"
     )
-    cols <- grep("^resp\\.", names(wide))
-    if (length(cols) < 2L) return(NA_real_)
-    y1 <- wide[[cols[1L]]]
-    y2 <- wide[[cols[2L]]]
+    col_ref <- paste0("resp.", ref_level)
+    col_tgt <- paste0("resp.", target_level)
+    if (!all(c(col_ref, col_tgt) %in% names(wide))) return(NA_real_)
+    y1 <- wide[[col_ref]]
+    y2 <- wide[[col_tgt]]
     keep <- stats::complete.cases(y1, y2)
     if (sum(keep) < 2L) return(NA_real_)
     m1  <- mean(y1[keep])
@@ -42,7 +44,8 @@ CCC_lin <- function(dataset, resp, subject, method, time) {
   lapply(
     seq(2L, length(method_levels)),
     function(i) {
-      vals <- vapply(split_time, calculateCCC_fast, numeric(1L))
+      target <- method_levels[i]
+      vals <- vapply(split_time, calculateCCC_fast, numeric(1L), target_level = target)
       data.frame(V1 = unname(vals))
     }
   )
@@ -64,19 +67,21 @@ Pearson <- function(dataset, resp, subject, method, time) {
   df <- dataset[, c(resp, method, time, subject)]
   names(df) <- c("resp", "method", "time", "subject")
   method_levels <- levels(df$method)
-  split_time <- split(df, df$time)
+  ref_level     <- method_levels[1L]
+  split_time    <- split(df, df$time)
   
-  calculateCorrelation_fast <- function(df_time) {
+  calculateCorrelation_fast <- function(df_time, target_level) {
     wide <- reshape(
       df_time[, c("subject", "method", "resp")],
       idvar   = "subject",
       timevar = "method",
       direction = "wide"
     )
-    cols <- grep("^resp\\.", names(wide))
-    if (length(cols) < 2L) return(NA_real_)
-    y1 <- wide[[cols[1L]]]
-    y2 <- wide[[cols[2L]]]
+    col_ref <- paste0("resp.", ref_level)
+    col_tgt <- paste0("resp.", target_level)
+    if (!all(c(col_ref, col_tgt) %in% names(wide))) return(NA_real_)
+    y1 <- wide[[col_ref]]
+    y2 <- wide[[col_tgt]]
     keep <- stats::complete.cases(y1, y2)
     if (sum(keep) < 2L) return(NA_real_)
     stats::cor(y1[keep], y2[keep])
@@ -85,7 +90,8 @@ Pearson <- function(dataset, resp, subject, method, time) {
   lapply(
     seq(2L, length(method_levels)),
     function(i) {
-      vals <- vapply(split_time, calculateCorrelation_fast, numeric(1L))
+      target <- method_levels[i]
+      vals <- vapply(split_time, calculateCorrelation_fast, numeric(1L), target_level = target)
       data.frame(V1 = unname(vals))
     }
   )

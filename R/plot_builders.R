@@ -422,6 +422,7 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
   level_label <- function(i) {
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
+  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   LA_fun <- function(i) CCC_vals[[i]]$V1 / Pearson_vals[[i]]$V1
   
