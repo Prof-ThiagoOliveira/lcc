@@ -122,12 +122,14 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   pred_level1 <- predict(model, level = 1)
   pred_level0 <- predict(model, level = 0)
   
+  # Case bootstrap: resample subjects, refit on resampled data
   generate_np_case <- function() {
     db <- split_by_subject()
     rownames(db) <- NULL
     db
   }
   
+  # Case bootstrap + resampled residuals added to level-1 fitted values
   generate_np_case_resid <- function(global = TRUE) {
     db <- split_by_subject()
     rownames(db) <- NULL
@@ -148,6 +150,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
+  # Resample subjects for random effects + add resampled residuals
   generate_np_re_resid <- function(global = TRUE) {
     out_list <- vector("list", n_subj)
     for (k in seq_len(n_subj)) {
@@ -168,6 +171,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
+  # Semi-parametric: case resampling + Gaussian residual simulation
   generate_sp_case_pr <- function() {
     db <- split_by_subject()
     rownames(db) <- NULL
@@ -177,6 +181,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
+  # Fully parametric: simulate random effects and residuals from fitted covariances
   generate_p_re_pr <- function() {
     out_list <- vector("list", n_subj)
     G_hat <- as.matrix(nlme::getVarCov(model))
@@ -411,6 +416,8 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   class(out) <- "lcc.bootstrap"
   out
 }
+
+#######################################################################
 # lccBootstrap / lpcBootstrap / laBootstrap                           #
 #######################################################################
 
