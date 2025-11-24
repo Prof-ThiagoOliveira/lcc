@@ -1,3 +1,4 @@
+
 #######################################################################
 #                                                                     #
 # Package: lcc                                                        #
@@ -38,13 +39,14 @@
 ##' @keywords internal
 ##' @keywords internal
 lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
-                          percentileMet, LCC_Boot, alpha) {
+                          LCC_Boot, alpha,
+                          ci.method = c("normal", "percentile", "bca")) {
+  ci.method <- match.arg(ci.method)
   ## Fisher z transform and its inverse
   ZFisher     <- function(x) 0.5 * log((1 + x) / (1 - x))
   ZFisher_inv <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
   
-  ## percentileMet may come as "TRUE"/"FALSE" or logical
-  percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
+  percentile <- identical(ci.method, "percentile")
   
   if (ldb == 1L) {
     ## LCC_Boot is list over bootstrap samples; each element numeric over time
@@ -128,10 +130,7 @@ Arcsin_inv <- function(x) sin(x)^2
 
 build_ci_metric <- function(boot_list, alpha,
                             transform, inv_transform,
-                            percentileMet) {
-  # percentileMet may be logical or "TRUE"/"FALSE"
-  percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
-  
+                            percentile) {
   .build_ci_from_boot(
     boot_list     = boot_list,
     alpha         = alpha,
@@ -157,7 +156,7 @@ build_ci_metric <- function(boot_list, alpha,
 ##' @keywords internal
 ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                       var.class, weights.form, show.warnings, tk,
-                      diffbeta, ldb, tk.plot, tk.plot2, ci, percentileMet,
+                      diffbeta, ldb, tk.plot, tk.plot2, ci,
                       alpha, components, lme.control, method.init,
                       numCore,
                       boot.scheme = "np_case",
@@ -226,9 +225,9 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
       ldb          = ldb,
       model        = model,
       ci           = ci,
-      percentileMet = percentileMet,
       LCC_Boot     = LCC_Boot,
-      alpha        = alpha
+      alpha        = alpha,
+      ci.method    = ci.method
     )
     return(invisible(CI))
   }
@@ -288,7 +287,6 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
     ldb          = ldb,
     model        = model,
     ci           = ci,
-    percentileMet = percentileMet,
     LCC_Boot     = LCC_Boot,
     LPC_Boot     = LPC_Boot,
     Cb_Boot      = Cb_Boot,
@@ -328,7 +326,7 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
 ##'
 ##' @keywords internal
 ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
-                      ci, percentileMet, LCC_Boot, LPC_Boot, Cb_Boot, alpha,
+                      ci, LCC_Boot, LPC_Boot, Cb_Boot, alpha,
                       ci.method = c("normal", "percentile", "bca"),
                       q_f = NULL, q_r = NULL, interaction = NULL, covar = NULL,
                       pdmat = NULL, var.class = NULL, weights.form = NULL,
@@ -343,15 +341,17 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
   Arcsin     <- function(x) asin(sqrt(x))
   Arcsin_inv <- function(x) sin(x)^2
   
-  percentile <- isTRUE(percentileMet) || identical(percentileMet, "TRUE")
+  percentile <- identical(ci.method, "percentile")
   
-  build_ci_metric <- function(boot_list, alpha, transform, inv_transform) {
+  build_ci_metric <- function(boot_list, alpha, transform, inv_transform,
+                             percentile_arg) {
+    percentile_use <- if (missing(percentile_arg)) percentile else percentile_arg
     .build_ci_from_boot(
       boot_list     = boot_list,
       alpha         = alpha,
-      transform     = if (!percentile) transform else NULL,
-      inv_transform = if (!percentile) inv_transform else NULL,
-      percentile    = percentile
+      transform     = if (!percentile_use) transform else NULL,
+      inv_transform = if (!percentile_use) inv_transform else NULL,
+      percentile    = percentile_use
     )
   }
   
@@ -450,9 +450,9 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
   
   if (ci.method %in% c("normal", "percentile")) {
     if (ldb == 1L) {
-      ENV.LCC <- build_ci_metric(LCC_Boot, alpha, ZFisher, ZFisher_inv)
-      ENV.LPC <- if (!is.null(LPC_Boot)) build_ci_metric(LPC_Boot, alpha, ZFisher, ZFisher_inv) else NULL
-      ENV.Cb  <- if (!is.null(Cb_Boot))  build_ci_metric(Cb_Boot,  alpha, Arcsin,  Arcsin_inv) else NULL
+      ENV.LCC <- build_ci_metric(LCC_Boot, alpha, ZFisher, ZFisher_inv, percentile)
+      ENV.LPC <- if (!is.null(LPC_Boot)) build_ci_metric(LPC_Boot, alpha, ZFisher, ZFisher_inv, percentile) else NULL
+      ENV.Cb  <- if (!is.null(Cb_Boot))  build_ci_metric(Cb_Boot,  alpha, Arcsin,  Arcsin_inv, percentile) else NULL
     } else {
       ENV.LCC <- vector("list", ldb)
       ENV.LPC <- if (!is.null(LPC_Boot)) vector("list", ldb) else NULL
@@ -460,14 +460,14 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       
       for (i in seq_len(ldb)) {
         LCC_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-        ENV.LCC[[i]] <- build_ci_metric(LCC_i, alpha, ZFisher, ZFisher_inv)
+        ENV.LCC[[i]] <- build_ci_metric(LCC_i, alpha, ZFisher, ZFisher_inv, percentile)
         if (!is.null(LPC_Boot)) {
           LPC_i <- lapply(LPC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-          ENV.LPC[[i]] <- build_ci_metric(LPC_i, alpha, ZFisher, ZFisher_inv)
+          ENV.LPC[[i]] <- build_ci_metric(LPC_i, alpha, ZFisher, ZFisher_inv, percentile)
         }
         if (!is.null(Cb_Boot)) {
           Cb_i  <- lapply(Cb_Boot,  function(x) if (!is.null(x)) x[[i]] else NULL)
-          ENV.Cb[[i]]  <- build_ci_metric(Cb_i,  alpha, Arcsin,  Arcsin_inv)
+          ENV.Cb[[i]]  <- build_ci_metric(Cb_i,  alpha, Arcsin,  Arcsin_inv, percentile)
         }
       }
     }

@@ -30,7 +30,7 @@
 ##' @usage
 ##' lcc(data, resp, subject, method, time, interaction, qf,
 ##'     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
-##'     percentileMet, alpha, nboot, show.warnings, components,
+##'     alpha, nboot, show.warnings, components,
 ##'     REML, lme.control, numCore)
 ##'
 ##' @param data an object of class \code{data.frame}.
@@ -125,14 +125,6 @@
 ##'
 ##' @param ci.method character. Confidence-interval construction method:
 ##'   \code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.
-##'   When using \code{percentileMet} (deprecated), the choice is
-##'   overridden to \code{"percentile"} or \code{"normal"} for backward
-##'   compatibility.
-##'
-##' @param percentileMet logical (deprecated). Legacy selector for
-##'   normal vs percentile bootstrap intervals. Use \code{ci.method}
-##'   instead. If \code{TRUE}, \code{ci.method} is forced to
-##'   \code{"percentile"}; otherwise it is \code{"normal"}.
 ##'
 ##' @param alpha significance level. Default is \code{0.05}.
 ##'
@@ -428,7 +420,6 @@ lcc <- function(data, resp, subject, method, time,
                 time_lcc      = NULL,
                 ci            = FALSE,
                 ci.method     = c("normal", "percentile", "bca"),
-                percentileMet = FALSE,
                 alpha         = 0.05,
                 nboot         = 5000,
                 boot.scheme   = c("np_case", "np_case_resid_gr", "np_case_resid_ir",
@@ -451,13 +442,6 @@ lcc <- function(data, resp, subject, method, time,
   # Resolve new arguments with backward compatibility
   boot.scheme <- match.arg(boot.scheme)
   ci.method   <- match.arg(ci.method)
-  if (!missing(percentileMet)) {
-    ci.method <- if (isTRUE(percentileMet) || identical(percentileMet, "TRUE")) {
-      "percentile"
-    } else {
-      "normal"
-    }
-  }
   
   #-------------------------------------------------------------------
   # 1. Init: checks + resolve pdmat, var.class, REML
@@ -562,7 +546,6 @@ lcc <- function(data, resp, subject, method, time,
     diffbeta     = betas,
     time_lcc     = time_lcc,
     ci           = ci,
-    percentileMet = percentileMet,
     alpha        = alpha,
     nboot        = nboot,
     labels       = lev.lab_df,

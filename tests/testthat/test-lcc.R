@@ -228,7 +228,7 @@ test_that("Test if confidence interval works",{
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 50, components = TRUE,
-                        percentileMet = TRUE),is_a("lcc"))
+                        ci.method = "percentile"),is_a("lcc"))
   expect_that(fme4<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
@@ -237,7 +237,7 @@ test_that("Test if confidence interval works",{
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 50, components = TRUE,
-                        percentileMet = TRUE),is_a("lcc"))
+                        ci.method = "percentile"),is_a("lcc"))
   expect_equal(fme2$Summary.lcc$fitted$LCC,
                fme3$Summary.lcc$fitted$LCC, tolerance = 0.05)
   expect_equal(fme4$Summary.lcc$fitted$LCC,

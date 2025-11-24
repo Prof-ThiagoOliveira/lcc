@@ -5,12 +5,12 @@
 \title{Internal Functions to Compute the Non-Parametric Confidence
   Intervals for LCC.}
 \arguments{
+\item{ci.method}{character. Confidence interval method:
+\code{"normal"}, \code{"percentile"}, or \code{"bca"}.}
+
 \item{boot.scheme}{character. Bootstrap scheme; defaults to
 \code{"np_case"} (non-parametric case resampling). Other options
 include residual-based and parametric variants.}
-
-\item{ci.method}{character. Confidence interval method:
-\code{"normal"}, \code{"percentile"}, or \code{"bca"}.}
 }
 \description{
 This is an internally called functions used to compute

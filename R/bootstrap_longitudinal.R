@@ -54,6 +54,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     warning("Package 'lcc' must be installed to run bootstrap in parallel; falling back to serial.")
     numCore <- 1L
   }
+
   ## Pre-allocate
   n_tk     <- length(tk)
   LCC_Boot <- if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
@@ -71,6 +72,55 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   subj_idx_list  <- split(seq_len(nrow(Data)), Data$subject)
   subj_names     <- names(subj_idx_list)
   n_subj         <- length(subj_idx_list)
+
+  ## Helper: extract random-effects covariance G_hat from VarCorr.lme
+  extract_G_hat <- function(model) {
+    vc <- nlme::VarCorr(model)
+    vc_mat <- as.matrix(vc)
+
+    n_row <- nrow(vc_mat)
+    if (n_row < 2L) {
+      stop("VarCorr(model) has no random-effects rows; cannot build G_hat.",
+           call. = FALSE)
+    }
+
+    re_rows <- seq_len(n_row - 1L)  ## drop the residual row
+
+    ## Prefer StdDev column; fall back to sqrt(Variance)
+    sd_col <- intersect(colnames(vc_mat), c("StdDev", "Std.Dev", "Std.Dev."))
+    if (length(sd_col) == 0L && "Variance" %in% colnames(vc_mat)) {
+      sd_re <- sqrt(as.numeric(vc_mat[re_rows, "Variance"]))
+    } else if (length(sd_col)) {
+      sd_re <- as.numeric(vc_mat[re_rows, sd_col[1L]])
+    } else {
+      stop("Could not locate StdDev/Variance columns in VarCorr(model).",
+           call. = FALSE)
+    }
+
+    names(sd_re) <- rownames(vc_mat)[re_rows]
+    if (!length(sd_re) || anyNA(sd_re)) {
+      stop("Could not extract finite random-effects standard deviations.",
+           call. = FALSE)
+    }
+
+    corr_re <- attr(vc, "correlation")
+    q <- length(sd_re)
+    if (is.null(corr_re)) {
+      Cmat <- diag(1, nrow = q, ncol = q)
+    } else {
+      corr_re <- tryCatch(as.matrix(corr_re), error = function(e) NULL)
+      if (is.null(corr_re) || any(dim(corr_re) != c(q, q))) {
+        Cmat <- diag(1, nrow = q, ncol = q)
+      } else {
+        Cmat <- corr_re
+      }
+    }
+    G_hat <- diag(sd_re, nrow = q, ncol = q) %*% Cmat %*% diag(sd_re, nrow = q, ncol = q)
+    rownames(G_hat) <- colnames(G_hat) <- names(sd_re)
+    G_hat
+  }
+
+  G_hat <- extract_G_hat(model)
   
   ## Subject-level bootstrap via indices to reduce copying
   split_by_subject <- function(return_idx = FALSE) {
@@ -130,7 +180,120 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   ranef_mat   <- as.matrix(nlme::ranef(model))
   pred_level1 <- predict(model, level = 1)
   pred_level0 <- predict(model, level = 0)
-  
+
+  ## Align ranef rows with subject order used in subj_idx_list
+  if (!is.null(rownames(ranef_mat))) {
+    ranef_mat <- ranef_mat[subj_names, , drop = FALSE]
+  }
+
+  ## Fixed and random effects from the model
+  beta_hat <- nlme::fixef(model)
+
+  ## Precompute subject-specific design matrices and residual covariances R_i
+  ## This will be used for the fully parametric bootstrap (p_re_pr)
+  subj_RE_mats <- vector("list", n_subj)
+  names(subj_RE_mats) <- subj_names
+
+  for (s in seq_len(n_subj)) {
+    rows     <- subj_idx_list[[s]]
+    subj_dat <- Data[rows, , drop = FALSE]
+
+    ## lccModel stored the fixed and random design matrices
+    X_i <- as.matrix(subj_dat$fixed)
+    Z_i <- if (!is.null(subj_dat$fmla.rand)) {
+      as.matrix(subj_dat$fmla.rand)
+    } else {
+      ## Fallback: random intercept only
+      matrix(1, nrow = nrow(subj_dat), ncol = ncol(G_hat))
+    }
+
+    ## Marginal covariance of y_i from nlme (includes random + residual)
+    V_i_obj <- nlme::getVarCov(
+      model,
+      individual = subj_names[s],
+      type       = "marginal"
+    )
+
+    ## nlme::getVarCov(..., type = "marginal") returns a 1x1 container whose
+    ## first element is the n_i x n_i covariance matrix.
+    if (is.list(V_i_obj) || inherits(V_i_obj, "VarCov")) {
+      if (length(V_i_obj) != 1L) {
+        stop("Unexpected structure of getVarCov(model, type = 'marginal')",
+             call. = FALSE)
+      }
+      V_i <- as.matrix(V_i_obj[[1L]])
+    } else {
+      V_i <- as.matrix(V_i_obj)
+    }
+
+    if (!is.numeric(V_i) || !is.matrix(V_i)) {
+      stop("V_i is not a numeric matrix in bootstrapSamples()", call. = FALSE)
+    }
+    if (nrow(V_i) != nrow(Z_i)) {
+      stop("Dimension mismatch between V_i and Z_i in bootstrapSamples(): ",
+           "nrow(V_i) = ", nrow(V_i), ", nrow(Z_i) = ", nrow(Z_i),
+           call. = FALSE)
+    }
+
+    ## Residual covariance: R_i = V_i - Z_i G_hat Z_i'
+    R_i <- V_i - Z_i %*% G_hat %*% t(Z_i)
+    ## Enforce symmetry and small positive-definite correction
+    R_i <- (R_i + t(R_i)) / 2
+    eig <- eigen(R_i, symmetric = TRUE)
+    eig$values[eig$values < 0] <- 1e-8
+    L_Ri <- eig$vectors %*% diag(sqrt(eig$values))
+
+    subj_RE_mats[[s]] <- list(X = X_i, Z = Z_i, L_R = L_Ri)
+  }
+
+  ## ------------------------------------------------------------
+  ## Shrinkage corrections (Thai et al. style)
+  ## ------------------------------------------------------------
+
+  ## 3.1 Random effects: transform empirical BLUP covariance to G_hat
+  ##    (multivariate extension via linear map A)
+  G_emp <- stats::cov(ranef_mat)
+  if (all(is.finite(G_emp))) {
+    U_emp <- chol(G_emp)  ## upper-triangular: U_emp' U_emp = G_emp
+    U_hat <- chol(G_hat)  ## U_hat' U_hat = G_hat
+
+    ## A such that A G_emp A' = G_hat
+    A <- t(U_hat) %*% solve(t(U_emp))  ## q x q
+
+    ## Centre BLUPs and apply A to row-vectors: u_row_corr = u_row A'
+    ranef_c    <- scale(ranef_mat, center = TRUE, scale = FALSE)
+    ranef_corr <- ranef_c %*% t(A)
+  } else {
+    ranef_corr <- ranef_mat
+  }
+
+  ## Build corrected level-1 predictions for the NP RE schemes
+  pred_level1_corr <- numeric(length(pred_level1))
+  for (s in seq_len(n_subj)) {
+    rows <- subj_idx_list[[s]]
+
+    X_i <- subj_RE_mats[[s]]$X
+    Z_i <- subj_RE_mats[[s]]$Z
+    u_i_corr <- as.numeric(ranef_corr[s, ])
+
+    pred_level1_corr[rows] <-
+      as.numeric(X_i %*% beta_hat + Z_i %*% u_i_corr)
+  }
+
+  ## 3.2 Residuals: global variance rescaling to match model sigma^2
+  ##     (Thai et al.'s homoscedastic case; varStruct handled by g(delta) in LCC)
+  sig2_hat <- model$sigma^2
+  eps_c    <- eps_hat - mean(eps_hat)
+  var_eps_emp <- stats::var(eps_c)
+
+  if (is.finite(var_eps_emp) && var_eps_emp > 0) {
+    A_eps   <- sqrt(sig2_hat / var_eps_emp)
+    eps_corr <- eps_c * A_eps
+  } else {
+    eps_corr <- eps_hat
+  }
+  eps_by_subj_corr <- split(eps_corr, Data$subject)
+
   # Case bootstrap: resample whole subjects with replacement; keep original
   # response/trajectory (nonparametric case/cluster bootstrap)
   generate_np_case <- function() {
@@ -148,13 +311,13 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     fitted_db <- fitted_orig[idx]
     
     if (global) {
-      res_star <- sample(eps_hat, length(idx), replace = TRUE)
+      res_star <- sample(eps_corr, length(idx), replace = TRUE)
     } else {
       subj_boot <- db$subject
       res_star  <- numeric(length(idx))
       for (s in unique(subj_boot)) {
         pos  <- which(subj_boot == s)
-        pool <- eps_by_subj[[as.character(s)]]
+        pool <- eps_by_subj_corr[[as.character(s)]]
         res_star[pos] <- sample(pool, length(pos), replace = TRUE)
       }
     }
@@ -172,15 +335,15 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       sid  <- sample(levels(Data$subject), 1L, replace = TRUE)
       rows <- subj_idx_list[[sid]]
 
-      fitted_sid <- pred_level1[rows]
+      fitted_sid <- pred_level1_corr[rows]
 
       if (global) {
-        res_sid <- sample(eps_hat, length(rows), replace = TRUE)
+        res_sid <- sample(eps_corr, length(rows), replace = TRUE)
       } else {
-        pool    <- eps_by_subj[[as.character(sid)]]
+        pool    <- eps_by_subj_corr[[as.character(sid)]]
         res_sid <- sample(pool, length(rows), replace = TRUE)
       }
-
+      
       tmp        <- Data[rows, , drop = FALSE]
       tmp$resp   <- fitted_sid + res_sid
       out_list[[k]] <- tmp
@@ -191,6 +354,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   }
   
   # Semi-parametric: case resampling + Gaussian residual noise around level-1 fits
+  # (assumes homoscedastic, independent residuals with variance sigma^2)
   generate_sp_case_pr <- function() {
     res <- split_by_subject(return_idx = TRUE)
     db  <- res$data
@@ -203,24 +367,35 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
-  # Fully parametric: simulate random effects and residuals from fitted covariances
+  # Fully parametric: simulate random effects and residuals from full fitted covariances
   generate_p_re_pr <- function() {
     out_list <- vector("list", n_subj)
-    G_hat <- as.matrix(nlme::getVarCov(model))
     beta_hat <- nlme::fixef(model)
-    for (k in seq_len(n_subj)) {
-      sid <- sample(levels(Data$subject), 1L, replace = TRUE)
-      rows <- subj_idx_list[[sid]]
+
+    for (s in seq_len(n_subj)) {
+      rows     <- subj_idx_list[[s]]
       subj_dat <- Data[rows, , drop = FALSE]
+      mats     <- subj_RE_mats[[s]]
 
-      X_i <- as.matrix(subj_dat$fixed)
-      Z_i <- if (!is.null(subj_dat$fmla.rand)) as.matrix(subj_dat$fmla.rand) else matrix(1, nrow = nrow(subj_dat), ncol = 1)
+      X_i <- mats$X
+      Z_i <- mats$Z
+      L_R <- mats$L_R
 
-      u_i <- as.numeric(MASS::mvrnorm(1, mu = rep(0, ncol(Z_i)), Sigma = G_hat))
-      eps_i <- stats::rnorm(nrow(subj_dat), mean = 0, sd = model$sigma)
+      ## u_i* ~ N(0, G_hat)
+      u_i <- as.numeric(MASS::mvrnorm(
+        n     = 1L,
+        mu    = rep(0, ncol(G_hat)),
+        Sigma = G_hat
+      ))
+
+      ## eps_i* ~ N(0, R_i_hat) via L_R %*% z
+      z      <- stats::rnorm(nrow(subj_dat))
+      eps_i  <- as.numeric(L_R %*% z)
+
       subj_dat$resp <- as.numeric(X_i %*% beta_hat + Z_i %*% u_i + eps_i)
-      out_list[[k]] <- subj_dat
+      out_list[[s]] <- subj_dat
     }
+
     db <- do.call(rbind, out_list)
     rownames(db) <- NULL
     db

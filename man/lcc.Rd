@@ -7,7 +7,7 @@
 \usage{
 lcc(data, resp, subject, method, time, interaction, qf,
     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
-    percentileMet, alpha, nboot, show.warnings, components,
+    alpha, nboot, show.warnings, components,
     REML, lme.control, numCore)
 }
 \arguments{
@@ -102,15 +102,7 @@ confidence intervals are calculated for the LCC, LPC, and LA
 statistics and printed in the output. Default is \code{FALSE}.}
 
 \item{ci.method}{character. Confidence-interval construction method:
-\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.
-When using \code{percentileMet} (deprecated), the choice is
-overridden to \code{"percentile"} or \code{"normal"} for backward
-compatibility.}
-
-\item{percentileMet}{logical (deprecated). Legacy selector for
-normal vs percentile bootstrap intervals. Use \code{ci.method}
-instead. If \code{TRUE}, \code{ci.method} is forced to
-\code{"percentile"}; otherwise it is \code{"normal"}.}
+\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.}
 
 \item{alpha}{significance level. Default is \code{0.05}.}
 

@@ -1,3 +1,4 @@
+
 #######################################################################
 #                                                                     #
 # Package: lcc                                                        #
@@ -32,7 +33,7 @@
 ##'   defaults to \code{"normal"}.
 ##' @keywords internal
 lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
-                        pdmat, diffbeta, time_lcc, ci, percentileMet,
+                        pdmat, diffbeta, time_lcc, ci,
                         alpha, nboot, labels, var.class, weights.form,
                         show.warnings, components, lme.control,
                         method.init, numCore,
@@ -214,7 +215,6 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
       tk.plot      = tk.plot,
       tk.plot2     = tk.plot2,
       ci           = TRUE,
-      percentileMet = percentileMet,
       alpha        = alpha,
       components   = components,
       lme.control  = lme.control,
