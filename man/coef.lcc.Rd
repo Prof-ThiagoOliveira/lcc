@@ -21,7 +21,7 @@ The fixed effects estimated and corresponding random
   corresponding to subject levels and columns to coefficients.
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
+See methods for \code{\link[nlme]{nlme}} objects to get more
   details.
 }
 \examples{

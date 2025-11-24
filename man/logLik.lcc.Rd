@@ -23,7 +23,7 @@ If \code{REML=TRUE}, the default, returns the
   else the log-likelihood value
 }
 \details{
-See methods for \code{\link{nlme}} objects to get more
+See methods for \code{\link[nlme]{nlme}} objects to get more
   details.
 }
 \examples{

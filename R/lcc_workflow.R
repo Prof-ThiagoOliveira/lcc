@@ -26,12 +26,18 @@
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br} and Rafael de Andrade Moral,
 ##'   \email{rafael_moral@@yahoo.com.br}
 ##'
+##' @param boot.scheme character bootstrap scheme passed from \code{lcc};
+##'   defaults to \code{"np_case"}.
+##' @param ci.method character CI method passed from \code{lcc};
+##'   defaults to \code{"normal"}.
 ##' @keywords internal
 lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                         pdmat, diffbeta, time_lcc, ci, percentileMet,
                         alpha, nboot, labels, var.class, weights.form,
                         show.warnings, components, lme.control,
-                        method.init, numCore) {
+                        method.init, numCore,
+                        boot.scheme = "np_case",
+                        ci.method   = "normal") {
   #-------------------------------------------------------------------
   # Time grids for prediction and plotting
   # tk.plot: prediction grid (possibly from time_lcc)
@@ -213,7 +219,9 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
       components   = components,
       lme.control  = lme.control,
       method.init  = method.init,
-      numCore      = numCore
+      numCore      = numCore,
+      boot.scheme  = boot.scheme,
+      ci.method    = ci.method
     )
     
     summary.lcc <- lccSummary(

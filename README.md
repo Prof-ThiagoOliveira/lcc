@@ -6,11 +6,11 @@
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
 [![Build
-Status](https://travis-ci.org/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://travis-ci.org/Prof-ThiagoOliveira/lcc)
+Status](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc)
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/master?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc)
 [![Coverage
-status](https://codecov.io/gh/Prof-ThiagoOliveira/lcc/branch/master/graph/badge.svg)](https://codecov.io/github/Prof-ThiagoOliveira/lcc?branch=master)
+status](https://codecov.io/gh/Prof-ThiagoOliveira/lcc/branch/master/graph/badge.svg)](https://app.codecov.io/github/Prof-ThiagoOliveira/lcc?branch=master)
 [![downloads](https://cranlogs.r-pkg.org/badges/lcc)](https://cranlogs.r-pkg.org/badges/lcc)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/lcc)](https://cranlogs.r-pkg.org/badges/grand-total/lcc)
 
@@ -72,7 +72,7 @@ Xcode (available on the App Store).
 `lcc` can also be installed by downloading the appropriate files
 directly at the CRAN web site and following the instructions given in
 the section `6.3 Installing Packages` of the [R Installation and
-Administration](http://CRAN.R-project.org/doc/manuals/R-admin.pdf)
+Administration](https://CRAN.R-project.org/doc/manuals/R-admin.pdf)
 manual.
 
 # Longitudinal Concordance Correlation App
@@ -86,4 +86,4 @@ affects the LCC estimate over time. Have fun\!
 
 You can read lcc tutorials going to our work published at PeerJ (https://doi.org/10.7717/peerj.9850), or by clicking in the link below:
 
-[LCC paper](https://peerj.com/articles/9850.pdf).
+[LCC paper](https://peerj.com/articles/9850/).

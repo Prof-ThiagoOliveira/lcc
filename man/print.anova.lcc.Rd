@@ -22,8 +22,8 @@ if \code{verbose = FALSE}. Defaults to \code{FALSE}.}
 Method print for the \code{anova.lcc}.
 }
 \details{
-Modified from \code{\link{anova.lme}}. For more details see
-methods for \code{\link{nlme}}.
+Modified from \code{\link[nlme]{anova.lme}}. For more details see
+methods for \code{\link[nlme]{nlme}}.
 }
 \examples{
 

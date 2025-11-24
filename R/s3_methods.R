@@ -680,7 +680,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @param ... optional arguments passed to the \code{coef.lme}
 ##'   function.
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
+##' @details See methods for \code{\link[nlme]{nlme}} objects to get more
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
@@ -751,7 +751,7 @@ coef.lcc <- function(object, ...) {
 ##' The function specifically retrieves the variance-covariance matrix associated
 ##' with the fixed effects of the \code{lcc} object, which is useful for understanding
 ##' the relationship between these effects. For more details on variance-covariance
-##' matrices, refer to the methods for \code{\link{nlme}} objects.
+##' matrices, refer to the methods for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}}
@@ -879,7 +879,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##' The function provides a convenient way to examine the differences between
 ##' observed and predicted values in the model. Understanding these residuals
 ##' can be crucial for model diagnostics and validation. For more information,
-##' refer to the methods for \code{\link{nlme}} objects.
+##' refer to the methods for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
@@ -1044,7 +1044,7 @@ BIC.lcc <- function(object, ...) {
 ##' @details 
 ##' This function is useful for examining the random effects associated with
 ##' groups or subjects in the model. For a detailed explanation of these effects,
-##' see the documentation for \code{\link{nlme}} objects.
+##' see the documentation for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}},
 ##'
@@ -1103,7 +1103,7 @@ ranef.lcc <- function(object, ...) {
 ##'   log-likelihood is returned.
 ##' @param ... further arguments passed to \code{\link{logLik}}.
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
+##' @details See methods for \code{\link[nlme]{nlme}} objects to get more
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
@@ -1157,7 +1157,7 @@ logLik.lcc <- function(object, ..., REML) {
 ##'   Defaults to \code{FALSE}.
 ##'
 ##' @details 
-##' This function is an adaptation from \code{\link{anova.lme}}. 
+##' This function is an adaptation from \code{\link[nlme]{anova.lme}}. 
 ##' It assesses whether the addition of terms significantly improves model fit.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
@@ -1354,8 +1354,8 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
 ##'
 ##' @param ... further arguments passed to \code{\link{print}}.
 ##'
-##' @details Modified from \code{\link{anova.lme}}. For more details see
-##' methods for \code{\link{nlme}}.
+##' @details Modified from \code{\link[nlme]{anova.lme}}. For more details see
+##' methods for \code{\link[nlme]{nlme}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br}

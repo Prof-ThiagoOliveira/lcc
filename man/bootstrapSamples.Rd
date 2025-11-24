@@ -4,6 +4,16 @@
 \alias{bootstrapSamples}
 \title{Internal functions to estimate fixed effects and variance
   components.}
+\arguments{
+\item{boot.scheme}{character indicating the bootstrap resampling
+scheme; defaults to "np_case" (case bootstrap). Other options:
+"np_case_resid_gr" (case bootstrap with globally resampled residuals),
+"np_case_resid_ir" (case bootstrap with residuals resampled within subject),
+"np_re_resid_gr" (resample subjects for random effects + global residuals),
+"np_re_resid_ir" (resample subjects for random effects + within-subject residuals),
+"sp_case_pr" (semi-parametric case bootstrap with Gaussian residual noise using fitted subject trajectories),
+"p_re_pr" (parametric bootstrap; simulate random effects and residuals).}
+}
 \description{
 This is an internally called functions used to estimate
   fixed effects and variance components for each bootstrap sample.

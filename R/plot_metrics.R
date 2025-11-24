@@ -18,7 +18,7 @@ CCC_lin <- function(dataset, resp, subject, method, time) {
   ref_level     <- method_levels[1L]
   
   calculateCCC_fast <- function(df_time, target_level) {
-    wide <- reshape(
+    wide <- stats::reshape(
       df_time[, c("subject", "method", "resp")],
       idvar   = "subject",
       timevar = "method",
@@ -71,7 +71,7 @@ Pearson <- function(dataset, resp, subject, method, time) {
   split_time    <- split(df, df$time)
   
   calculateCorrelation_fast <- function(df_time, target_level) {
-    wide <- reshape(
+    wide <- stats::reshape(
       df_time[, c("subject", "method", "resp")],
       idvar   = "subject",
       timevar = "method",
@@ -111,3 +111,5 @@ Pearson <- function(dataset, resp, subject, method, time) {
 # License: GNU General Public License version 2 (June, 1991) or later #
 #                                                                     #
 #######################################################################
+
+#' @importFrom stats reshape

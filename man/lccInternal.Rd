@@ -3,6 +3,13 @@
 \name{lccInternal}
 \alias{lccInternal}
 \title{Internal Function to Prepare \code{lcc} Objects}
+\arguments{
+\item{boot.scheme}{character bootstrap scheme passed from \code{lcc};
+defaults to \code{"np_case"}.}
+
+\item{ci.method}{character CI method passed from \code{lcc};
+defaults to \code{"normal"}.}
+}
 \description{
 This is an internally called function used to prepare
   \code{lcc} objects for calculate the longitudinal concordance

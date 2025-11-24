@@ -2,6 +2,8 @@
 # Internal wrappers: plot_lcc / plot_lpc / plot_la
 #######################################################################
 
+clamp01 <- function(x) pmin(pmax(x, 0), 1)
+
 ##' @keywords internal
 plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg,
                      CCC_vals, ...) {
@@ -104,9 +106,6 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
   ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
   ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
   point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
-  
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   if (!ci) {
     ## No CI
@@ -422,7 +421,6 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
   level_label <- function(i) {
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   LA_fun <- function(i) CCC_vals[[i]]$V1 / Pearson_vals[[i]]$V1
   

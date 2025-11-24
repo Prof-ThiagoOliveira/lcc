@@ -123,10 +123,16 @@
 ##'   confidence intervals are calculated for the LCC, LPC, and LA
 ##'   statistics and printed in the output. Default is \code{FALSE}.
 ##'
-##' @param percentileMet logical. Method used to calculate the
-##'   non-parametric bootstrap intervals. If \code{FALSE} (the default),
-##'   the normal approximation method is used. If \code{TRUE}, the
-##'   percentile method is used instead.
+##' @param ci.method character. Confidence-interval construction method:
+##'   \code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.
+##'   When using \code{percentileMet} (deprecated), the choice is
+##'   overridden to \code{"percentile"} or \code{"normal"} for backward
+##'   compatibility.
+##'
+##' @param percentileMet logical (deprecated). Legacy selector for
+##'   normal vs percentile bootstrap intervals. Use \code{ci.method}
+##'   instead. If \code{TRUE}, \code{ci.method} is forced to
+##'   \code{"percentile"}; otherwise it is \code{"normal"}.
 ##'
 ##' @param alpha significance level. Default is \code{0.05}.
 ##'
@@ -154,8 +160,32 @@
 ##'   to \code{NULL}. The returned list is passed as the \code{control}
 ##'   argument to \code{\link[nlme]{lme}}.
 ##'
-##' @param numCore integer. Number of cores used in parallel during
-##'   bootstrap computation. Default is \code{1}.
+##' @param numCore integer or \code{NULL}. Number of cores used in
+##'   parallel during bootstrap computation. If \code{NULL} (default),
+##'   the function attempts to use one fewer than the available cores;
+##'   otherwise it uses the supplied value.
+##'
+##' @param boot.scheme character. Bootstrap resampling scheme. Defaults
+##'   to \code{"np_case"}. Other options include residual and
+##'   parametric variants:
+##'   \describe{
+##'     \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
+##'       response with fitted values plus residuals resampled from the
+##'       global residual pool.}
+##'     \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
+##'       response with fitted values plus residuals resampled within
+##'       each subject.}
+##'     \item{\code{"np_re_resid_gr"}:}{resample subjects for random
+##'       effects and add globally resampled residuals.}
+##'     \item{\code{"np_re_resid_ir"}:}{resample subjects for random
+##'       effects and add residuals resampled within each subject.}
+##'     \item{\code{"sp_case_pr"}:}{semi-parametric case bootstrap;
+##'       resample subjects, then add Gaussian residual noise using the
+##'       fitted residual variance.}
+##'     \item{\code{"p_re_pr"}:}{parametric bootstrap; simulate Gaussian
+##'       noise using the fitted residual variance (alias of
+##'       \code{"sp_case_pr"} in the current implementation).}
+##'   }
 ##'
 ##' @return An object of class \code{lcc}. The output is a list with
 ##'   the following components:
@@ -212,7 +242,6 @@
 ##'   geom_hline(yintercept = 1, linetype = "dashed") +
 ##'   scale_x_continuous(breaks = seq(1, max(hue$Time), 2))
 ##'
-##' @examples
 ##' ## Estimating longitudinal Pearson correlation and longitudinal
 ##' ## accuracy
 ##' fm2 <- update(fm1, components = TRUE)
@@ -223,7 +252,6 @@
 ##'   scale_x_continuous(breaks = seq(1, max(hue$Time), 2)) +
 ##'   theme_bw()
 ##'
-##' @examples
 ##' \dontrun{
 ##' ## A grid of points as the Time variable for prediction
 ##' fm3 <- update(
@@ -242,7 +270,6 @@
 ##'   theme_bw()
 ##' }
 ##'
-##' @examples
 ##' ## Including an exponential variance function using time as a
 ##' ## covariate
 ##' fm4 <- update(
@@ -264,7 +291,6 @@
 ##' lccPlot(fm4, type = "la") +
 ##'   geom_hline(yintercept = 1, linetype = "dashed")
 ##'
-##' @examples
 ##' \dontrun{
 ##' ## Non-parametric confidence interval with 500 bootstrap samples
 ##' fm5 <- update(fm1, ci = TRUE, nboot = 500)
@@ -273,7 +299,24 @@
 ##'   geom_hline(yintercept = 1, linetype = "dashed")
 ##' }
 ##'
-##' @examples
+##' ## Comparing bootstrap schemes and CI methods (small nboot for example)
+##' \dontrun{
+##' set.seed(123)
+##' fm_np_norm <- update(fm1, ci = TRUE, nboot = 100,
+##'                      boot.scheme = "np_case", ci.method = "normal")
+##' fm_np_pct  <- update(fm1, ci = TRUE, nboot = 100,
+##'                      boot.scheme = "np_case", ci.method = "percentile")
+##' fm_np_bca  <- update(fm1, ci = TRUE, nboot = 100,
+##'                      boot.scheme = "np_case", ci.method = "bca")
+##' fm_re_res  <- update(fm1, ci = TRUE, nboot = 100,
+##'                      boot.scheme = "np_re_resid_gr", ci.method = "normal")
+##'
+##' lccPlot(fm_np_norm) + ggtitle("np_case / normal")
+##' lccPlot(fm_np_pct)  + ggtitle("np_case / percentile")
+##' lccPlot(fm_np_bca)  + ggtitle("np_case / bca")
+##' lccPlot(fm_re_res)  + ggtitle("np_re_resid_gr / normal")
+##' }
+##'
 ##' ## Considering three methods of colour evaluation
 ##' \dontrun{
 ##' data(simulated_hue)
@@ -300,7 +343,6 @@
 ##' detach(simulated_hue)
 ##' }
 ##'
-##' @examples
 ##' ## Including an additional covariate in the linear predictor
 ##' ## (randomised block design)
 ##' \dontrun{
@@ -327,12 +369,10 @@
 ##' detach(simulated_hue_block)
 ##' }
 ##'
-##' @examples
 ##' ## Testing the interaction effect between time and method
 ##' fm8 <- update(fm1, interaction = FALSE)
 ##' anova(fm1, fm8)
 ##'
-##' @examples
 ##' \dontrun{
 ##' ## Using parallel computing with 3 cores, and set.seed(123) to
 ##' ## verify model reproducibility
@@ -382,17 +422,37 @@ lcc <- function(data, resp, subject, method, time,
                 weights.form  = NULL,
                 time_lcc      = NULL,
                 ci            = FALSE,
+                ci.method     = c("normal", "percentile", "bca"),
                 percentileMet = FALSE,
                 alpha         = 0.05,
                 nboot         = 5000,
+                boot.scheme   = c("np_case", "np_case_resid_gr", "np_case_resid_ir",
+                                  "np_re_resid_gr", "np_re_resid_ir",
+                                  "sp_case_pr", "p_re_pr"),
                 show.warnings = FALSE,
                 components    = FALSE,
                 REML          = TRUE,
                 lme.control   = NULL,
-                numCore       = 1) {
+                numCore       = NULL) {
   
   # keep original call
   lcc_call <- match.call()
+  
+  if (is.null(numCore)) {
+    cores <- parallel::detectCores(logical = FALSE)
+    numCore <- if (is.finite(cores)) max(1L, cores - 1L) else 1L
+  }
+  
+  # Resolve new arguments with backward compatibility
+  boot.scheme <- match.arg(boot.scheme)
+  ci.method   <- match.arg(ci.method)
+  if (!missing(percentileMet)) {
+    ci.method <- if (isTRUE(percentileMet) || identical(percentileMet, "TRUE")) {
+      "percentile"
+    } else {
+      "normal"
+    }
+  }
   
   #-------------------------------------------------------------------
   # 1. Init: checks + resolve pdmat, var.class, REML
@@ -507,7 +567,9 @@ lcc <- function(data, resp, subject, method, time,
     components   = components,
     lme.control  = lme.control,
     method.init  = MethodREML,
-    numCore      = numCore
+    numCore      = numCore,
+    boot.scheme  = boot.scheme,
+    ci.method    = ci.method
   )
   
   #-------------------------------------------------------------------

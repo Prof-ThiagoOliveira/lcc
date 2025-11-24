@@ -22,7 +22,7 @@ and columns representing the random effects.
 \details{
 This function is useful for examining the random effects associated with
 groups or subjects in the model. For a detailed explanation of these effects,
-see the documentation for \code{\link{nlme}} objects.
+see the documentation for \code{\link[nlme]{nlme}} objects.
 }
 \examples{
 \dontrun{

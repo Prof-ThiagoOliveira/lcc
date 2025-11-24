@@ -101,15 +101,43 @@ list may contain the following components:
 confidence intervals are calculated for the LCC, LPC, and LA
 statistics and printed in the output. Default is \code{FALSE}.}
 
-\item{percentileMet}{logical. Method used to calculate the
-non-parametric bootstrap intervals. If \code{FALSE} (the default),
-the normal approximation method is used. If \code{TRUE}, the
-percentile method is used instead.}
+\item{ci.method}{character. Confidence-interval construction method:
+\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.
+When using \code{percentileMet} (deprecated), the choice is
+overridden to \code{"percentile"} or \code{"normal"} for backward
+compatibility.}
+
+\item{percentileMet}{logical (deprecated). Legacy selector for
+normal vs percentile bootstrap intervals. Use \code{ci.method}
+instead. If \code{TRUE}, \code{ci.method} is forced to
+\code{"percentile"}; otherwise it is \code{"normal"}.}
 
 \item{alpha}{significance level. Default is \code{0.05}.}
 
 \item{nboot}{integer. Number of bootstrap samples. Default is
 \code{5000}.}
+
+\item{boot.scheme}{character. Bootstrap resampling scheme. Defaults
+to \code{"np_case"}. Other options include residual and
+parametric variants:
+\describe{
+  \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
+    response with fitted values plus residuals resampled from the
+    global residual pool.}
+  \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
+    response with fitted values plus residuals resampled within
+    each subject.}
+  \item{\code{"np_re_resid_gr"}:}{resample subjects for random
+    effects and add globally resampled residuals.}
+  \item{\code{"np_re_resid_ir"}:}{resample subjects for random
+    effects and add residuals resampled within each subject.}
+  \item{\code{"sp_case_pr"}:}{semi-parametric case bootstrap;
+    resample subjects, then add Gaussian residual noise using the
+    fitted residual variance.}
+  \item{\code{"p_re_pr"}:}{parametric bootstrap; simulate Gaussian
+    noise using the fitted residual variance (alias of
+    \code{"sp_case_pr"} in the current implementation).}
+}}
 
 \item{show.warnings}{logical. Controls the display of convergence
 warnings in the bootstrap samples. If \code{TRUE}, the indices of
@@ -132,8 +160,10 @@ algorithm, replacing the defaults of
 to \code{NULL}. The returned list is passed as the \code{control}
 argument to \code{\link[nlme]{lme}}.}
 
-\item{numCore}{integer. Number of cores used in parallel during
-bootstrap computation. Default is \code{1}.}
+\item{numCore}{integer or \code{NULL}. Number of cores used in
+parallel during bootstrap computation. If \code{NULL} (default),
+the function attempts to use one fewer than the available cores;
+otherwise it uses the supplied value.}
 }
 \value{
 An object of class \code{lcc}. The output is a list with
@@ -228,6 +258,24 @@ fm5 <- update(fm1, ci = TRUE, nboot = 500)
 summary(fm5)
 lccPlot(fm5) +
   geom_hline(yintercept = 1, linetype = "dashed")
+}
+
+## Comparing bootstrap schemes and CI methods (small nboot for example)
+\dontrun{
+set.seed(123)
+fm_np_norm <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "normal")
+fm_np_pct  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "percentile")
+fm_np_bca  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "bca")
+fm_re_res  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_re_resid_gr", ci.method = "normal")
+
+lccPlot(fm_np_norm) + ggtitle("np_case / normal")
+lccPlot(fm_np_pct)  + ggtitle("np_case / percentile")
+lccPlot(fm_np_bca)  + ggtitle("np_case / bca")
+lccPlot(fm_re_res)  + ggtitle("np_re_resid_gr / normal")
 }
 
 ## Considering three methods of colour evaluation

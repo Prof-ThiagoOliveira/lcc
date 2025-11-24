@@ -32,10 +32,24 @@
 ##' @importFrom doSNOW registerDoSNOW
 ##' @importFrom parallel makeCluster stopCluster
 ##' @keywords internal
+##' @param boot.scheme character indicating the bootstrap resampling
+##'   scheme; defaults to "np_case" (case bootstrap). Other options:
+##'   "np_case_resid_gr" (case bootstrap with globally resampled residuals),
+##'   "np_case_resid_ir" (case bootstrap with residuals resampled within subject),
+##'   "np_re_resid_gr" (resample subjects for random effects + global residuals),
+##'   "np_re_resid_ir" (resample subjects for random effects + within-subject residuals),
+##'   "sp_case_pr" (semi-parametric case bootstrap with Gaussian residual noise using fitted subject trajectories),
+##'   "p_re_pr" (parametric bootstrap; simulate random effects and residuals).
+#' @importFrom MASS mvrnorm
 bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              var.class, pdmat, weights.form, show.warnings,
                              tk, diffbeta, ldb, components,
-                             lme.control, method.init, numCore) {
+                             lme.control, method.init, numCore,
+                             boot.scheme = "np_case") {
+  if (numCore > 1L && !requireNamespace("lcc", quietly = TRUE)) {
+    warning("Package 'lcc' must be installed to run bootstrap in parallel; falling back to serial.")
+    numCore <- 1L
+  }
   ## Pre-allocate
   n_tk     <- length(tk)
   LCC_Boot <- if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
@@ -61,16 +75,29 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     Data[idx, , drop = FALSE]
   }
   
-  ## Fixed-effects pattern (same as in lccInternal)
+  ## Fixed-effects pattern (align with original diffbeta)
   base_fx  <- names(nlme::fixef(model))
   base_lev <- levels(Data$method)
   pat <- vector("list", ldb)
   for (i in seq_len(ldb)) {
-    nams     <- base_fx[grepl(paste0(base_lev[i + 1L], "|poly"), base_fx)]
-    pat[[i]] <- match(nams, base_fx)
+    if (!is.null(names(diffbeta[[i]]))) {
+      pat[[i]] <- match(names(diffbeta[[i]]), base_fx)
+    } else {
+      nams     <- base_fx[grepl(paste0(base_lev[i + 1L], "|poly"), base_fx)]
+      pat[[i]] <- match(nams, base_fx)
+    }
   }
   compute_betas <- function(fx) {
-    lapply(pat, function(idx) fx[idx])
+    out <- lapply(seq_along(pat), function(i) {
+      vals <- fx[pat[[i]]]
+      if (!is.null(names(diffbeta[[i]]))) {
+        vals <- vals[names(diffbeta[[i]])]
+      }
+      vals
+    })
+    stopifnot(all(vapply(diffbeta, length, 1L) ==
+                    vapply(out, length, 1L)))
+    out
   }
   
   ## Variance-structure / n_delta
@@ -87,11 +114,102 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     Tk_f = outer(tk, 0:q_f, `^`),
     Tk_r = outer(tk, 0:q_r, `^`)
   )
+
+  fitted_orig <- stats::fitted(model)
+  eps_hat     <- residuals(model)
+  eps_by_subj <- split(eps_hat, Data$subject)
+  ranef_mat   <- as.matrix(nlme::ranef(model))
+  pred_level1 <- predict(model, level = 1)
+  pred_level0 <- predict(model, level = 0)
+  
+  generate_np_case <- function() {
+    db <- split_by_subject()
+    rownames(db) <- NULL
+    db
+  }
+  
+  generate_np_case_resid <- function(global = TRUE) {
+    db <- split_by_subject()
+    rownames(db) <- NULL
+    fitted_db <- stats::predict(model, newdata = db, level = 1)
+    if (global) {
+      res_pool <- eps_hat
+      res_star <- sample(res_pool, nrow(db), replace = TRUE)
+    } else {
+      res_star <- unlist(
+        lapply(levels(Data$subject), function(id) {
+          eps <- eps_by_subj[[id]]
+          sample(eps, sum(db$subject == id), replace = TRUE)
+        }),
+        use.names = FALSE
+      )
+    }
+    db$resp <- fitted_db + res_star
+    db
+  }
+  
+  generate_np_re_resid <- function(global = TRUE) {
+    out_list <- vector("list", n_subj)
+    for (k in seq_len(n_subj)) {
+      sid <- sample(levels(Data$subject), 1L, replace = TRUE)
+      rows <- subj_idx_list[[sid]]
+      fitted_sid <- pred_level1[rows]
+      if (global) {
+        res_sid <- sample(eps_hat, length(rows), replace = TRUE)
+      } else {
+        res_sid <- sample(eps_by_subj[[sid]], length(rows), replace = TRUE)
+      }
+      tmp <- Data[rows, , drop = FALSE]
+      tmp$resp <- fitted_sid + res_sid
+      out_list[[k]] <- tmp
+    }
+    db <- do.call(rbind, out_list)
+    rownames(db) <- NULL
+    db
+  }
+  
+  generate_sp_case_pr <- function() {
+    db <- split_by_subject()
+    rownames(db) <- NULL
+    fitted_db <- stats::predict(model, newdata = db, level = 1)
+    res_star <- stats::rnorm(nrow(db), mean = 0, sd = model$sigma)
+    db$resp  <- fitted_db + res_star
+    db
+  }
+  
+  generate_p_re_pr <- function() {
+    out_list <- vector("list", n_subj)
+    G_hat <- as.matrix(nlme::getVarCov(model))
+    beta_hat <- nlme::fixef(model)
+    for (k in seq_len(n_subj)) {
+      sid <- sample(levels(Data$subject), 1L, replace = TRUE)
+      rows <- subj_idx_list[[sid]]
+      subj_dat <- Data[rows, , drop = FALSE]
+      X_i <- as.matrix(subj_dat$fixed)
+      Z_i <- if (!is.null(subj_dat$fmla.rand)) as.matrix(subj_dat$fmla.rand) else matrix(1, nrow = nrow(subj_dat), ncol = 1)
+      u_i <- as.numeric(MASS::mvrnorm(1, mu = rep(0, ncol(Z_i)), Sigma = G_hat))
+      eps_i <- stats::rnorm(nrow(subj_dat), mean = 0, sd = model$sigma)
+      subj_dat$resp <- as.numeric(X_i %*% beta_hat + Z_i %*% u_i + eps_i)
+      out_list[[k]] <- subj_dat
+    }
+    db <- do.call(rbind, out_list)
+    rownames(db) <- NULL
+    db
+  }
   
   ## One bootstrap iteration
   one_bootstrap <- function(i) {
-    Data_boot <- split_by_subject()
-    rownames(Data_boot) <- NULL
+    Data_boot <- switch(
+      boot.scheme,
+      "np_case"          = generate_np_case(),
+      "np_case_resid_gr" = generate_np_case_resid(global = TRUE),
+      "np_case_resid_ir" = generate_np_case_resid(global = FALSE),
+      "np_re_resid_gr"   = generate_np_re_resid(global = TRUE),
+      "np_re_resid_ir"   = generate_np_re_resid(global = FALSE),
+      "sp_case_pr"       = generate_sp_case_pr(),
+      "p_re_pr"          = generate_p_re_pr(),
+      stop("Unknown 'boot.scheme' in bootstrapSamples()", call. = FALSE)
+    )
     
     fit <- lccModel(
       dataset      = Data_boot,
@@ -135,10 +253,10 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     
     ## ----- LCC -----
     if (ldb == 1L) {
-      rho_all <- .compute_LCC(
-        pre      = pre,
-        diffbeta = as.numeric(diffbeta_boot[[1L]])
-      )
+        rho_all <- .compute_LCC(
+          pre      = pre,
+          diffbeta = as.numeric(diffbeta_boot[[1L]])
+        )
       rho_boot <- rho_all[[1L]]
     } else {
       rho_list <- vector("list", ldb)

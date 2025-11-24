@@ -31,7 +31,7 @@ data frame with degrees of freedom, log-likelihood, AIC, and BIC for each model.
 For a single model, it returns F-values and P-values for fixed terms in the model.
 }
 \details{
-This function is an adaptation from \code{\link{anova.lme}}. 
+This function is an adaptation from \code{\link[nlme]{anova.lme}}. 
 It assesses whether the addition of terms significantly improves model fit.
 }
 \examples{
