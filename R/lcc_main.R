@@ -166,25 +166,30 @@
 ##'   otherwise it uses the supplied value.
 ##'
 ##' @param boot.scheme character. Bootstrap resampling scheme. Defaults
-##'   to \code{"np_case"}. Other options include residual and
-##'   parametric variants:
+##'   to \code{"np_case"} (subject-level case bootstrap). Other options:
 ##'   \describe{
+##'     \item{\code{"np_case"}:}{resample subjects with replacement; keep
+##'       original responses.}
 ##'     \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
 ##'       response with fitted values plus residuals resampled from the
 ##'       global residual pool.}
 ##'     \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
 ##'       response with fitted values plus residuals resampled within
 ##'       each subject.}
-##'     \item{\code{"np_re_resid_gr"}:}{resample subjects for random
-##'       effects and add globally resampled residuals.}
-##'     \item{\code{"np_re_resid_ir"}:}{resample subjects for random
-##'       effects and add residuals resampled within each subject.}
-##'     \item{\code{"sp_case_pr"}:}{semi-parametric case bootstrap;
-##'       resample subjects, then add Gaussian residual noise using the
-##'       fitted residual variance.}
-##'     \item{\code{"p_re_pr"}:}{parametric bootstrap; simulate Gaussian
-##'       noise using the fitted residual variance (alias of
-##'       \code{"sp_case_pr"} in the current implementation).}
+##'     \item{\code{"np_re_resid_gr"}:}{resample subject-specific fitted
+##'       trajectories (includes random effects), then add residuals
+##'       sampled from the pooled residuals.}
+##'     \item{\code{"np_re_resid_ir"}:}{resample subject-specific fitted
+##'       trajectories, then add residuals resampled within each
+##'       subject.}
+##'     \item{\code{"sp_case_pr"}:}{semiparametric case bootstrap;
+##'       resample subjects, use their fitted trajectories, then add
+##'       Gaussian noise with variance equal to the estimated residual
+##'       variance.}
+##'     \item{\code{"p_re_pr"}:}{fully parametric; simulate random
+##'       effects from the estimated covariance and residuals from a
+##'       Gaussian with the estimated residual variance, then generate
+##'       responses via \eqn{X_i \hat{\beta} + Z_i u_i^* + \varepsilon_i^*}.}
 ##'   }
 ##'
 ##' @return An object of class \code{lcc}. The output is a list with

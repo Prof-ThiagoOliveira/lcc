@@ -6,13 +6,17 @@
   components.}
 \arguments{
 \item{boot.scheme}{character indicating the bootstrap resampling
-scheme; defaults to "np_case" (case bootstrap). Other options:
-"np_case_resid_gr" (case bootstrap with globally resampled residuals),
-"np_case_resid_ir" (case bootstrap with residuals resampled within subject),
-"np_re_resid_gr" (resample subjects for random effects + global residuals),
-"np_re_resid_ir" (resample subjects for random effects + within-subject residuals),
-"sp_case_pr" (semi-parametric case bootstrap with Gaussian residual noise using fitted subject trajectories),
-"p_re_pr" (parametric bootstrap; simulate random effects and residuals).}
+scheme; defaults to "np_case" (subject-level case bootstrap). Other
+options:
+\itemize{
+  \item "np_case": resample subjects with replacement; keep original responses.
+  \item "np_case_resid_gr": case bootstrap; replace response by fitted values plus residuals sampled from the pooled residuals.
+  \item "np_case_resid_ir": case bootstrap; replace response by fitted values plus residuals sampled within each subject.
+  \item "np_re_resid_gr": resample subject-specific fitted trajectories (includes random effects); add residuals sampled from the pooled residuals.
+  \item "np_re_resid_ir": resample subject-specific fitted trajectories; add residuals resampled within each subject.
+  \item "sp_case_pr": semiparametric case bootstrap; resample subjects, use their fitted trajectories, then add Gaussian noise with variance equal to the estimated residual variance.
+  \item "p_re_pr": fully parametric; simulate random effects from the estimated covariance and residuals from Gaussian noise, then generate responses via X beta + Z u + eps.
+}}
 }
 \description{
 This is an internally called functions used to estimate

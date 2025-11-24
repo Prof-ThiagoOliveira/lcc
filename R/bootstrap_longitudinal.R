@@ -33,13 +33,17 @@
 ##' @importFrom parallel makeCluster stopCluster
 ##' @keywords internal
 ##' @param boot.scheme character indicating the bootstrap resampling
-##'   scheme; defaults to "np_case" (case bootstrap). Other options:
-##'   "np_case_resid_gr" (case bootstrap with globally resampled residuals),
-##'   "np_case_resid_ir" (case bootstrap with residuals resampled within subject),
-##'   "np_re_resid_gr" (resample subjects for random effects + global residuals),
-##'   "np_re_resid_ir" (resample subjects for random effects + within-subject residuals),
-##'   "sp_case_pr" (semi-parametric case bootstrap with Gaussian residual noise using fitted subject trajectories),
-##'   "p_re_pr" (parametric bootstrap; simulate random effects and residuals).
+##'   scheme; defaults to "np_case" (subject-level case bootstrap). Other
+##'   options:
+##'   \itemize{
+##'     \item "np_case": resample subjects with replacement; keep original responses.
+##'     \item "np_case_resid_gr": case bootstrap; replace response by fitted values plus residuals sampled from the pooled residuals.
+##'     \item "np_case_resid_ir": case bootstrap; replace response by fitted values plus residuals sampled within each subject.
+##'     \item "np_re_resid_gr": resample subject-specific fitted trajectories (includes random effects); add residuals sampled from the pooled residuals.
+##'     \item "np_re_resid_ir": resample subject-specific fitted trajectories; add residuals resampled within each subject.
+##'     \item "sp_case_pr": semiparametric case bootstrap; resample subjects, use their fitted trajectories, then add Gaussian noise with variance equal to the estimated residual variance.
+##'     \item "p_re_pr": fully parametric; simulate random effects from the estimated covariance and residuals from Gaussian noise, then generate responses via X beta + Z u + eps.
+##'   }
 #' @importFrom MASS mvrnorm
 bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              var.class, pdmat, weights.form, show.warnings,
@@ -69,10 +73,12 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   n_subj         <- length(subj_idx_list)
   
   ## Subject-level bootstrap via indices to reduce copying
-  split_by_subject <- function() {
+  split_by_subject <- function(return_idx = FALSE) {
     id  <- sample.int(n_subj, n_subj, replace = TRUE)
     idx <- unlist(subj_idx_list[id], use.names = FALSE)
-    Data[idx, , drop = FALSE]
+    db  <- Data[idx, , drop = FALSE]
+    rownames(db) <- NULL
+    if (return_idx) list(data = db, idx = idx) else db
   }
   
   ## Fixed-effects pattern (align with original diffbeta)
@@ -88,16 +94,19 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     }
   }
   compute_betas <- function(fx) {
-    out <- lapply(seq_along(pat), function(i) {
+    lapply(seq_along(pat), function(i) {
       vals <- fx[pat[[i]]]
       if (!is.null(names(diffbeta[[i]]))) {
         vals <- vals[names(diffbeta[[i]])]
       }
+      if (length(vals) != length(diffbeta[[i]])) {
+        vals <- vals[seq_len(min(length(vals), length(diffbeta[[i]])))]
+        if (length(vals) < length(diffbeta[[i]])) {
+          vals <- c(vals, rep(NA_real_, length(diffbeta[[i]]) - length(vals)))
+        }
+      }
       vals
     })
-    stopifnot(all(vapply(diffbeta, length, 1L) ==
-                    vapply(out, length, 1L)))
-    out
   }
   
   ## Variance-structure / n_delta
@@ -122,48 +131,58 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   pred_level1 <- predict(model, level = 1)
   pred_level0 <- predict(model, level = 0)
   
-  # Case bootstrap: resample subjects, refit on resampled data
+  # Case bootstrap: resample whole subjects with replacement; keep original
+  # response/trajectory (nonparametric case/cluster bootstrap)
   generate_np_case <- function() {
-    db <- split_by_subject()
-    rownames(db) <- NULL
-    db
+    split_by_subject(return_idx = FALSE)
   }
   
   # Case bootstrap + resampled residuals added to level-1 fitted values
+  # global = TRUE  -> residuals pooled across subjects
+  # global = FALSE -> residuals resampled within each subject
   generate_np_case_resid <- function(global = TRUE) {
-    db <- split_by_subject()
-    rownames(db) <- NULL
-    fitted_db <- stats::predict(model, newdata = db, level = 1)
+    res <- split_by_subject(return_idx = TRUE)
+    db  <- res$data
+    idx <- res$idx
+    
+    fitted_db <- fitted_orig[idx]
+    
     if (global) {
-      res_pool <- eps_hat
-      res_star <- sample(res_pool, nrow(db), replace = TRUE)
+      res_star <- sample(eps_hat, length(idx), replace = TRUE)
     } else {
-      res_star <- unlist(
-        lapply(levels(Data$subject), function(id) {
-          eps <- eps_by_subj[[id]]
-          sample(eps, sum(db$subject == id), replace = TRUE)
-        }),
-        use.names = FALSE
-      )
+      subj_boot <- db$subject
+      res_star  <- numeric(length(idx))
+      for (s in unique(subj_boot)) {
+        pos  <- which(subj_boot == s)
+        pool <- eps_by_subj[[as.character(s)]]
+        res_star[pos] <- sample(pool, length(pos), replace = TRUE)
+      }
     }
+    
     db$resp <- fitted_db + res_star
+    rownames(db) <- NULL
     db
   }
   
-  # Resample subjects for random effects + add resampled residuals
+  # Nonparametric random-effects + residual bootstrap:
+  # resample subjects (and their BLUPs) then add resampled residuals
   generate_np_re_resid <- function(global = TRUE) {
     out_list <- vector("list", n_subj)
     for (k in seq_len(n_subj)) {
-      sid <- sample(levels(Data$subject), 1L, replace = TRUE)
+      sid  <- sample(levels(Data$subject), 1L, replace = TRUE)
       rows <- subj_idx_list[[sid]]
+
       fitted_sid <- pred_level1[rows]
+
       if (global) {
         res_sid <- sample(eps_hat, length(rows), replace = TRUE)
       } else {
-        res_sid <- sample(eps_by_subj[[sid]], length(rows), replace = TRUE)
+        pool    <- eps_by_subj[[as.character(sid)]]
+        res_sid <- sample(pool, length(rows), replace = TRUE)
       }
-      tmp <- Data[rows, , drop = FALSE]
-      tmp$resp <- fitted_sid + res_sid
+
+      tmp        <- Data[rows, , drop = FALSE]
+      tmp$resp   <- fitted_sid + res_sid
       out_list[[k]] <- tmp
     }
     db <- do.call(rbind, out_list)
@@ -171,11 +190,14 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
-  # Semi-parametric: case resampling + Gaussian residual simulation
+  # Semi-parametric: case resampling + Gaussian residual noise around level-1 fits
   generate_sp_case_pr <- function() {
-    db <- split_by_subject()
-    rownames(db) <- NULL
-    fitted_db <- stats::predict(model, newdata = db, level = 1)
+    res <- split_by_subject(return_idx = TRUE)
+    db  <- res$data
+    idx <- res$idx
+
+    fitted_db <- pred_level1[idx]
+
     res_star <- stats::rnorm(nrow(db), mean = 0, sd = model$sigma)
     db$resp  <- fitted_db + res_star
     db
@@ -190,8 +212,10 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       sid <- sample(levels(Data$subject), 1L, replace = TRUE)
       rows <- subj_idx_list[[sid]]
       subj_dat <- Data[rows, , drop = FALSE]
+
       X_i <- as.matrix(subj_dat$fixed)
       Z_i <- if (!is.null(subj_dat$fmla.rand)) as.matrix(subj_dat$fmla.rand) else matrix(1, nrow = nrow(subj_dat), ncol = 1)
+
       u_i <- as.numeric(MASS::mvrnorm(1, mu = rep(0, ncol(Z_i)), Sigma = G_hat))
       eps_i <- stats::rnorm(nrow(subj_dat), mean = 0, sd = model$sigma)
       subj_dat$resp <- as.numeric(X_i %*% beta_hat + Z_i %*% u_i + eps_i)
@@ -413,6 +437,11 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     LPC_Boot = LPC_Boot,
     Cb_Boot  = Cb_Boot
   )
+  if (ldb == 1L) {
+    if (!is.null(LCC_Boot)) stopifnot(all(LCC_Boot >= -1, LCC_Boot <= 1, na.rm = TRUE))
+    if (!is.null(LPC_Boot)) stopifnot(all(LPC_Boot >= -1, LPC_Boot <= 1, na.rm = TRUE))
+    if (!is.null(Cb_Boot))  stopifnot(all(Cb_Boot  >=  0, Cb_Boot  <= 1, na.rm = TRUE))
+  }
   class(out) <- "lcc.bootstrap"
   out
 }
