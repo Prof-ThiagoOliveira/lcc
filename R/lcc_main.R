@@ -287,8 +287,27 @@
 ##' summary(fm5)
 ##' lccPlot(fm5) +
 ##'   geom_hline(yintercept = 1, linetype = "dashed")
-##' }
 ##'
+##' ## Using plot control knobs for y-axis scaling
+##' ctrl <- plotControl(
+##'   # Zoom on upper part of the scale to make the effect visible
+##'   scale_y_continuous = list(
+##'     limits = c(0.7, 1),
+##'     breaks = seq(0.7, 1, by = 0.05)
+##'   ),
+##'   # Remove padding for a tight frame
+##'   expand_y = c(0, 0)
+##' )
+##' lccPlot(fm5, control = ctrl)
+##' 
+##' # Or add generous padding while keeping the full 0–1 range
+##' ctrl_pad <- plotControl(
+##'   scale_y_continuous = list(limits = c(0, 1)),
+##'   expand_y = c(0.15, 0.15)
+##' )
+##' lccPlot(fm5, control = ctrl_pad)
+##' }
+##' 
 ##' ## Comparing bootstrap schemes and CI methods (small nboot for example)
 ##' \dontrun{
 ##' set.seed(123)

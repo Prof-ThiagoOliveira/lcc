@@ -62,7 +62,9 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
     ci_alpha    = NULL,
     point_alpha = NULL,
     xlab        = "Time",
-    ylab        = "LCC"
+    ylab        = "LCC",
+    scale_y_continuous = NULL,
+    expand_y    = NULL
   )
   if (type == "lpc") plot.cons$ylab <- "LPC"
   if (type == "la")  plot.cons$ylab <- "LA"
@@ -73,21 +75,19 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
     if (!is.list(control) || is.null(nms)) {
       abort_input("'control' argument must be a named list")
     }
-    pos <- pmatch(nms, names(plot.cons))
-    if (any(nap <- is.na(pos))) {
-      warn_general(sprintf(
-        ngettext(
-          length(nap),
-          "unrecognized plot element named %s ignored",
-          "unrecognized plot elements named %s ignored"
-        ),
-        paste(sQuote(nms[nap]), collapse = ", ")
-      ))
-      pos     <- pos[!nap]
-      control <- control[!nap]
+    valid  <- names(plot.cons)
+    extras <- setdiff(nms, valid)
+    if (length(extras)) {
+      warn_general(
+        sprintf(
+          "Unrecognized plot control element(s) %s ignored.",
+          paste(sQuote(extras), collapse = ", ")
+        )
+      )
     }
-    for (i in seq_along(pos)) {
-      plot.cons[[pos[i]]] <- control[[i]]
+    common <- intersect(nms, valid)
+    for (nm in common) {
+      plot.cons[[nm]] <- control[[nm]]
     }
   }
   

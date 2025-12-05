@@ -13,7 +13,9 @@ plotControl(
   ci_alpha = NULL,
   point_alpha = NULL,
   xlab = "Time",
-  ylab = "LCC"
+  ylab = "LCC",
+  scale_y_continuous = NULL,
+  expand_y = NULL
 )
 }
 \arguments{
@@ -32,9 +34,25 @@ Default color is \code{"black"}.}
 millimeters. See \code{\link[ggplot2]{aes}} for details on setting size. 
 Default is \code{0.5}.}
 
+\item{ci_fill}{Fill colour used for confidence interval ribbons. If
+\code{NULL}, defaults to the main line colour.}
+
+\item{ci_alpha}{Alpha level for the confidence interval ribbons. If
+\code{NULL}, a sensible default is applied.}
+
+\item{point_alpha}{Alpha level for points (e.g., CCC markers). If
+\code{NULL}, a sensible default is applied.}
+
 \item{xlab}{Title for the x-axis, defaulting to \code{"Time"}.}
 
 \item{ylab}{Title for the y-axis, defaulting to \code{"LCC"}.}
+
+\item{scale_y_continuous}{Optional list of arguments passed to
+\code{ggplot2::scale_y_continuous()} for full control of the y-axis.}
+
+\item{expand_y}{Optional expansion for the y-axis (passed to the
+\code{expand} argument of \code{scale_y_continuous}). If \code{NULL},
+a light default expansion is applied for readability.}
 }
 \value{
 A list with the specified graphical parameters.
@@ -50,4 +68,3 @@ functions for \code{lcc} objects.
 Thiago de Paula Oliveira,
   \email{thiago.paula.oliveira@alumni.usp.br}
 }
-\keyword{internal}
