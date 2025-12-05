@@ -79,10 +79,14 @@ build_ci_metric <- function(boot_list, alpha,
     )
   }
   T_dim <- ncol(ci_mat)
-  if (T_dim != len_time) {
-    return(matrix(NA_real_, nrow = 2L, ncol = len_time))
+  if (T_dim == len_time) {
+    return(ci_mat)
   }
-  ci_mat
+  if (T_dim > len_time) {
+    return(ci_mat[, seq_len(len_time), drop = FALSE])
+  }
+  extra <- matrix(NA_real_, nrow = 2L, ncol = len_time - T_dim)
+  cbind(ci_mat, extra)
 }
 
 ##' @keywords internal
@@ -131,6 +135,17 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
       percentile    = percentile
     )
     ENV.LCC <- .align_ci_to_grid(ENV.LCC, len_time, name = "ENV.LCC")
+    # Fallback: if CI is still all NA, recompute directly ignoring any NA replicates
+    if (all(is.na(ENV.LCC)) && is.matrix(LCC_Boot) && ncol(LCC_Boot) > 0L) {
+      lower <- apply(
+        LCC_Boot, 1L, stats::quantile, probs = alpha / 2, na.rm = TRUE
+      )
+      upper <- apply(
+        LCC_Boot, 1L, stats::quantile, probs = 1 - alpha / 2, na.rm = TRUE
+      )
+      ENV.LCC <- rbind(lower, upper)
+      ENV.LCC <- .align_ci_to_grid(ENV.LCC, len_time, name = "ENV.LCC")
+    }
   } else {
     ## LCC_Boot is list over bootstrap samples; each [[b]] is list over methods
     ENV.LCC <- vector("list", ldb)
@@ -196,13 +211,18 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
     }
     boot_mat <- do.call(cbind, boot_list)
   }
+
   if (is.null(dim(boot_mat)) || !length(boot_mat) || any(dim(boot_mat) == 0)) {
     return(matrix(NA_real_, nrow = 2L, ncol = 0L))
   }
   
   if (percentile) {
-    lower <- apply(boot_mat, 1L, stats::quantile, probs = alpha / 2)
-    upper <- apply(boot_mat, 1L, stats::quantile, probs = 1 - alpha / 2)
+    lower <- apply(
+      boot_mat, 1L, stats::quantile, probs = alpha / 2, na.rm = TRUE
+    )
+    upper <- apply(
+      boot_mat, 1L, stats::quantile, probs = 1 - alpha / 2, na.rm = TRUE
+    )
     ci    <- rbind(lower, upper)
     return(ci)
   }
@@ -212,8 +232,8 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
     boot_mat <- transform(.clamp_r(boot_mat))
   }
   
-  se <- apply(boot_mat, 1L, sd)
-  mu <- apply(boot_mat, 1L, mean)
+  se <- apply(boot_mat, 1L, sd, na.rm = TRUE)
+  mu <- apply(boot_mat, 1L, mean, na.rm = TRUE)
   z  <- stats::qnorm(1 - alpha / 2)
   
   ci <- rbind(mu - z * se, mu + z * se)
@@ -527,6 +547,16 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     if (ldb == 1L) {
       ENV.LCC <- build_ci_metric(LCC_Boot, alpha, ZFisher, ZFisher_inv, percentile)
       ENV.LCC <- .align_ci_to_grid(ENV.LCC, length(tk.plot), name = "ENV.LCC")
+      if (all(is.na(ENV.LCC)) && is.matrix(LCC_Boot) && ncol(LCC_Boot) > 0L) {
+        lower <- apply(
+          LCC_Boot, 1L, stats::quantile, probs = alpha / 2, na.rm = TRUE
+        )
+        upper <- apply(
+          LCC_Boot, 1L, stats::quantile, probs = 1 - alpha / 2, na.rm = TRUE
+        )
+        ENV.LCC <- rbind(lower, upper)
+        ENV.LCC <- .align_ci_to_grid(ENV.LCC, length(tk.plot), name = "ENV.LCC")
+      }
       ENV.LPC <- if (!is.null(LPC_Boot)) build_ci_metric(LPC_Boot, alpha, ZFisher, ZFisher_inv, percentile) else NULL
       if (!is.null(ENV.LPC)) {
         ENV.LPC <- .align_ci_to_grid(ENV.LPC, length(tk.plot), name = "ENV.LPC")
