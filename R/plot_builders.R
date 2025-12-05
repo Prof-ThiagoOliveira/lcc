@@ -163,6 +163,9 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
   } else {
     ## With CI
     if (ldb == 1L) {
+      if (ncol(ENV.LCC) == 0L) {
+        ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
+      }
       data_plot <- data.frame(
         LCC       = clamp01(rho),
         Time      = tk.plot,
@@ -202,6 +205,9 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       for (i in seq_len(ldb)) {
         lab_i <- level_label(i)
         env_i <- ENV.LCC[[i]]
+        if (ncol(env_i) == 0L) {
+          env_i <- matrix(NA_real_, nrow = 2L, ncol = nrow(rho))
+        }
         data_main[[i]] <- data.frame(
           LCC       = clamp01(rho[, i]),
           Time      = tk.plot,

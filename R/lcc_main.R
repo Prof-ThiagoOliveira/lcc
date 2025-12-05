@@ -412,10 +412,8 @@ lcc <- function(data, resp, subject, method, time,
                 weights.form  = NULL,
                 time_lcc      = NULL,
                 ci            = FALSE,
-                boot.scheme   = c("np_case", "np_case_resid_gr", "np_case_resid_ir",
-                                  "np_re_resid_gr", "np_re_resid_ir",
-                                  "sp_case_pr", "p_re_pr"),
-                ci.method     = c("normal", "percentile", "bca"),
+                boot.scheme   = "np_case",
+                ci.method     = "normal",
                 alpha         = 0.05,
                 nboot         = 5000,
                 show.warnings = FALSE,
@@ -437,8 +435,19 @@ lcc <- function(data, resp, subject, method, time,
   }
   
   # Resolve new arguments with backward compatibility
-  boot.scheme <- match.arg(boot.scheme)
-  ci.method   <- match.arg(ci.method)
+  ci.method <- check_choice(
+    ci.method,
+    choices = c("normal", "percentile", "bca"),
+    arg = "ci.method"
+  )
+  boot.scheme <- check_choice(
+    boot.scheme,
+    choices = c(
+      "np_case", "np_case_resid_gr", "np_case_resid_ir",
+      "np_re_resid_gr", "np_re_resid_ir", "sp_case_pr", "p_re_pr"
+    ),
+    arg = "boot.scheme"
+  )
   
   #-------------------------------------------------------------------
   # 1. Init: checks + resolve pdmat, var.class, REML

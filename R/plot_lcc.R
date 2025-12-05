@@ -51,6 +51,8 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
     abort_input("Object must inherit from class \"lcc\"")
   }
   
+  type <- check_choice(type, c("lcc", "lpc", "la"), arg = "type")
+  
   ## Base defaults
   plot.cons <- plotControl(
     shape       = 16,

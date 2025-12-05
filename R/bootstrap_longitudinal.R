@@ -611,10 +611,15 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     LPC_Boot = LPC_Boot,
     Cb_Boot  = Cb_Boot
   )
+  .check_range <- function(x, lower, upper, name) {
+    if (!all(x >= lower & x <= upper, na.rm = TRUE)) {
+      abort_internal("Bootstrap {name} values fell outside [{lower}, {upper}].")
+    }
+  }
   if (ldb == 1L) {
-    if (!is.null(LCC_Boot)) stopifnot(all(LCC_Boot >= -1, LCC_Boot <= 1, na.rm = TRUE))
-    if (!is.null(LPC_Boot)) stopifnot(all(LPC_Boot >= -1, LPC_Boot <= 1, na.rm = TRUE))
-    if (!is.null(Cb_Boot))  stopifnot(all(Cb_Boot  >=  0, Cb_Boot  <= 1, na.rm = TRUE))
+    if (!is.null(LCC_Boot)) .check_range(LCC_Boot, -1, 1, "LCC")
+    if (!is.null(LPC_Boot)) .check_range(LPC_Boot, -1, 1, "LPC")
+    if (!is.null(Cb_Boot))  .check_range(Cb_Boot,  0, 1, "Cb")
   }
   class(out) <- "lcc.bootstrap"
   out

@@ -15,41 +15,22 @@ NULL
 
 # Generic package error
 abort_lcc <- function(message, ..., .subclass = NULL, .call = caller_env()) {
-  old <- options(cli.width = 1000L, width = 1000L)
-  on.exit(options(old), add = TRUE)
-  cli::cli_abort(
-    message,
-    ...,
-    class = c(.subclass, "lcc_error"),
-    call = .call
-  )
+  msg <- cli::format_inline(message, ...)
+  rlang::abort(msg, class = c(.subclass, "lcc_error"), call = .call)
 }
 
 # Errors specifically due to invalid user input
 abort_input <- function(message, ..., .subclass = NULL, .call = caller_env()) {
-  old <- options(cli.width = 1000L, width = 1000L)
-  on.exit(options(old), add = TRUE)
-  cli::cli_abort(
-    message,
-    ...,
-    class = c(.subclass, "lcc_error_input"),
-    call = .call
-  )
+  msg <- cli::format_inline(message, ...)
+  rlang::abort(msg, class = c(.subclass, "lcc_error_input"), call = .call)
 }
 
 # Errors that should indicate internal bugs / unreachable states
 abort_internal <- function(message, ..., .call = caller_env()) {
-  old <- options(cli.width = 1000L, width = 1000L)
-  on.exit(options(old), add = TRUE)
-  cli::cli_abort(
-    c(
-      "Internal error in {.pkg lcc}.",
-      "i" = message
-    ),
-    ...,
-    class = "lcc_error_internal",
-    call = .call
-  )
+  header <- cli::format_inline("Internal error in {.pkg lcc}.")
+  info   <- cli::format_inline(message, ...)
+  msg    <- paste0(header, " ", info)
+  rlang::abort(msg, class = "lcc_error_internal", call = .call)
 }
 
 # Generic warning
@@ -57,8 +38,7 @@ warn_general <- function(message, ..., .subclass = NULL) {
   old <- options(cli.width = 1000L, width = 1000L)
   on.exit(options(old), add = TRUE)
   cli::cli_warn(
-    message,
-    ...,
+    cli::format_inline(message, ...),
     class = c(.subclass, "lcc_warning")
   )
 }
@@ -67,7 +47,7 @@ warn_general <- function(message, ..., .subclass = NULL) {
 inform_general <- function(message, ...) {
   old <- options(cli.width = 1000L, width = 1000L)
   on.exit(options(old), add = TRUE)
-  cli::cli_inform(message, ...)
+  cli::cli_inform(cli::format_inline(message, ...))
 }
 
 # -------------------------------------------------------------------
@@ -136,7 +116,7 @@ check_character_scalar <- function(x, arg = caller_arg(x)) {
 
 # Choice among allowed values (character)
 check_choice <- function(x, choices, arg = caller_arg(x)) {
-  x <- rlang::arg_match0(x, choices, error_arg = arg)
+  x <- rlang::arg_match0(x, choices)
   invisible(x)
 }
 

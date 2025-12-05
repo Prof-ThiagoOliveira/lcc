@@ -26,15 +26,26 @@
 ##' @keywords internal
 dataBuilder <- function(dataset, resp, subject, method, time, gs = NULL){
   Data <- data.frame(dataset)
-  Data <- try(rename.vars(Data, from = c(resp, subject, method, time),
-                      to = c("resp", "subject", "method", "time"),
-                      info = FALSE), TRUE)
-  if (is.null(gs) == FALSE) {
-      gold <- which.max(levels(Data$method) == gs)
-      others <- seq(1, length(levels(Data$method)))[-gold]
-      Data$method <- factor(Data$method,
-                            levels = levels(Data$method)[c(gold,
-                                                           others)])
+  Data <- try(
+    rename.vars(
+      Data,
+      from = c(resp, subject, method, time),
+      to   = c("resp", "subject", "method", "time"),
+      info = FALSE
+    ),
+    silent = TRUE
+  )
+  if (inherits(Data, "try-error")) {
+    abort_internal("Failed while renaming variables in dataBuilder().")
+  }
+  if (!is.null(gs)) {
+    check_gs(gs, dataset = Data, method = "method")
+    gold <- which.max(levels(Data$method) == gs)
+    others <- setdiff(seq_along(levels(Data$method)), gold)
+    Data$method <- factor(
+      Data$method,
+      levels = levels(Data$method)[c(gold, others)]
+    )
   }
   return(Data)
 }

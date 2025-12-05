@@ -115,6 +115,9 @@ lccSummary <- function(model, q_f, diffbeta, tk,
       # components == FALSE, ci == TRUE
       # -------------------------------
       if (ldb == 1L) {
+        if (ncol(ENV.LCC) == 0L) {
+          ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
+        }
         LCC.data <- data.frame(
           "Time"  = tk.plot,
           "LCC"   = rho,
@@ -137,6 +140,9 @@ lccSummary <- function(model, q_f, diffbeta, tk,
       } else {
         LCC.data <- vector("list", ldb)
         for (i in seq_len(ldb)) {
+          if (ncol(ENV.LCC[[i]]) == 0L) {
+            ENV.LCC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho[[i]]))
+          }
           LCC.data[[i]] <- data.frame(
             "Time"  = tk.plot,
             "LCC"   = rho[[i]],
@@ -245,6 +251,31 @@ lccSummary <- function(model, q_f, diffbeta, tk,
       # -------------------------------
       if (ldb == 1L) {
         LA <- CCC_vals[[1L]] / Pearson_vals[[1L]]
+        if (ncol(ENV.LCC) == 0L) {
+          ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
+        }
+        if (ncol(ENV.LPC) == 0L) {
+          ENV.LPC <- matrix(NA_real_, nrow = 2L, ncol = length(rho.pearson))
+        }
+        if (ncol(ENV.Cb) == 0L) {
+          ENV.Cb <- matrix(NA_real_, nrow = 2L, ncol = length(Cb))
+        }
+        len_time <- length(tk.plot)
+        if (!is.null(ENV.LCC)) {
+          if (!is.matrix(ENV.LCC)) {
+            abort_internal("ENV.LCC must be a matrix when ldb == 1.")
+          }
+          if (ncol(ENV.LCC) != len_time) {
+            abort_internal(
+              "Mismatch between time grid and CI matrix: length(tk.plot) = {len_time}, ncol(ENV.LCC) = {ncol(ENV.LCC)}."
+            )
+          }
+        }
+        if (length(rho) != len_time) {
+          abort_internal(
+            "Mismatch between time grid and LCC: length(tk.plot) = {len_time}, length(rho) = {length(rho)}."
+          )
+        }
         
         LCC.data <- data.frame(
           "Time"  = tk.plot,
@@ -297,6 +328,15 @@ lccSummary <- function(model, q_f, diffbeta, tk,
         
         for (i in seq_len(ldb)) {
           LA[[i]] <- CCC_vals[[i]] / Pearson_vals[[i]]
+          if (ncol(ENV.LCC[[i]]) == 0L) {
+            ENV.LCC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho[[i]]))
+          }
+          if (ncol(ENV.LPC[[i]]) == 0L) {
+            ENV.LPC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho.pearson[[i]]))
+          }
+          if (ncol(ENV.Cb[[i]]) == 0L) {
+            ENV.Cb[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(Cb[[i]]))
+          }
           
           LCC.data[[i]] <- data.frame(
             "Time"  = tk.plot,

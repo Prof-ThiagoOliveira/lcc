@@ -96,8 +96,9 @@ init <- function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
   if (is.null(var.class) == FALSE) {
     vc <- class(var.class())[1L]
     
-    if (is.null(weights.form))
+    if (is.null(weights.form)) {
       abort_input("Please specify the 'weights.form' argument.")
+    }
     
     if (!weights.form %in% c("time", "method", "time.ident", "both")) {
       abort_input(
@@ -107,18 +108,22 @@ init <- function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
     
     if (weights.form == "time.ident" || weights.form == "method") {
       vc <- class(var.class())[1L]
-      if (vc != "varIdent")
-        abort_input("Please specify the 'weight.form' correctly for varExp class")
+      if (vc != "varIdent") {
+        abort_input("Please specify 'weights.form' correctly for varIdent class")
+      }
     }
     
     if (weights.form == "time" || weights.form == "both") {
       vc <- class(var.class())[1L]
-      if (vc != "varExp")
-        abort_input("Please specify the 'weight.form' correctly for varIdent class")
+      if (vc != "varExp") {
+        abort_input("Please specify 'weights.form' correctly for varExp class")
+      }
     }
-        
+    
     if (vc != "varIdent" && vc != "varExp") {
-      abort_input("Method only implemented for classes varIdent and varExp")
+      abort_input(
+        "Method only implemented for classes {.cls varIdent} and {.cls varExp}."
+      )
     }
   }
   
@@ -186,7 +191,7 @@ rename.vars <- function(data, from = "", to = "", info = TRUE) {
   
   frm.in <- from %in% dfn
   if (!all(frm.in)) {
-    abort_internal("some of the from names not found in {dsn}")
+    abort_internal("Some of the 'from' names were not found in {.arg {dsn}}.")
   }
   
   if (length(to) != length(unique(to))) {
@@ -196,7 +201,7 @@ rename.vars <- function(data, from = "", to = "", info = TRUE) {
   dfn.new <- dfn
   dfn.new[chng] <- to
   if (info) {
-    inform_general("Changing in {dsn}")
+    inform_general("Changing names in {.arg {dsn}}.")
   }
   tmp <- rbind(from, to)
   dimnames(tmp)[[1]] <- c("From:", "To:")
