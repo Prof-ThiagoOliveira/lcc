@@ -51,7 +51,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              lme.control, method.init, numCore,
                              boot.scheme = "np_case") {
   if (numCore > 1L && !requireNamespace("lcc", quietly = TRUE)) {
-    warning("Package 'lcc' must be installed to run bootstrap in parallel; falling back to serial.")
+    warn_general("Package 'lcc' must be installed to run bootstrap in parallel; falling back to serial.")
     numCore <- 1L
   }
 
@@ -80,8 +80,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
 
     n_row <- nrow(vc_mat)
     if (n_row < 2L) {
-      stop("VarCorr(model) has no random-effects rows; cannot build G_hat.",
-           call. = FALSE)
+      abort_internal("VarCorr(model) has no random-effects rows; cannot build G_hat.")
     }
 
     re_rows <- seq_len(n_row - 1L)  ## drop the residual row
@@ -93,14 +92,12 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     } else if (length(sd_col)) {
       sd_re <- as.numeric(vc_mat[re_rows, sd_col[1L]])
     } else {
-      stop("Could not locate StdDev/Variance columns in VarCorr(model).",
-           call. = FALSE)
+      abort_internal("Could not locate StdDev/Variance columns in VarCorr(model).")
     }
 
     names(sd_re) <- rownames(vc_mat)[re_rows]
     if (!length(sd_re) || anyNA(sd_re)) {
-      stop("Could not extract finite random-effects standard deviations.",
-           call. = FALSE)
+      abort_internal("Could not extract finite random-effects standard deviations.")
     }
 
     corr_re <- attr(vc, "correlation")
@@ -218,8 +215,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     ## first element is the n_i x n_i covariance matrix.
     if (is.list(V_i_obj) || inherits(V_i_obj, "VarCov")) {
       if (length(V_i_obj) != 1L) {
-        stop("Unexpected structure of getVarCov(model, type = 'marginal')",
-             call. = FALSE)
+        abort_internal("Unexpected structure of getVarCov(model, type = 'marginal')")
       }
       V_i <- as.matrix(V_i_obj[[1L]])
     } else {
@@ -227,12 +223,12 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     }
 
     if (!is.numeric(V_i) || !is.matrix(V_i)) {
-      stop("V_i is not a numeric matrix in bootstrapSamples()", call. = FALSE)
+      abort_internal("V_i is not a numeric matrix in bootstrapSamples()")
     }
     if (nrow(V_i) != nrow(Z_i)) {
-      stop("Dimension mismatch between V_i and Z_i in bootstrapSamples(): ",
-           "nrow(V_i) = ", nrow(V_i), ", nrow(Z_i) = ", nrow(Z_i),
-           call. = FALSE)
+      abort_internal(
+        "Dimension mismatch between V_i and Z_i in bootstrapSamples(): nrow(V_i) = {.val {nrow(V_i)}}, nrow(Z_i) = {.val {nrow(Z_i)}}"
+      )
     }
 
     ## Residual covariance: R_i = V_i - Z_i G_hat Z_i'
@@ -412,7 +408,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       "np_re_resid_ir"   = generate_np_re_resid(global = FALSE),
       "sp_case_pr"       = generate_sp_case_pr(),
       "p_re_pr"          = generate_p_re_pr(),
-      stop("Unknown 'boot.scheme' in bootstrapSamples()", call. = FALSE)
+      abort_input("Unknown 'boot.scheme' in bootstrapSamples()")
     )
     
     fit <- lccModel(
@@ -600,10 +596,13 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   }
   
   if (show.warnings) {
-    cat("\n  Convergence error in", warnings, "out of",
-        nboot, "bootstrap samples.\n")
+    inform_general(
+      "Convergence error in {.val {warnings}} out of {.val {nboot}} bootstrap samples."
+    )
     if (length(fail_indices)) {
-      cat("  Failed sample indices:", paste(fail_indices, collapse = ", "), "\n")
+      inform_general(
+        "Failed sample indices: {paste(fail_indices, collapse = ', ')}"
+      )
     }
   }
   

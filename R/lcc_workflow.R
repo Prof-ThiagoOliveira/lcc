@@ -34,11 +34,11 @@
 ##' @keywords internal
 lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
                         pdmat, diffbeta, time_lcc, ci,
+                        boot.scheme = "np_case",
+                        ci.method   = "normal",
                         alpha, nboot, labels, var.class, weights.form,
                         show.warnings, components, lme.control,
-                        method.init, numCore,
-                        boot.scheme = "np_case",
-                        ci.method   = "normal") {
+                        method.init, numCore) {
   #-------------------------------------------------------------------
   # Time grids for prediction and plotting
   # tk.plot: prediction grid (possibly from time_lcc)
@@ -215,13 +215,13 @@ lccInternal <- function(model, q_f, q_r, tk, interaction, covar,
       tk.plot      = tk.plot,
       tk.plot2     = tk.plot2,
       ci           = TRUE,
+      boot.scheme  = boot.scheme,
+      ci.method    = ci.method,
       alpha        = alpha,
       components   = components,
       lme.control  = lme.control,
       method.init  = method.init,
-      numCore      = numCore,
-      boot.scheme  = boot.scheme,
-      ci.method    = ci.method
+      numCore      = numCore
     )
     
     summary.lcc <- lccSummary(

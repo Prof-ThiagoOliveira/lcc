@@ -157,10 +157,10 @@ build_ci_metric <- function(boot_list, alpha,
 ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                       var.class, weights.form, show.warnings, tk,
                       diffbeta, ldb, tk.plot, tk.plot2, ci,
-                      alpha, components, lme.control, method.init,
-                      numCore,
                       boot.scheme = "np_case",
-                      ci.method   = "normal") {
+                      ci.method   = "normal",
+                      alpha, components, lme.control, method.init,
+                      numCore) {
   #-------------------------------------------------------------------
   # 1. Bootstrap samples
   #-------------------------------------------------------------------

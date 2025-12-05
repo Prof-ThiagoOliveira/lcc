@@ -72,13 +72,11 @@ getDelta <- function(model) {
         g_mode      <- "exp"
         
       } else {
-        stop("Method not implemented for the specified varStruct formula.",
-             call. = FALSE)
+        abort_input("Method not implemented for the specified varStruct formula.")
       }
       
     } else {
-      stop("Method only implemented for classes varIdent and varExp",
-           call. = FALSE)
+      abort_input("Method only implemented for classes varIdent and varExp")
     }
   }
   

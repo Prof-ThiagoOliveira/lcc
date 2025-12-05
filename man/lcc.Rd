@@ -5,10 +5,33 @@
 \title{Longitudinal concordance correlation (LCC) from polynomial mixed
   effects regression models using fixed effects and variance components}
 \usage{
-lcc(data, resp, subject, method, time, interaction, qf,
-    qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
-    alpha, nboot, show.warnings, components,
-    REML, lme.control, numCore)
+lcc(
+  data,
+  resp,
+  subject,
+  method,
+  time,
+  interaction = TRUE,
+  qf = 1,
+  qr = 0,
+  covar = NULL,
+  gs = NULL,
+  pdmat = pdSymm,
+  var.class = NULL,
+  weights.form = NULL,
+  time_lcc = NULL,
+  ci = FALSE,
+  boot.scheme = c("np_case", "np_case_resid_gr", "np_case_resid_ir", "np_re_resid_gr",
+    "np_re_resid_ir", "sp_case_pr", "p_re_pr"),
+  ci.method = c("normal", "percentile", "bca"),
+  alpha = 0.05,
+  nboot = 5000,
+  show.warnings = FALSE,
+  components = FALSE,
+  REML = TRUE,
+  lme.control = NULL,
+  numCore = NULL
+)
 }
 \arguments{
 \item{data}{an object of class \code{data.frame}.}
@@ -101,14 +124,6 @@ list may contain the following components:
 confidence intervals are calculated for the LCC, LPC, and LA
 statistics and printed in the output. Default is \code{FALSE}.}
 
-\item{ci.method}{character. Confidence-interval construction method:
-\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.}
-
-\item{alpha}{significance level. Default is \code{0.05}.}
-
-\item{nboot}{integer. Number of bootstrap samples. Default is
-\code{5000}.}
-
 \item{boot.scheme}{character. Bootstrap resampling scheme. Defaults
 to \code{"np_case"} (subject-level case bootstrap). Other options:
 \describe{
@@ -135,6 +150,14 @@ to \code{"np_case"} (subject-level case bootstrap). Other options:
     Gaussian with the estimated residual variance, then generate
     responses via \eqn{X_i \hat{\beta} + Z_i u_i^* + \varepsilon_i^*}.}
 }}
+
+\item{ci.method}{character. Confidence-interval construction method:
+\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.}
+
+\item{alpha}{significance level. Default is \code{0.05}.}
+
+\item{nboot}{integer. Number of bootstrap samples. Default is
+\code{5000}.}
 
 \item{show.warnings}{logical. Controls the display of convergence
 warnings in the bootstrap samples. If \code{TRUE}, the indices of

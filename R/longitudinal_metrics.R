@@ -93,8 +93,7 @@
       rho <- lapply(gdl_list, function(gdlVal) computeRho(gd, gdlVal))
       
     } else {
-      stop("Method not implemented for the specified varStruct formula.",
-           call. = FALSE)
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
@@ -105,7 +104,7 @@
     )
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   rho
@@ -150,8 +149,7 @@
       rho.pearson <- lapply(gdlL, function(gdli) calculateRhoPearson(gd, gdli))
       
     } else {
-      print("Method not implemented yet")
-      rho.pearson <- list()
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
@@ -161,7 +159,7 @@
     )
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   rho.pearson
@@ -218,15 +216,14 @@
       LA <- lapply(gdl_list, function(gdlVal) computeLA(gd, gdlVal))
       
     } else {
-      stop("Method not implemented for the specified varStruct formula.",
-           call. = FALSE)
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
     LA <- list(computeLA(1, 1), NA)
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   LA

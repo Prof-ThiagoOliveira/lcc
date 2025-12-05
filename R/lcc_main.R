@@ -26,13 +26,6 @@
 ##'   with flexible variance-covariance structures for random effects and
 ##'   variance functions that can model heteroscedastic within-subject
 ##'   errors, with or without time as a covariate.
-##'
-##' @usage
-##' lcc(data, resp, subject, method, time, interaction, qf,
-##'     qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
-##'     alpha, nboot, show.warnings, components,
-##'     REML, lme.control, numCore)
-##'
 ##' @param data an object of class \code{data.frame}.
 ##'
 ##' @param resp character string. Name of the response variable in the
@@ -126,6 +119,33 @@
 ##' @param ci.method character. Confidence-interval construction method:
 ##'   \code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.
 ##'
+##' @param boot.scheme character. Bootstrap resampling scheme. Defaults
+##'   to \code{"np_case"} (subject-level case bootstrap). Other options:
+##'   \describe{
+##'     \item{\code{"np_case"}:}{resample subjects with replacement; keep
+##'       original responses.}
+##'     \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
+##'       response with fitted values plus residuals resampled from the
+##'       global residual pool.}
+##'     \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
+##'       response with fitted values plus residuals resampled within
+##'       each subject.}
+##'     \item{\code{"np_re_resid_gr"}:}{resample subject-specific fitted
+##'       trajectories (includes random effects), then add residuals
+##'       sampled from the pooled residuals.}
+##'     \item{\code{"np_re_resid_ir"}:}{resample subject-specific fitted
+##'       trajectories, then add residuals resampled within each
+##'       subject.}
+##'     \item{\code{"sp_case_pr"}:}{semiparametric case bootstrap;
+##'       resample subjects, use their fitted trajectories, then add
+##'       Gaussian noise with variance equal to the estimated residual
+##'       variance.}
+##'     \item{\code{"p_re_pr"}:}{fully parametric; simulate random
+##'       effects from the estimated covariance and residuals from a
+##'       Gaussian with the estimated residual variance, then generate
+##'       responses via \eqn{X_i \hat{\beta} + Z_i u_i^* + \varepsilon_i^*}.}
+##'   }
+##'
 ##' @param alpha significance level. Default is \code{0.05}.
 ##'
 ##' @param nboot integer. Number of bootstrap samples. Default is
@@ -156,33 +176,6 @@
 ##'   parallel during bootstrap computation. If \code{NULL} (default),
 ##'   the function attempts to use one fewer than the available cores;
 ##'   otherwise it uses the supplied value.
-##'
-##' @param boot.scheme character. Bootstrap resampling scheme. Defaults
-##'   to \code{"np_case"} (subject-level case bootstrap). Other options:
-##'   \describe{
-##'     \item{\code{"np_case"}:}{resample subjects with replacement; keep
-##'       original responses.}
-##'     \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
-##'       response with fitted values plus residuals resampled from the
-##'       global residual pool.}
-##'     \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
-##'       response with fitted values plus residuals resampled within
-##'       each subject.}
-##'     \item{\code{"np_re_resid_gr"}:}{resample subject-specific fitted
-##'       trajectories (includes random effects), then add residuals
-##'       sampled from the pooled residuals.}
-##'     \item{\code{"np_re_resid_ir"}:}{resample subject-specific fitted
-##'       trajectories, then add residuals resampled within each
-##'       subject.}
-##'     \item{\code{"sp_case_pr"}:}{semiparametric case bootstrap;
-##'       resample subjects, use their fitted trajectories, then add
-##'       Gaussian noise with variance equal to the estimated residual
-##'       variance.}
-##'     \item{\code{"p_re_pr"}:}{fully parametric; simulate random
-##'       effects from the estimated covariance and residuals from a
-##'       Gaussian with the estimated residual variance, then generate
-##'       responses via \eqn{X_i \hat{\beta} + Z_i u_i^* + \varepsilon_i^*}.}
-##'   }
 ##'
 ##' @return An object of class \code{lcc}. The output is a list with
 ##'   the following components:
@@ -419,12 +412,12 @@ lcc <- function(data, resp, subject, method, time,
                 weights.form  = NULL,
                 time_lcc      = NULL,
                 ci            = FALSE,
-                ci.method     = c("normal", "percentile", "bca"),
-                alpha         = 0.05,
-                nboot         = 5000,
                 boot.scheme   = c("np_case", "np_case_resid_gr", "np_case_resid_ir",
                                   "np_re_resid_gr", "np_re_resid_ir",
                                   "sp_case_pr", "p_re_pr"),
+                ci.method     = c("normal", "percentile", "bca"),
+                alpha         = 0.05,
+                nboot         = 5000,
                 show.warnings = FALSE,
                 components    = FALSE,
                 REML          = TRUE,
@@ -436,7 +429,11 @@ lcc <- function(data, resp, subject, method, time,
   
   if (is.null(numCore)) {
     cores <- parallel::detectCores(logical = FALSE)
-    numCore <- if (is.finite(cores)) max(1L, cores - 1L) else 1L
+    available <- if (is.finite(cores)) max(1L, cores - 1L) else 1L
+    numCore <- min(available, 2L)
+  } else if (numCore > 8L) {
+    warn_general("Limiting 'numCore' to 8 to comply with parallel backend limits.")
+    numCore <- 8L
   }
   
   # Resolve new arguments with backward compatibility
@@ -492,15 +489,16 @@ lcc <- function(data, resp, subject, method, time,
   
   # robust error handling for lccModel failure
   if (inherits(model.info, "try-error")) {
-    stop("Error in 'lccModel': ", conditionMessage(attr(model.info, "condition")),
-         call. = FALSE)
+    cond <- attr(model.info, "condition")
+    msg  <- if (!is.null(cond)) conditionMessage(cond) else as.character(model.info[1L])
+    abort_lcc("Error in 'lccModel': {msg}")
   }
   
   #-------------------------------------------------------------------
   # 3. Check convergence via wcount
   #-------------------------------------------------------------------
   if (identical(model.info$wcount, "1")) {
-    stop(model.info$message, call. = FALSE)
+    abort_lcc(model.info$message)
   }
   
   #-------------------------------------------------------------------
@@ -546,6 +544,8 @@ lcc <- function(data, resp, subject, method, time,
     diffbeta     = betas,
     time_lcc     = time_lcc,
     ci           = ci,
+    boot.scheme  = boot.scheme,
+    ci.method    = ci.method,
     alpha        = alpha,
     nboot        = nboot,
     labels       = lev.lab_df,
@@ -555,9 +555,7 @@ lcc <- function(data, resp, subject, method, time,
     components   = components,
     lme.control  = lme.control,
     method.init  = MethodREML,
-    numCore      = numCore,
-    boot.scheme  = boot.scheme,
-    ci.method    = ci.method
+    numCore      = numCore
   )
   
   #-------------------------------------------------------------------

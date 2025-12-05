@@ -48,7 +48,7 @@
 #' @export
 lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   if (!inherits(obj, "lcc")) {
-    stop("Object must inherit from class \"lcc\"", call. = FALSE)
+    abort_input("Object must inherit from class \"lcc\"")
   }
   
   ## Base defaults
@@ -69,18 +69,18 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   if (length(control)) {
     nms <- names(control)
     if (!is.list(control) || is.null(nms)) {
-      stop("'control' argument must be a named list", call. = FALSE)
+      abort_input("'control' argument must be a named list")
     }
     pos <- pmatch(nms, names(plot.cons))
     if (any(nap <- is.na(pos))) {
-      warning(sprintf(
+      warn_general(sprintf(
         ngettext(
           length(nap),
           "unrecognized plot element named %s ignored",
           "unrecognized plot elements named %s ignored"
         ),
         paste(sQuote(nms[nap]), collapse = ", ")
-      ), domain = NA)
+      ))
       pos     <- pos[!nap]
       control <- control[!nap]
     }
@@ -103,8 +103,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
   components <- obj$plot_info$components
   
   if (!components && type != "lcc") {
-    stop("'lpc' and 'la' plots are only available if 'components = TRUE' in the 'lcc' call",
-         call. = FALSE)
+    abort_input("'lpc' and 'la' plots are only available if 'components = TRUE' in the 'lcc' call")
   }
   
   # Precompute CCC/Pearson once per call to avoid re-splitting data
@@ -166,7 +165,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
       Pearson_vals = Pearson_vals,
       ...
     ),
-    stop("Unknown 'type' in lccPlot: ", type, call. = FALSE)
+    abort_input("Unknown 'type' in lccPlot: {type}")
   )
   
   ## Optionally print for interactive use
