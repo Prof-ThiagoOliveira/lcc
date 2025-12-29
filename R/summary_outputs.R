@@ -16,29 +16,27 @@
 
 ##' @title Internal Function to Summarize Fitted and Sampled Values for \code{lcc} Objects
 ##'
-##' @description Internally called function for summarizing fitted and sampled values, and the 
-##'   concordance correlation coefficient between them for \code{lcc} objects.
+##' @description Internally called helper that converts the unified metric bundles into the
+##'   structures consumed by downstream plotting and summary routines.
 ##'
-##' @usage NULL
-##'
-##' @details Returns a summary of fitted and sampled values and their concordance correlation.
-##'
-##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
+##' @param model the fitted \code{nlme} model stored within the \code{lcc} object.
+##' @param tk original time grid from the data.
+##' @param tk.plot time grid used for fitted trajectories.
+##' @param tk.plot2 time grid used for sampled trajectories.
+##' @param metrics list of metric bundles (LCC, LPC, LA) produced by \code{ciBuilder} or
+##'   the no-bootstrap path.
+##' @param ldb integer giving the number of method comparisons.
+##' @param ci logical flag indicating whether confidence intervals were requested.
+##' @param components logical flag indicating whether LPC/LA components were requested.
 ##'
 ##' @importFrom stats predict
 ##'
 ##' @keywords internal
-lccSummary <- function(model, q_f, diffbeta, tk,
-                       tk.plot, tk.plot2, rho, ENV.LCC,
-                       rho.pearson, ENV.LPC, Cb, ENV.Cb,
+lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
                        ldb, ci, components) {
-  
-  # -------------------------------------------------------------------
-  # Common pieces
-  # -------------------------------------------------------------------
+
   method_levels <- levels(model$data$method)
-  
-  # Comparison labels: string for ldb == 1, list for ldb > 1
+
   if (ldb == 1L) {
     comp <- paste0(method_levels[2L], " vs. ", method_levels[1L])
   } else {
@@ -47,343 +45,223 @@ lccSummary <- function(model, q_f, diffbeta, tk,
       comp[[i]] <- paste0(method_levels[i + 1L], " vs. ", method_levels[1L])
     }
   }
-  
-  # Goodness of fit: use CCC() function (not CCC_lin result)
+
   GF <- CCC(stats::predict(model), model$data$resp)
-  
-  # -------------------------------------------------------------------
-  # No components: only LCC
-  # -------------------------------------------------------------------
-  if (!components) {
-    # Longitudinal CCC by time (from data)
-    CCC_vals <- CCC_lin(
-      dataset = model$data,
-      resp    = "resp",
-      subject = "subject",
-      method  = "method",
-      time    = "time"
-    )
-    
-    if (!ci) {
-      # -------------------------------
-      # components == FALSE, ci == FALSE
-      # -------------------------------
-      if (ldb == 1L) {
-        LCC.data <- data.frame(
-          "Time" = tk.plot,
-          "LCC"  = rho
-        )
-        
-        CCC.data <- data.frame(
-          "Time" = tk.plot2,
-          "CCC"  = CCC_vals
-        )
-        colnames(CCC.data) <- c("Time", "CCC")
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
-      } else {
-        # ldb > 1: LCC per method, one CCC curve
-        LCC.data <- vector("list", ldb)
-        for (i in seq_len(ldb)) {
-          LCC.data[[i]] <- data.frame(
-            "Time" = tk.plot,
-            "LCC"  = rho[[i]]
-          )
-        }
-        
-        CCC.data <- data.frame(
-          "Time" = tk.plot2,
-          "CCC"  = CCC_vals
-        )
-        colnames(CCC.data) <- c("Time", "CCC")
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
+
+  CCC_vals <- CCC_lin(
+    dataset = model$data,
+    resp    = "resp",
+    subject = "subject",
+    method  = "method",
+    time    = "time"
+  )
+
+  to_comp_list <- function(values) {
+    extract_numeric <- function(x) {
+      if (is.null(x)) {
+        return(NA_real_)
       }
-      
+      if (is.list(x) && length(x) == 1L &&
+          (is.data.frame(x[[1L]]) || is.matrix(x[[1L]]) || is.list(x[[1L]]) || is.numeric(x[[1L]]))) {
+        return(extract_numeric(x[[1L]]))
+      }
+      if (is.data.frame(x)) {
+        return(as.numeric(x[[1L]]))
+      }
+      if (is.matrix(x)) {
+        return(as.numeric(x[, 1L]))
+      }
+      as.numeric(x)
+    }
+
+    if (ldb == 1L) {
+      return(list(extract_numeric(values)))
+    }
+
+    out <- NULL
+    if (is.list(values) && length(values) == ldb) {
+      out <- lapply(values, extract_numeric)
+    } else if (is.data.frame(values) || is.matrix(values)) {
+      out <- lapply(seq_len(ldb), function(j) extract_numeric(values[, j]))
     } else {
-      # -------------------------------
-      # components == FALSE, ci == TRUE
-      # -------------------------------
-      if (ldb == 1L) {
-        if (ncol(ENV.LCC) == 0L) {
-          ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
-        }
-        LCC.data <- data.frame(
-          "Time"  = tk.plot,
-          "LCC"   = rho,
-          "Lower" = ENV.LCC[1, ],
-          "Upper" = ENV.LCC[2, ]
-        )
-        
-        CCC.data <- data.frame(
-          "Time" = tk.plot2,
-          "CCC"  = CCC_vals
-        )
-        colnames(CCC.data) <- c("Time", "CCC")
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
-      } else {
-        LCC.data <- vector("list", ldb)
-        for (i in seq_len(ldb)) {
-          if (ncol(ENV.LCC[[i]]) == 0L) {
-            ENV.LCC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho[[i]]))
-          }
-          LCC.data[[i]] <- data.frame(
-            "Time"  = tk.plot,
-            "LCC"   = rho[[i]],
-            "Lower" = ENV.LCC[[i]][1, ],
-            "Upper" = ENV.LCC[[i]][2, ]
-          )
-        }
-        
-        CCC.data <- data.frame(
-          "Time" = tk.plot2,
-          "CCC"  = CCC_vals
-        )
-        colnames(CCC.data) <- c("Time", "CCC")
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
+      out <- lapply(seq_len(ldb), function(j) extract_numeric(values[[j]]))
+    }
+
+    out
+  }
+
+  extract_ci_cols <- function(ci_mat) {
+    if (is.null(ci_mat) || !is.matrix(ci_mat) || nrow(ci_mat) < 2L) {
+      return(NULL)
+    }
+    data.frame(
+      Lower = as.numeric(ci_mat["lower", , drop = TRUE]),
+      Upper = as.numeric(ci_mat["upper", , drop = TRUE]),
+      check.names = FALSE
+    )
+  }
+
+  build_metric_df <- function(est_vec, ci_mat, value_name) {
+    df <- data.frame(
+      Time  = tk.plot,
+      value = as.numeric(est_vec),
+      check.names = FALSE
+    )
+    names(df)[2L] <- value_name
+    ci_cols <- extract_ci_cols(ci_mat)
+    if (!is.null(ci_cols)) {
+      df <- cbind(df, ci_cols)
+    }
+    df
+  }
+
+  build_metric_list <- function(est_list, ci_list, value_name) {
+    out <- vector("list", length(est_list))
+    for (i in seq_along(est_list)) {
+      ci_mat <- if (!is.null(ci_list)) ci_list[[i]] else NULL
+      out[[i]] <- build_metric_df(est_list[[i]], ci_mat, value_name)
+    }
+    out
+  }
+
+  lcc_est <- metrics$lcc$estimate
+  lcc_ci  <- metrics$lcc$ci
+
+  if (!components) {
+    if (ldb == 1L) {
+      fitted <- build_metric_df(lcc_est[[1L]], if (!is.null(lcc_ci)) lcc_ci[[1L]] else NULL, "LCC")
+    } else {
+      fitted <- build_metric_list(lcc_est, lcc_ci, "LCC")
+    }
+
+    sampled <- data.frame(
+      Time = tk.plot2,
+      CCC  = CCC_vals
+    )
+
+    plot.data <- list(
+      fitted  = fitted,
+      sampled = sampled,
+      gof     = GF,
+      comp    = comp
+    )
+
+    return(invisible(plot.data))
+  }
+
+  Pearson_vals <- Pearson(
+    dataset = model$data,
+    resp    = "resp",
+    subject = "subject",
+    method  = "method",
+    time    = "time"
+  )
+
+  lpc_est <- metrics$lpc$estimate
+  lpc_ci  <- metrics$lpc$ci
+  la_est  <- metrics$la$estimate
+  la_ci   <- metrics$la$ci
+
+  CCC_list     <- to_comp_list(CCC_vals)
+  Pearson_list <- to_comp_list(Pearson_vals)
+  LA_sample    <- mapply(
+    function(ccc, pear) ccc / pear,
+    CCC_list,
+    Pearson_list,
+    SIMPLIFY = FALSE
+  )
+
+  if (!ci) {
+    if (ldb == 1L) {
+      fitted <- data.frame(
+        Time = tk.plot,
+        LCC  = as.numeric(lcc_est[[1L]]),
+        LPC  = as.numeric(lpc_est[[1L]]),
+        LA   = as.numeric(la_est[[1L]]),
+        check.names = FALSE
+      )
+    } else {
+      fitted <- vector("list", ldb)
+      for (i in seq_len(ldb)) {
+        fitted[[i]] <- data.frame(
+          Time = tk.plot,
+          LCC  = as.numeric(lcc_est[[i]]),
+          LPC  = as.numeric(lpc_est[[i]]),
+          LA   = as.numeric(la_est[[i]]),
+          check.names = FALSE
         )
       }
     }
-    
-  } else {
-    # -----------------------------------------------------------------
-    # components == TRUE: LCC, LPC, LA
-    # -----------------------------------------------------------------
-    CCC_vals <- CCC_lin(
-      dataset = model$data,
-      resp    = "resp",
-      subject = "subject",
-      method  = "method",
-      time    = "time"
-    )
-    Pearson_vals <- Pearson(
-      dataset = model$data,
-      resp    = "resp",
-      subject = "subject",
-      method  = "method",
-      time    = "time"
-    )
-    
-    if (!ci) {
-      # -------------------------------
-      # components == TRUE, ci == FALSE
-      # -------------------------------
-      if (ldb == 1L) {
-        LA <- CCC_vals[[1L]] / Pearson_vals[[1L]]
-        
-        LCC.data <- data.frame(
-          "Time" = tk.plot,
-          "LCC"  = rho,
-          "LPC"  = rho.pearson,
-          "LA"   = Cb
-        )
-        
-        CCC.data <- data.frame(
-          "Time"    = tk.plot2,
-          "CCC"     = CCC_vals,
-          "Pearson" = Pearson_vals,
-          "Cb"      = LA
-        )
-        colnames(CCC.data) <- c("Time", "CCC", "Pearson", "Cb")
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
-      } else {
-        LCC.data <- vector("list", ldb)
-        CCC.data <- vector("list", ldb)
-        LA       <- vector("list", ldb)
-        
-        for (i in seq_len(ldb)) {
-          LA[[i]] <- CCC_vals[[i]] / Pearson_vals[[i]]
-          
-          LCC.data[[i]] <- data.frame(
-            "Time" = tk.plot,
-            "LCC"  = rho[[i]],
-            "LPC"  = rho.pearson[[i]],
-            "LA"   = Cb[[i]]
-          )
-          
-          CCC.data[[i]] <- data.frame(
-            "Time"    = tk.plot2,
-            "CCC"     = CCC_vals[[i]],
-            "Pearson" = Pearson_vals[[i]],
-            "Cb"      = LA[[i]]
-          )
-          colnames(CCC.data[[i]]) <- c("Time", "CCC", "Pearson", "Cb")
-        }
-        
-        plot.data <- list(
-          "fitted"  = LCC.data,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
-      }
-      
+
+    if (ldb == 1L) {
+      sampled <- data.frame(
+        Time    = tk.plot2,
+        CCC     = as.numeric(CCC_list[[1L]]),
+        Pearson = as.numeric(Pearson_list[[1L]]),
+        Cb      = as.numeric(LA_sample[[1L]]),
+        check.names = FALSE
+      )
     } else {
-      # -------------------------------
-      # components == TRUE, ci == TRUE
-      # -------------------------------
-      if (ldb == 1L) {
-        LA <- CCC_vals[[1L]] / Pearson_vals[[1L]]
-        if (ncol(ENV.LCC) == 0L) {
-          ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
-        }
-        if (ncol(ENV.LPC) == 0L) {
-          ENV.LPC <- matrix(NA_real_, nrow = 2L, ncol = length(rho.pearson))
-        }
-        if (ncol(ENV.Cb) == 0L) {
-          ENV.Cb <- matrix(NA_real_, nrow = 2L, ncol = length(Cb))
-        }
-        len_time <- length(tk.plot)
-        if (!is.null(ENV.LCC)) {
-          if (!is.matrix(ENV.LCC)) {
-            abort_internal("ENV.LCC must be a matrix when ldb == 1.")
-          }
-          if (ncol(ENV.LCC) != len_time) {
-            abort_internal(
-              "Mismatch between time grid and CI matrix: length(tk.plot) = {len_time}, ncol(ENV.LCC) = {ncol(ENV.LCC)}."
-            )
-          }
-        }
-        if (length(rho) != len_time) {
-          abort_internal(
-            "Mismatch between time grid and LCC: length(tk.plot) = {len_time}, length(rho) = {length(rho)}."
-          )
-        }
-        
-        LCC.data <- data.frame(
-          "Time"  = tk.plot,
-          "LCC"   = rho,
-          "Lower" = ENV.LCC[1, ],
-          "Upper" = ENV.LCC[2, ]
-        )
-        
-        LPC.data <- data.frame(
-          "Time"  = tk.plot,
-          "LPC"   = rho.pearson,
-          "Lower" = ENV.LPC[1, ],
-          "Upper" = ENV.LPC[2, ]
-        )
-        
-        LA.data <- data.frame(
-          "Time"  = tk.plot,
-          "LA"    = Cb,
-          "Lower" = ENV.Cb[1, ],
-          "Upper" = ENV.Cb[2, ]
-        )
-        
-        CCC.data <- data.frame(
-          "Time"    = tk.plot2,
-          "CCC"     = CCC_vals,
-          "Pearson" = Pearson_vals,
-          "Cb"      = LA
-        )
-        colnames(CCC.data) <- c("Time", "CCC", "Pearson", "Cb")
-        
-        fit <- list(
-          "LCC" = LCC.data,
-          "LPC" = LPC.data,
-          "LA"  = LA.data
-        )
-        
-        plot.data <- list(
-          "fitted"  = fit,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
-        )
-        
-      } else {
-        LCC.data <- vector("list", ldb)
-        LPC.data <- vector("list", ldb)
-        LA.data  <- vector("list", ldb)
-        CCC.data <- vector("list", ldb)
-        LA       <- vector("list", ldb)
-        
-        for (i in seq_len(ldb)) {
-          LA[[i]] <- CCC_vals[[i]] / Pearson_vals[[i]]
-          if (ncol(ENV.LCC[[i]]) == 0L) {
-            ENV.LCC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho[[i]]))
-          }
-          if (ncol(ENV.LPC[[i]]) == 0L) {
-            ENV.LPC[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(rho.pearson[[i]]))
-          }
-          if (ncol(ENV.Cb[[i]]) == 0L) {
-            ENV.Cb[[i]] <- matrix(NA_real_, nrow = 2L, ncol = length(Cb[[i]]))
-          }
-          
-          LCC.data[[i]] <- data.frame(
-            "Time"  = tk.plot,
-            "LCC"   = rho[[i]],
-            "Lower" = ENV.LCC[[i]][1, ],
-            "Upper" = ENV.LCC[[i]][2, ]
-          )
-          
-          LPC.data[[i]] <- data.frame(
-            "Time"  = tk.plot,
-            "LPC"   = rho.pearson[[i]],
-            "Lower" = ENV.LPC[[i]][1, ],
-            "Upper" = ENV.LPC[[i]][2, ]
-          )
-          
-          LA.data[[i]] <- data.frame(
-            "Time"  = tk.plot,
-            "LA"    = Cb[[i]],
-            "Lower" = ENV.Cb[[i]][1, ],
-            "Upper" = ENV.Cb[[i]][2, ]
-          )
-          
-          CCC.data[[i]] <- data.frame(
-            "Time"    = tk.plot2,
-            "CCC"     = CCC_vals[[i]],
-            "Pearson" = Pearson_vals[[i]],
-            "LA"      = LA[[i]]
-          )
-          colnames(CCC.data[[i]]) <- c("Time", "CCC", "Pearson", "Cb")
-        }
-        
-        fit <- list(
-          "LCC" = LCC.data,
-          "LPC" = LPC.data,
-          "LA"  = LA.data
-        )
-        
-        plot.data <- list(
-          "fitted"  = fit,
-          "sampled" = CCC.data,
-          "gof"     = GF,
-          "comp"    = comp
+      sampled <- vector("list", ldb)
+      for (i in seq_len(ldb)) {
+        sampled[[i]] <- data.frame(
+          Time    = tk.plot2,
+          CCC     = as.numeric(CCC_list[[i]]),
+          Pearson = as.numeric(Pearson_list[[i]]),
+          Cb      = as.numeric(LA_sample[[i]]),
+          check.names = FALSE
         )
       }
+    }
+
+    plot.data <- list(
+      fitted  = fitted,
+      sampled = sampled,
+      gof     = GF,
+      comp    = comp
+    )
+
+    return(invisible(plot.data))
+  }
+
+  if (ldb == 1L) {
+    fitted <- list(
+      LCC = build_metric_df(lcc_est[[1L]], if (!is.null(lcc_ci)) lcc_ci[[1L]] else NULL, "LCC"),
+      LPC = build_metric_df(lpc_est[[1L]], if (!is.null(lpc_ci)) lpc_ci[[1L]] else NULL, "LPC"),
+      LA  = build_metric_df(la_est[[1L]],  if (!is.null(la_ci))  la_ci[[1L]]  else NULL, "LA")
+    )
+    sampled <- data.frame(
+      Time    = tk.plot2,
+      CCC     = as.numeric(CCC_list[[1L]]),
+      Pearson = as.numeric(Pearson_list[[1L]]),
+      Cb      = as.numeric(LA_sample[[1L]]),
+      check.names = FALSE
+    )
+  } else {
+    fitted <- list(
+      LCC = build_metric_list(lcc_est, lcc_ci, "LCC"),
+      LPC = build_metric_list(lpc_est, lpc_ci, "LPC"),
+      LA  = build_metric_list(la_est,  la_ci,  "LA")
+    )
+    sampled <- vector("list", ldb)
+    for (i in seq_len(ldb)) {
+      sampled[[i]] <- data.frame(
+        Time    = tk.plot2,
+        CCC     = as.numeric(CCC_list[[i]]),
+        Pearson = as.numeric(Pearson_list[[i]]),
+        Cb      = as.numeric(LA_sample[[i]]),
+        check.names = FALSE
+      )
     }
   }
-  
+
+  plot.data <- list(
+    fitted  = fitted,
+    sampled = sampled,
+    gof     = GF,
+    comp    = comp
+  )
+
   invisible(plot.data)
 }
 

@@ -157,6 +157,11 @@
 ##'   \code{FALSE} (the default), only the total number of convergence
 ##'   errors is reported.
 ##'
+##' @param keep.boot.models logical. If \code{TRUE}, retains the full
+##'   fitted models for each bootstrap replicate in the returned object.
+##'   Defaults to \code{FALSE}, storing only lightweight summaries to
+##'   reduce memory usage.
+##'
 ##' @param components logical. If \code{TRUE}, estimates and confidence
 ##'   intervals for LPC and LA are printed in the output. If
 ##'   \code{FALSE} (the default), only estimates and confidence
@@ -177,6 +182,24 @@
 ##'   the function attempts to use one fewer than the available cores;
 ##'   otherwise it uses the supplied value.
 ##'
+##' @param boot.seed optional integer scalar used to seed the bootstrap
+##'   random number generator. The same seed reproduces the bootstrap
+##'   sampling across parallel backends and grid sizes.
+##'
+##' @details The unified metric schema stored in \code{plot_info$metrics}
+##'   provides a consistent shape for single and multiple method
+##'   comparisons. Each metric bundle is a list with elements
+##'   \code{estimate} (named list of time-indexed vectors),
+##'   \code{bootstrap} (named list of matrices with columns indexed by
+##'   bootstrap replicate), \code{ci} (named list of "lower"/"upper"
+##'   matrices carrying \code{ci_level} and \code{ci_method}
+##'   attributes), and \code{grid} (list containing the prediction grid
+##'   used for the metric; for \code{ldb > 1} both primary and
+##'   comparison grids are provided). Degenerate or ill-conditioned fits may
+##'   return \code{NA} estimates; callers should monitor warnings when
+##'   working with very small samples or highly heteroscedastic
+##'   variance structures.
+##'
 ##' @return An object of class \code{lcc}. The output is a list with
 ##'   the following components:
 ##'   \item{model}{summary of the polynomial mixed-effects regression
@@ -188,6 +211,9 @@
 ##'     predictions and observed data as a goodness-of-fit measure
 ##'     (gof).}
 ##'   \item{data}{the input data set.}
+##'   \item{plot_info}{auxiliary structures used for plotting,
+##'     including \code{tk.plot}, \code{tk.plot2}, and the normalized
+##'     \code{metrics} bundle described above.}
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br},
@@ -437,6 +463,8 @@ lcc <- function(data, resp, subject, method, time,
                 nboot         = 5000,
                 show.warnings = FALSE,
                 components    = FALSE,
+                keep.boot.models = FALSE,
+                boot.seed     = NULL,
                 REML          = TRUE,
                 lme.control   = NULL,
                 numCore       = NULL) {
@@ -467,6 +495,10 @@ lcc <- function(data, resp, subject, method, time,
     ),
     arg = "boot.scheme"
   )
+  keep.boot.models <- check_flag(keep.boot.models, arg = "keep.boot.models")
+  if (!is.null(boot.seed)) {
+    boot.seed <- check_scalar_integer(boot.seed, arg = "boot.seed")
+  }
   
   #-------------------------------------------------------------------
   # 1. Init: checks + resolve pdmat, var.class, REML
@@ -583,7 +615,9 @@ lcc <- function(data, resp, subject, method, time,
     components   = components,
     lme.control  = lme.control,
     method.init  = MethodREML,
-    numCore      = numCore
+    numCore      = numCore,
+    keep_models  = keep.boot.models,
+    boot_seed    = boot.seed
   )
   
   #-------------------------------------------------------------------

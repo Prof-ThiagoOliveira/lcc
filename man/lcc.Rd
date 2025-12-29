@@ -27,6 +27,8 @@ lcc(
   nboot = 5000,
   show.warnings = FALSE,
   components = FALSE,
+  keep.boot.models = FALSE,
+  boot.seed = NULL,
   REML = TRUE,
   lme.control = NULL,
   numCore = NULL
@@ -169,6 +171,15 @@ intervals for LPC and LA are printed in the output. If
 \code{FALSE} (the default), only estimates and confidence
 intervals for the LCC statistic are provided.}
 
+\item{keep.boot.models}{logical. If \code{TRUE}, retains the full
+fitted models for each bootstrap replicate in the returned object.
+Defaults to \code{FALSE}, storing only lightweight summaries to
+reduce memory usage.}
+
+\item{boot.seed}{optional integer scalar used to seed the bootstrap
+random number generator. The same seed reproduces the bootstrap
+sampling across parallel backends and grid sizes.}
+
 \item{REML}{logical. If \code{TRUE} (the default), the model is fit
 by maximising the restricted log-likelihood. If \code{FALSE}, the
 full log-likelihood is maximised.}
@@ -196,6 +207,9 @@ An object of class \code{lcc}. The output is a list with
     predictions and observed data as a goodness-of-fit measure
     (gof).}
   \item{data}{the input data set.}
+  \item{plot_info}{auxiliary structures used for plotting,
+    including \code{tk.plot}, \code{tk.plot2}, and the normalized
+    \code{metrics} bundle described above.}
 }
 \description{
 The \code{lcc} function computes fitted values and
@@ -207,6 +221,21 @@ The \code{lcc} function computes fitted values and
   with flexible variance-covariance structures for random effects and
   variance functions that can model heteroscedastic within-subject
   errors, with or without time as a covariate.
+}
+\details{
+The unified metric schema stored in \code{plot_info$metrics}
+  provides a consistent shape for single and multiple method
+  comparisons. Each metric bundle is a list with elements
+  \code{estimate} (named list of time-indexed vectors),
+  \code{bootstrap} (named list of matrices with columns indexed by
+  bootstrap replicate), \code{ci} (named list of "lower"/"upper"
+  matrices carrying \code{ci_level} and \code{ci_method}
+  attributes), and \code{grid} (list containing the prediction grid
+  used for the metric; for \code{ldb > 1} both primary and
+  comparison grids are provided). Degenerate or ill-conditioned fits may
+  return \code{NA} estimates; callers should monitor warnings when
+  working with very small samples or highly heteroscedastic
+  variance structures.
 }
 \examples{
 data(hue)

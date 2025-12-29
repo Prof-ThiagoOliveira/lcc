@@ -33,11 +33,25 @@
 ##' # Example usage:
 ##' # CCC(c(1, 2, 3), c(3, 2, 1))
 CCC <- function(Y1, Y2) {
+  validate_numeric_no_na(Y1, "Y1")
+  validate_numeric_no_na(Y2, "Y2")
+  validate_equal_length(Y1, Y2, "Y1", "Y2")
+  ok1 <- validate_non_degenerate_var(Y1, "Y1")
+  ok2 <- validate_non_degenerate_var(Y2, "Y2")
+  if (!ok1 || !ok2) {
+    return(NA_real_)
+  }
+
+  s12 <- stats::cov(Y1, Y2)
+  if (!is.finite(s12)) {
+    warn_general("Covariance between {.arg Y1} and {.arg Y2} is not finite; returning {.val NA_real_}.")
+    return(NA_real_)
+  }
+
   m1  <- mean(Y1)
   m2  <- mean(Y2)
-  v1  <- var(Y1)
-  v2  <- var(Y2)
-  s12 <- cov(Y1, Y2)
-  
+  v1  <- stats::var(Y1)
+  v2  <- stats::var(Y2)
+
   2 * s12 / (v1 + v2 + (m1 - m2)^2)
 }

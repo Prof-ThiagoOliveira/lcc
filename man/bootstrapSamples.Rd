@@ -17,6 +17,10 @@ options:
   \item "sp_case_pr": semiparametric case bootstrap; resample subjects, use their fitted trajectories, then add Gaussian noise with variance equal to the estimated residual variance.
   \item "p_re_pr": fully parametric; simulate random effects from the estimated covariance and residuals from Gaussian noise, then generate responses via X beta + Z u + eps.
 }}
+
+\item{rng_seed}{optional integer seed used to initialise the parallel
+random number stream via \code{doRNG}. When \code{NULL}, the current
+global RNG state is used.}
 }
 \description{
 This is an internally called functions used to estimate

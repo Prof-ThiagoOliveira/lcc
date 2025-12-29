@@ -328,16 +328,37 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##'   \code{\link[lcc]{lcc}}. The returned object has a
 ##'   \code{\link[base]{print}} method.
 ##'
+##' @details When the original fit involves multiple method comparisons
+##'   (\code{ldb > 1}), the \code{fitted} and \code{sampled} components
+##'   are returned as lists with one data frame per comparison. Each data
+##'   frame retains the time grid used in the analysis and, when confidence
+##'   intervals are requested, includes \code{Lower}/\code{Upper} columns
+##'   derived from the underlying metric bundle. Degenerate settings may
+##'   yield \code{NA} estimates; confidence intervals from bootstrap
+##'   samples can also return \code{NA} when few successful replicates are
+##'   available or under severe heteroscedasticity.
+##'
 ##' @return an object inheriting from class \code{summary.lcc}
-##'   including: \item{fitted}{the fitted values extracted from the
-##'   \code{lcc} object.} \item{gof}{the goodness of fit (gof) measurement
-##'   is calculated using the concordance correlation coefficient between
-##'   fitted and observed values. Value of 1 denote perfect concordance.}
-##'   \item{AIC}{the Akaike Information Criterion corresponding to object.}
-##'   \item{BIC}{the Bayesian Information Criterion corresponding to object.}
-##'   \item{logLik}{If \code{REML=FALSE}, returns the log-likelihood value
-##'   of the linear mixed-effects model; otherwise, the restricted
-##'   log-likelihood is returned}
+##'   including: \item{fitted}{the fitted metric summaries extracted from
+##'   the \code{lcc} object; returns a single data frame for
+##'   \code{ldb = 1} or a list of data frames otherwise.}
+##'   \item{sampled}{empirical concordance summaries on the sampled time
+##'   grid, matching the shape of \code{fitted}.}
+##'   \item{gof}{goodness-of-fit measurement computed as the concordance
+##'   correlation coefficient between fitted and observed values. Value of
+##'   1 denotes perfect concordance.}
+##'   \item{comp}{character vector or list describing the method
+##'   comparisons.}
+##'   \item{info}{auxiliary information mirroring \code{plot_info},
+##'   including \code{metrics} bundles with \code{estimate},
+##'   \code{bootstrap}, \code{ci}, and \code{grid} entries.}
+##'   \item{AIC}{the Akaike Information Criterion corresponding to the
+##'   fitted model.}
+##'   \item{BIC}{the Bayesian Information Criterion corresponding to the
+##'   fitted model.}
+##'   \item{logLik}{If \code{REML = FALSE}, returns the log-likelihood
+##'   value of the linear mixed-effects model; otherwise, the restricted
+##'   log-likelihood is returned.}
 ##'
 ##' @param object an object inheriting from class
 ##'   \code{\link[lcc]{lcc}}, representing a fitted longitudinal

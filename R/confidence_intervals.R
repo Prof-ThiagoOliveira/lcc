@@ -25,20 +25,26 @@ ZFisher_inv <- function(x) (exp(2 * x) - 1) / (exp(2 * x) + 1)
 Arcsin     <- function(x) asin(sqrt(x))
 Arcsin_inv <- function(x) sin(x)^2
 
-.clamp_r <- function(x, eps = 1e-8) {
-  pmax(-1 + eps, pmin(1 - eps, x))
-}
-
 build_ci_metric <- function(boot_list, alpha,
                             transform, inv_transform,
-                            percentile) {
+                            percentile,
+                            bounds = NULL,
+                            warn_label = "metric") {
   if (is.null(boot_list) || (is.list(boot_list) && !length(boot_list))) {
-    return(matrix(NA_real_, nrow = 2L, ncol = 0L))
+    mat <- matrix(NA_real_, nrow = 2L, ncol = 0L)
+    rownames(mat) <- c("lower", "upper")
+    attr(mat, "ci_level")  <- 1 - alpha
+    attr(mat, "ci_method") <- if (percentile) "percentile" else "normal"
+    return(mat)
   }
   if (is.list(boot_list)) {
     boot_list <- boot_list[ vapply(boot_list, function(x) length(x) > 0, logical(1L)) ]
     if (!length(boot_list)) {
-      return(matrix(NA_real_, nrow = 2L, ncol = 0L))
+      mat <- matrix(NA_real_, nrow = 2L, ncol = 0L)
+      rownames(mat) <- c("lower", "upper")
+      attr(mat, "ci_level")  <- 1 - alpha
+      attr(mat, "ci_method") <- if (percentile) "percentile" else "normal"
+      return(mat)
     }
   }
   res <- try(
@@ -47,7 +53,9 @@ build_ci_metric <- function(boot_list, alpha,
       alpha         = alpha,
       transform     = if (!percentile) transform else NULL,
       inv_transform = if (!percentile) inv_transform else NULL,
-      percentile    = percentile
+      percentile    = percentile,
+      bounds        = bounds,
+      warn_label    = warn_label
     ),
     silent = TRUE
   )
@@ -59,7 +67,16 @@ build_ci_metric <- function(boot_list, alpha,
     } else if (is.matrix(boot_list)) {
       cols <- ncol(boot_list)
     }
-    return(matrix(NA_real_, nrow = 2L, ncol = cols))
+    mat <- matrix(NA_real_, nrow = 2L, ncol = cols)
+    rownames(mat) <- c("lower", "upper")
+    attr(mat, "ci_level")  <- 1 - alpha
+    attr(mat, "ci_method") <- if (percentile) "percentile" else "normal"
+    return(mat)
+  }
+  if (is.matrix(res)) {
+    rownames(res) <- c("lower", "upper")
+    attr(res, "ci_level")  <- 1 - alpha
+    attr(res, "ci_method") <- if (percentile) "percentile" else "normal"
   }
   res
 }
@@ -132,7 +149,9 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
       alpha         = alpha,
       transform     = ZFisher,
       inv_transform = ZFisher_inv,
-      percentile    = percentile
+      percentile    = percentile,
+      bounds        = c(-1, 1),
+      warn_label    = "LCC"
     )
     ENV.LCC <- .align_ci_to_grid(ENV.LCC, len_time, name = "ENV.LCC")
     # Fallback: if CI is still all NA, recompute directly ignoring any NA replicates
@@ -156,7 +175,9 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
         alpha         = alpha,
         transform     = ZFisher,
         inv_transform = ZFisher_inv,
-        percentile    = percentile
+        percentile    = percentile,
+        bounds        = c(-1, 1),
+        warn_label    = sprintf("LCC[%d]", i)
       )
     }
     ENV.LCC <- .align_ci_list_to_grid(ENV.LCC, len_time, name = "ENV.LCC")
@@ -191,7 +212,9 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
 ##' @keywords Internal
 .build_ci_from_boot <- function(boot_list, alpha,
                                 transform = NULL, inv_transform = NULL,
-                                percentile = FALSE) {
+                                percentile = FALSE,
+                                bounds = NULL,
+                                warn_label = "metric") {
   ## boot_list: list over bootstrap replicates (vectors), or matrix with
   ## rows = time points and cols = replicates.
 
@@ -215,6 +238,23 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
   if (is.null(dim(boot_mat)) || !length(boot_mat) || any(dim(boot_mat) == 0)) {
     return(matrix(NA_real_, nrow = 2L, ncol = 0L))
   }
+
+  if (!is.null(bounds) && length(bounds) == 2L &&
+      all(is.finite(bounds))) {
+    eps   <- 1e-8
+    lower <- bounds[1L]
+    upper <- bounds[2L]
+    boot_mat <- pmax(lower + eps, pmin(upper - eps, boot_mat))
+  }
+
+  invalid <- !is.finite(boot_mat)
+  invalid_frac <- rowMeans(invalid, na.rm = TRUE)
+  if (any(invalid_frac > 0.25, na.rm = TRUE)) {
+    warn_general(
+      "{warn_label}: more than 25% of bootstrap replicates were non-finite at one or more time points; intervals may be unreliable."
+    )
+  }
+  boot_mat[invalid] <- NA_real_
   
   if (percentile) {
     lower <- apply(
@@ -229,7 +269,11 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
   
   ## Normal-approximation on a transformed scale
   if (!is.null(transform)) {
-    boot_mat <- transform(.clamp_r(boot_mat))
+    if (identical(transform, ZFisher)) {
+      boot_mat <- safe_fisher(boot_mat)
+    } else {
+      boot_mat <- transform(boot_mat)
+    }
   }
   
   se <- apply(boot_mat, 1L, sd, na.rm = TRUE)
@@ -239,7 +283,11 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
   ci <- rbind(mu - z * se, mu + z * se)
   
   if (!is.null(inv_transform)) {
-    ci <- inv_transform(ci)
+    if (identical(inv_transform, ZFisher_inv)) {
+      ci <- safe_fisher_inv(ci)
+    } else {
+      ci <- inv_transform(ci)
+    }
   }
   
   ci
@@ -262,10 +310,12 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
 ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
                       var.class, weights.form, show.warnings, tk,
                       diffbeta, ldb, tk.plot, tk.plot2, ci,
+                      comp_names = NULL,
                       boot.scheme = "np_case",
                       ci.method   = "normal",
                       alpha, components, lme.control, method.init,
-                      numCore) {
+                      numCore, keep_models = FALSE,
+                      rng_seed = NULL) {
   ci.method <- check_choice(ci.method, c("normal", "percentile", "bca"), arg = "ci.method")
   boot.scheme <- check_choice(
     boot.scheme,
@@ -277,6 +327,13 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
   )
   alpha <- check_scalar_numeric(alpha, arg = "alpha", lower = 0, upper = 1)
   nboot <- check_scalar_integer(nboot, arg = "nboot", lower = 1L)
+  if (is.null(comp_names)) {
+    comp_names <- sprintf("Comparison_%d", seq_len(ldb))
+  } else if (length(comp_names) != ldb) {
+    abort_internal(
+      "Length of comp_names ({length(comp_names)}) must match number of comparisons {.val {ldb}}."
+    )
+  }
   #-------------------------------------------------------------------
   # 1. Bootstrap samples
   #-------------------------------------------------------------------
@@ -298,12 +355,15 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
     diffbeta     = diffbeta,
     ldb          = ldb,
     components   = components,
-    boot.scheme  = boot.scheme
+    boot.scheme  = boot.scheme,
+    keep_models  = keep_models,
+    rng_seed     = rng_seed
   )
   
   LCC_Boot <- Boot$LCC_Boot
   LPC_Boot <- Boot$LPC_Boot
   Cb_Boot  <- Boot$Cb_Boot
+  boot_state <- Boot$state
   
   #-------------------------------------------------------------------
   # 3. Point estimates: LCC (rho)
@@ -345,82 +405,191 @@ ciBuilder <- function(model, nboot, q_f, q_r, interaction, covar, pdmat,
       alpha        = alpha,
       ci.method    = ci.method
     )
-    return(invisible(CI))
-  }
-  
-  #-------------------------------------------------------------------
-  # 5. Components = TRUE: LPC and LA
-  #-------------------------------------------------------------------
-  if (ldb == 1L) {
-    rho.pearson <- lpcWrapper(
-      model   = model,
-      q_f     = q_f,
-      tk      = tk,
-      n.delta = 1L
-    )
-    
-    Cb <- laWrapper(
-      model   = model,
-      q_f     = q_f,
-      n.delta = 1L,
-      tk      = tk,
-      diffbeta = as.numeric(diffbeta[[1L]])
-    )
   } else {
-    rho_pearson_list <- vector("list", ldb)
-    Cb_list          <- vector("list", ldb)
-    
-    for (i in seq_len(ldb)) {
-      rho_pearson_list[[i]] <- lpcWrapper(
+    #-------------------------------------------------------------------
+    # 5. Components = TRUE: LPC and LA
+    #-------------------------------------------------------------------
+    if (ldb == 1L) {
+      rho.pearson <- lpcWrapper(
         model   = model,
         q_f     = q_f,
         tk      = tk,
         n.delta = 1L
       )
       
-      Cb_list[[i]] <- laWrapper(
+      Cb <- laWrapper(
         model   = model,
         q_f     = q_f,
         n.delta = 1L,
         tk      = tk,
-        diffbeta = as.numeric(diffbeta[[i]])
+        diffbeta = as.numeric(diffbeta[[1L]])
       )
+    } else {
+      rho_pearson_list <- vector("list", ldb)
+      Cb_list          <- vector("list", ldb)
+      
+      for (i in seq_len(ldb)) {
+        rho_pearson_list[[i]] <- lpcWrapper(
+          model   = model,
+          q_f     = q_f,
+          tk      = tk,
+          n.delta = 1L
+        )
+        
+        Cb_list[[i]] <- laWrapper(
+          model   = model,
+          q_f     = q_f,
+          n.delta = 1L,
+          tk      = tk,
+          diffbeta = as.numeric(diffbeta[[i]])
+        )
+      }
+      
+      rho.pearson <- as.data.frame(do.call(cbind, rho_pearson_list))
+      Cb          <- as.data.frame(do.call(cbind, Cb_list))
     }
     
-    rho.pearson <- as.data.frame(do.call(cbind, rho_pearson_list))
-    Cb          <- as.data.frame(do.call(cbind, Cb_list))
+    #-----------------------------------------------------------------
+    # 6. Delegate construction of CIs to ciCompute()
+    #-----------------------------------------------------------------
+    CI <- ciCompute(
+      rho          = rho,
+      rho.pearson  = rho.pearson,
+      Cb           = Cb,
+      tk.plot      = tk.plot,
+      tk.plot2     = tk.plot2,
+      ldb          = ldb,
+      model        = model,
+      ci           = ci,
+      LCC_Boot     = LCC_Boot,
+      LPC_Boot     = LPC_Boot,
+      Cb_Boot      = Cb_Boot,
+      alpha        = alpha,
+      ci.method    = ci.method,
+      q_f          = q_f,
+      q_r          = q_r,
+      interaction  = interaction,
+      covar        = covar,
+      pdmat        = pdmat,
+      var.class    = var.class,
+      weights.form = weights.form,
+      diffbeta     = diffbeta,
+      components   = components,
+      lme.control  = lme.control,
+      method.init  = method.init
+    )
   }
+
+  CI$bootstrap_state <- boot_state
   
-  #-------------------------------------------------------------------
-  # 6. Delegate construction of CIs to ciCompute()
-  #-------------------------------------------------------------------
-  CI <- ciCompute(
-    rho          = rho,
-    rho.pearson  = rho.pearson,
-    Cb           = Cb,
-    tk.plot      = tk.plot,
-    tk.plot2     = tk.plot2,
-    ldb          = ldb,
-    model        = model,
-    ci           = ci,
-    LCC_Boot     = LCC_Boot,
-    LPC_Boot     = LPC_Boot,
-    Cb_Boot      = Cb_Boot,
-    alpha        = alpha,
-    ci.method    = ci.method,
-    q_f          = q_f,
-    q_r          = q_r,
-    interaction  = interaction,
-    covar        = covar,
-    pdmat        = pdmat,
-    var.class    = var.class,
-    weights.form = weights.form,
-    diffbeta     = diffbeta,
-    components   = components,
-    lme.control  = lme.control,
-    method.init  = method.init
+  # helper functions to standardise metric structures
+  as_numeric_vec <- function(x) {
+    if (is.null(x)) return(NULL)
+    as.numeric(x)
+  }
+
+  wrap_estimate <- function(values) {
+    if (is.null(values)) {
+      out <- vector("list", length(comp_names))
+      names(out) <- comp_names
+      return(out)
+    }
+    if (ldb == 1L) {
+      out <- list(as_numeric_vec(values))
+    } else if (is.list(values) && length(values) == ldb) {
+      out <- lapply(values, as_numeric_vec)
+    } else if (is.data.frame(values) || is.matrix(values)) {
+      if (ncol(values) != ldb) {
+        abort_internal("Estimate container must have {.val {ldb}} columns.")
+      }
+      out <- lapply(seq_len(ldb), function(j) as_numeric_vec(values[, j]))
+    } else {
+      out <- lapply(seq_len(ldb), function(j) as_numeric_vec(values[[j]]))
+    }
+    names(out) <- comp_names
+    out
+  }
+
+  wrap_ci <- function(values, label) {
+    if (is.null(values)) return(NULL)
+    add_meta <- function(mat) {
+      if (is.null(mat)) return(NULL)
+      if (is.matrix(mat)) {
+        if (nrow(mat) == 2L) {
+          rownames(mat) <- c("lower", "upper")
+        }
+        attr(mat, "ci_level")  <- 1 - alpha
+        attr(mat, "ci_method") <- ci.method
+      }
+      mat
+    }
+    if (ldb == 1L) {
+      out <- list(add_meta(values))
+    } else if (is.list(values) && length(values) == ldb) {
+      out <- lapply(values, add_meta)
+    } else {
+      abort_internal("{label}: unexpected CI container shape.")
+    }
+    names(out) <- comp_names
+    out
+  }
+
+  wrap_bootstrap <- function(boot_obj, label) {
+    if (is.null(boot_obj)) return(NULL)
+    len_time <- length(tk.plot)
+    if (is.matrix(boot_obj)) {
+      out <- list(boot_obj)
+      names(out) <- comp_names
+      return(out)
+    }
+    if (!is.list(boot_obj) || !length(boot_obj)) {
+      abort_internal("{label}: unexpected bootstrap container shape.")
+    }
+    nboot_local <- length(boot_obj)
+    out <- vector("list", ldb)
+    for (j in seq_len(ldb)) {
+      mat <- matrix(NA_real_, nrow = len_time, ncol = nboot_local)
+      for (b in seq_len(nboot_local)) {
+        replicate <- boot_obj[[b]]
+        if (is.null(replicate)) next
+        vals <- replicate[[j]]
+        if (!is.null(vals)) {
+          mat[, b] <- as_numeric_vec(vals)
+        }
+      }
+      out[[j]] <- mat
+    }
+    names(out) <- comp_names
+    out
+  }
+
+  metrics <- list(
+    lcc = list(
+      estimate  = wrap_estimate(CI$rho),
+      bootstrap = wrap_bootstrap(LCC_Boot, "LCC"),
+      ci        = wrap_ci(CI$ENV.LCC, "LCC"),
+      grid      = list(primary = tk.plot, secondary = tk.plot2)
+    )
   )
-  
+
+  if (isTRUE(components)) {
+    metrics$lpc <- list(
+      estimate  = wrap_estimate(CI$LPC),
+      bootstrap = wrap_bootstrap(LPC_Boot, "LPC"),
+      ci        = wrap_ci(CI$ENV.LPC, "LPC"),
+      grid      = list(primary = tk.plot, secondary = tk.plot2)
+    )
+    metrics$la <- list(
+      estimate  = wrap_estimate(CI$Cb),
+      bootstrap = wrap_bootstrap(Cb_Boot, "LA"),
+      ci        = wrap_ci(CI$ENV.Cb, "LA"),
+      grid      = list(primary = tk.plot, secondary = tk.plot2)
+    )
+  }
+
+  CI$metrics <- metrics
+  CI$comp_names <- comp_names
+
   invisible(CI)
 }
 
@@ -500,10 +669,10 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
         out[[i]] <- NULL
         next
       }
-      mod_i <- fit_i$model
-      G_i   <- nlme::getVarCov(mod_i)
-      q_r_i <- nrow(G_i) - 1L
-      pre_i <- .precompute_longitudinal(mod_i, tk.plot, q_f = q_f, q_r = q_r_i)
+      mod_i    <- fit_i$model
+      G_i_info <- extract_random_effects_cov(mod_i)
+      q_r_i    <- max(0L, G_i_info$n_re - 1L)
+      pre_i    <- .precompute_longitudinal(mod_i, tk.plot, q_f = q_f, q_r = q_r_i)
       nd    <- length(summary(mod_i)$modelStruct$varStruct)
       
       rho_i <- vector("list", length(diffbeta))
@@ -545,7 +714,15 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
   
   if (ci.method %in% c("normal", "percentile")) {
     if (ldb == 1L) {
-      ENV.LCC <- build_ci_metric(LCC_Boot, alpha, ZFisher, ZFisher_inv, percentile)
+      ENV.LCC <- build_ci_metric(
+        LCC_Boot,
+        alpha,
+        ZFisher,
+        ZFisher_inv,
+        percentile,
+        bounds     = c(-1, 1),
+        warn_label = "LCC"
+      )
       ENV.LCC <- .align_ci_to_grid(ENV.LCC, length(tk.plot), name = "ENV.LCC")
       if (all(is.na(ENV.LCC)) && is.matrix(LCC_Boot) && ncol(LCC_Boot) > 0L) {
         lower <- apply(
@@ -557,11 +734,27 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
         ENV.LCC <- rbind(lower, upper)
         ENV.LCC <- .align_ci_to_grid(ENV.LCC, length(tk.plot), name = "ENV.LCC")
       }
-      ENV.LPC <- if (!is.null(LPC_Boot)) build_ci_metric(LPC_Boot, alpha, ZFisher, ZFisher_inv, percentile) else NULL
+      ENV.LPC <- if (!is.null(LPC_Boot)) build_ci_metric(
+        LPC_Boot,
+        alpha,
+        ZFisher,
+        ZFisher_inv,
+        percentile,
+        bounds     = c(-1, 1),
+        warn_label = "LPC"
+      ) else NULL
       if (!is.null(ENV.LPC)) {
         ENV.LPC <- .align_ci_to_grid(ENV.LPC, length(tk.plot), name = "ENV.LPC")
       }
-      ENV.Cb  <- if (!is.null(Cb_Boot))  build_ci_metric(Cb_Boot,  alpha, Arcsin,  Arcsin_inv, percentile) else NULL
+      ENV.Cb  <- if (!is.null(Cb_Boot))  build_ci_metric(
+        Cb_Boot,
+        alpha,
+        Arcsin,
+        Arcsin_inv,
+        percentile,
+        bounds     = c(0, 1),
+        warn_label = "Cb"
+      ) else NULL
       if (!is.null(ENV.Cb)) {
         ENV.Cb <- .align_ci_to_grid(ENV.Cb, length(tk.plot), name = "ENV.Cb")
       }
@@ -572,14 +765,38 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
       
       for (i in seq_len(ldb)) {
         LCC_i <- lapply(LCC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-        ENV.LCC[[i]] <- build_ci_metric(LCC_i, alpha, ZFisher, ZFisher_inv, percentile)
+        ENV.LCC[[i]] <- build_ci_metric(
+          LCC_i,
+          alpha,
+          ZFisher,
+          ZFisher_inv,
+          percentile,
+          bounds     = c(-1, 1),
+          warn_label = sprintf("LCC[%d]", i)
+        )
         if (!is.null(LPC_Boot)) {
           LPC_i <- lapply(LPC_Boot, function(x) if (!is.null(x)) x[[i]] else NULL)
-          ENV.LPC[[i]] <- build_ci_metric(LPC_i, alpha, ZFisher, ZFisher_inv, percentile)
+          ENV.LPC[[i]] <- build_ci_metric(
+            LPC_i,
+            alpha,
+            ZFisher,
+            ZFisher_inv,
+            percentile,
+            bounds     = c(-1, 1),
+            warn_label = sprintf("LPC[%d]", i)
+          )
         }
         if (!is.null(Cb_Boot)) {
           Cb_i  <- lapply(Cb_Boot,  function(x) if (!is.null(x)) x[[i]] else NULL)
-          ENV.Cb[[i]]  <- build_ci_metric(Cb_i,  alpha, Arcsin,  Arcsin_inv, percentile)
+          ENV.Cb[[i]]  <- build_ci_metric(
+            Cb_i,
+            alpha,
+            Arcsin,
+            Arcsin_inv,
+            percentile,
+            bounds     = c(0, 1),
+            warn_label = sprintf("Cb[%d]", i)
+          )
         }
       }
       ENV.LCC <- .align_ci_list_to_grid(ENV.LCC, length(tk.plot), name = "ENV.LCC")

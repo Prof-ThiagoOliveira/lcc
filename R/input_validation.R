@@ -23,7 +23,7 @@
 ##'   based method.
 ##'
 ##' @usage NULL
-##' @return No return value, called for side effects
+##' @return A named list with resolved arguments used internally by lccModel
 ##' @importFrom nlme lme
 ##'
 ##' @author Thiago de Paula Oliveira, \email{thiago.paula.oliveira@@alumni.usp.br}
@@ -156,7 +156,7 @@ init <- function(var.class, weights.form, REML, qf, qr, pdmat, dataset,
   #-------------------------------------------------------------------
   check_num_core(numCore)
   
-  return(list2env(initList, .GlobalEnv))
+  initList
 }
 
 #-----------------------------------------------------------------------

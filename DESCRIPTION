@@ -39,7 +39,8 @@ Imports:
 Suggests:
     roxygen2 (>= 3.0.0),
     covr,
-    testthat
+    testthat,
+    pkgload
 License: GPL (>= 2)
 Encoding: UTF-8
 Repository: CRAN

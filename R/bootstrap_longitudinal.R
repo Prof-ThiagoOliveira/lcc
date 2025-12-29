@@ -28,9 +28,10 @@
 ##'
 ##' @importFrom nlme fixef
 ##' @importFrom foreach foreach %dopar%
-##' @importFrom doRNG %dorng%
+##' @importFrom doRNG %dorng% registerDoRNG
 ##' @importFrom doSNOW registerDoSNOW
 ##' @importFrom parallel makeCluster stopCluster
+##' @importFrom stats coef
 ##' @keywords internal
 ##' @param boot.scheme character indicating the bootstrap resampling
 ##'   scheme; defaults to "np_case" (subject-level case bootstrap). Other
@@ -44,15 +45,29 @@
 ##'     \item "sp_case_pr": semiparametric case bootstrap; resample subjects, use their fitted trajectories, then add Gaussian noise with variance equal to the estimated residual variance.
 ##'     \item "p_re_pr": fully parametric; simulate random effects from the estimated covariance and residuals from Gaussian noise, then generate responses via X beta + Z u + eps.
 ##'   }
+#' @param rng_seed optional integer seed used to initialise the parallel
+#'   random number stream via \code{doRNG}. When \code{NULL}, the current
+#'   global RNG state is used.
 #' @importFrom MASS mvrnorm
 bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
                              var.class, pdmat, weights.form, show.warnings,
                              tk, diffbeta, ldb, components,
                              lme.control, method.init, numCore,
-                             boot.scheme = "np_case") {
-  if (numCore > 1L && !requireNamespace("lcc", quietly = TRUE)) {
-    warn_general("Package 'lcc' must be installed to run bootstrap in parallel; falling back to serial.")
-    numCore <- 1L
+                             boot.scheme = "np_case",
+                             keep_models = FALSE,
+                             rng_seed = NULL) {
+  pkgload_available <- FALSE
+  if (numCore > 1L) {
+    has_lcc <- requireNamespace("lcc", quietly = TRUE)
+    pkgload_available <- requireNamespace("pkgload", quietly = TRUE)
+    if (!has_lcc && !pkgload_available) {
+      warn_general("Parallel bootstrap requires either an installed 'lcc' package or the 'pkgload' helper; falling back to serial execution.")
+      numCore <- 1L
+    }
+  }
+
+  if (!is.null(rng_seed)) {
+    rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
   ## Pre-allocate
@@ -67,6 +82,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   
   warnings <- 0L
   fail_indices <- integer(0L)
+  boot_state <- vector("list", nboot)
   
   Data           <- model$data
   subj_idx_list  <- split(seq_len(nrow(Data)), Data$subject)
@@ -118,14 +134,59 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   }
 
   G_hat <- extract_G_hat(model)
+
+  safe_chol <- function(mat, jitter = 1e-8, max_iter = 5L) {
+    if (!is.matrix(mat) || !nrow(mat) || !ncol(mat)) {
+      return(NULL)
+    }
+    attempt <- tryCatch(chol(mat), error = function(e) NULL)
+    if (!is.null(attempt)) {
+      return(attempt)
+    }
+    dim_mat <- nrow(mat)
+    for (k in seq_len(max_iter)) {
+      step <- jitter * (10^(k - 1L))
+      attempt <- tryCatch(
+        chol(mat + diag(step, dim_mat)),
+        error = function(e) NULL
+      )
+      if (!is.null(attempt)) {
+        return(attempt)
+      }
+    }
+    NULL
+  }
   
   ## Subject-level bootstrap via indices to reduce copying
   split_by_subject <- function(return_idx = FALSE) {
-    id  <- sample.int(n_subj, n_subj, replace = TRUE)
-    idx <- unlist(subj_idx_list[id], use.names = FALSE)
-    db  <- Data[idx, , drop = FALSE]
+    draw <- sample.int(n_subj, n_subj, replace = TRUE)
+    out  <- vector("list", length(draw))
+    idx_list <- vector("list", length(draw))
+
+    for (k in seq_along(draw)) {
+      rows <- subj_idx_list[[draw[k]]]
+      tmp  <- Data[rows, , drop = FALSE]
+
+      subj_chr <- as.character(tmp$subject)
+      tmp$subject <- factor(
+        paste0(subj_chr, "__boot", sprintf("%05d", k)),
+        levels = NULL
+      )
+
+      out[[k]] <- tmp
+      idx_list[[k]] <- rows
+    }
+
+    db <- do.call(rbind, out)
     rownames(db) <- NULL
-    if (return_idx) list(data = db, idx = idx) else db
+    db$subject <- factor(as.character(db$subject))
+
+    if (!return_idx) {
+      return(db)
+    }
+
+    idx <- unlist(idx_list, use.names = FALSE)
+    list(data = db, idx = idx)
   }
   
   ## Fixed-effects pattern (align with original diffbeta)
@@ -170,6 +231,25 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     Tk_f = outer(tk, 0:q_f, `^`),
     Tk_r = outer(tk, 0:q_r, `^`)
   )
+
+  basis_cache <- new.env(parent = emptyenv())
+  assign(as.character(q_r), basis_template, envir = basis_cache)
+
+  get_basis <- function(q_r_val) {
+    key <- as.character(q_r_val)
+    if (exists(key, envir = basis_cache, inherits = FALSE)) {
+      return(get(key, envir = basis_cache, inherits = FALSE))
+    }
+    basis_new <- list(
+      tk   = tk,
+      q_f  = q_f,
+      q_r  = q_r_val,
+      Tk_f = basis_template$Tk_f,
+      Tk_r = outer(tk, 0:q_r_val, `^`)
+    )
+    assign(key, basis_new, envir = basis_cache)
+    basis_new
+  }
 
   fitted_orig <- stats::fitted(model)
   eps_hat     <- residuals(model)
@@ -248,19 +328,18 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
 
   ## 3.1 Random effects: transform empirical BLUP covariance to G_hat
   ##    (multivariate extension via linear map A)
-  G_emp <- stats::cov(ranef_mat)
-  if (all(is.finite(G_emp))) {
-    U_emp <- chol(G_emp)  ## upper-triangular: U_emp' U_emp = G_emp
-    U_hat <- chol(G_hat)  ## U_hat' U_hat = G_hat
+  ranef_corr <- ranef_mat
+  if (nrow(ranef_mat) > 0L && ncol(ranef_mat) > 0L) {
+    G_emp   <- stats::cov(ranef_mat)
+    finite  <- is.matrix(G_emp) && all(is.finite(G_emp))
+    U_emp   <- if (finite) safe_chol(G_emp) else NULL
+    U_hat   <- safe_chol(G_hat)
 
-    ## A such that A G_emp A' = G_hat
-    A <- t(U_hat) %*% solve(t(U_emp))  ## q x q
-
-    ## Centre BLUPs and apply A to row-vectors: u_row_corr = u_row A'
-    ranef_c    <- scale(ranef_mat, center = TRUE, scale = FALSE)
-    ranef_corr <- ranef_c %*% t(A)
-  } else {
-    ranef_corr <- ranef_mat
+    if (!is.null(U_emp) && !is.null(U_hat)) {
+      A <- t(U_hat) %*% solve(t(U_emp))
+      ranef_c <- scale(ranef_mat, center = TRUE, scale = FALSE)
+      ranef_corr <- ranef_c %*% t(A)
+    }
   }
 
   ## Build corrected level-1 predictions for the NP RE schemes
@@ -309,11 +388,15 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     if (global) {
       res_star <- sample(eps_corr, length(idx), replace = TRUE)
     } else {
-      subj_boot <- db$subject
-      res_star  <- numeric(length(idx))
-      for (s in unique(subj_boot)) {
-        pos  <- which(subj_boot == s)
-        pool <- eps_by_subj_corr[[as.character(s)]]
+      subj_boot  <- as.character(db$subject)
+      subj_split <- split(seq_along(subj_boot), subj_boot)
+      subj_orig  <- as.character(Data$subject[idx])
+      res_star   <- numeric(length(idx))
+
+      for (boot_id in names(subj_split)) {
+        pos  <- subj_split[[boot_id]]
+        orig <- subj_orig[pos][1L]
+        pool <- eps_by_subj_corr[[orig]]
         res_star[pos] <- sample(pool, length(pos), replace = TRUE)
       }
     }
@@ -327,8 +410,9 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   # resample subjects (and their BLUPs) then add resampled residuals
   generate_np_re_resid <- function(global = TRUE) {
     out_list <- vector("list", n_subj)
+    subj_levels <- names(subj_idx_list)
     for (k in seq_len(n_subj)) {
-      sid  <- sample(levels(Data$subject), 1L, replace = TRUE)
+      sid  <- sample(subj_levels, 1L, replace = TRUE)
       rows <- subj_idx_list[[sid]]
 
       fitted_sid <- pred_level1_corr[rows]
@@ -336,16 +420,19 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       if (global) {
         res_sid <- sample(eps_corr, length(rows), replace = TRUE)
       } else {
-        pool    <- eps_by_subj_corr[[as.character(sid)]]
+        pool    <- eps_by_subj_corr[[sid]]
         res_sid <- sample(pool, length(rows), replace = TRUE)
       }
       
       tmp        <- Data[rows, , drop = FALSE]
+      subj_new   <- paste0(as.character(tmp$subject[1L]), "__boot", sprintf("%05d", k))
+      tmp$subject <- factor(subj_new, levels = subj_new)
       tmp$resp   <- fitted_sid + res_sid
       out_list[[k]] <- tmp
     }
     db <- do.call(rbind, out_list)
     rownames(db) <- NULL
+    db$subject <- factor(as.character(db$subject))
     db
   }
   
@@ -437,87 +524,92 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     }
     
     ## Precompute kernel for this bootstrap model
-    G_i   <- nlme::getVarCov(boot_mod)
-    q_r_i <- nrow(G_i) - 1L
+    summary_boot <- summary(boot_mod)
+    G_i_info <- extract_random_effects_cov(boot_mod)
+    q_r_i    <- max(0L, G_i_info$n_re - 1L)
+    basis_i  <- get_basis(q_r_i)
     
     pre <- .precompute_longitudinal(
       model = boot_mod,
       tk    = tk,
       q_f   = q_f,
       q_r   = q_r_i,
-      basis = if (q_r_i == q_r) basis_template else NULL
+      basis = basis_i,
+      G_info = G_i_info,
+      summary_obj = summary_boot
     )
     
     fx_boot       <- nlme::fixef(boot_mod)
     diffbeta_boot <- compute_betas(fx_boot)
-    
-    ## ----- LCC -----
-    if (ldb == 1L) {
-        rho_all <- .compute_LCC(
-          pre      = pre,
-          diffbeta = as.numeric(diffbeta_boot[[1L]])
-        )
-      rho_boot <- rho_all[[1L]]
+    var_struct_boot <- summary_boot$modelStruct$varStruct
+    state_record <- if (keep_models) {
+      boot_mod
     } else {
-      rho_list <- vector("list", ldb)
-      for (j in seq_len(ldb)) {
-        n_delta   <- if (use_delta_by_level) j else 1L
-        rho_all_j <- .compute_LCC(
-          pre      = pre,
-          diffbeta = as.numeric(diffbeta_boot[[j]])
-        )
-        if (length(rho_all_j) == 1L || sum(is.na(rho_all_j[[2L]])) != 0L) {
-          rho_list[[j]] <- rho_all_j[[1L]]
-        } else {
-          rho_list[[j]] <- rho_all_j[[n_delta]]
-        }
-      }
-      rho_boot <- rho_list
-    }
-    
-    ## ----- Components -----
-    rho.pearson_boot <- NULL
-    Cb_boot          <- NULL
-    
-    if (components) {
-      rho_pearson_all <- .compute_LPC(pre)
-      
-      if (ldb == 1L) {
-        rho.pearson_boot <- rho_pearson_all[[1L]]
-      } else {
-        rhoP_list <- vector("list", ldb)
-        for (j in seq_len(ldb)) {
-          n_delta <- if (use_delta_by_level) j else 1L
-          rhoP_list[[j]] <- rho_pearson_all[[n_delta]]
-        }
-        rho.pearson_boot <- rhoP_list
-      }
-      
-      if (ldb == 1L) {
-        LA_all <- .compute_LA(
-          pre      = pre,
-          diffbeta = as.numeric(diffbeta_boot[[1L]])
-        )
-        Cb_boot <- LA_all[[1L]]
-      } else {
-        Cb_list <- vector("list", ldb)
-        for (j in seq_len(ldb)) {
-          n_delta  <- if (use_delta_by_level) j else 1L
-          LA_all_j <- .compute_LA(
-            pre      = pre,
-            diffbeta = as.numeric(diffbeta_boot[[j]])
+      list(
+        fixef       = fx_boot,
+        ranef_cov   = G_i_info$G,
+        sigma       = boot_mod$sigma,
+        var_struct  = if (!is.null(var_struct_boot)) {
+          list(
+            class        = class(var_struct_boot)[1L],
+            coefficients = stats::coef(var_struct_boot, unconstrained = FALSE)
           )
-          Cb_list[[j]] <- LA_all_j[[n_delta]]
-        }
-        Cb_boot <- Cb_list
-      }
+        } else NULL,
+        wcount      = fit$wcount,
+        message     = if (fit$wcount > 0L) fit$message else NULL
+      )
     }
     
+    ## ----- Metrics via helper loop -----
+    rho_boot <- .bootstrap_metric_loop(
+      pre                  = pre,
+      ldb                  = ldb,
+      compute_metric_from_pre = function(pre_obj, diffbeta_vec) {
+        .compute_LCC(pre_obj, diffbeta = diffbeta_vec)
+      },
+      diffbeta             = diffbeta_boot,
+      use_delta_by_level   = use_delta_by_level,
+      needs_diff           = TRUE,
+      selector             = .select_metric_lcc,
+      label                = "LCC"
+    )
+
+    if (components) {
+      rho.pearson_boot <- .bootstrap_metric_loop(
+        pre                  = pre,
+        ldb                  = ldb,
+        compute_metric_from_pre = function(pre_obj, diffbeta_unused) {
+          .compute_LPC(pre_obj)
+        },
+        use_delta_by_level   = use_delta_by_level,
+        needs_diff           = FALSE,
+        selector             = .select_metric_default,
+        label                = "LPC"
+      )
+
+      Cb_boot <- .bootstrap_metric_loop(
+        pre                  = pre,
+        ldb                  = ldb,
+        compute_metric_from_pre = function(pre_obj, diffbeta_vec) {
+          .compute_LA(pre_obj, diffbeta = diffbeta_vec)
+        },
+        diffbeta             = diffbeta_boot,
+        use_delta_by_level   = use_delta_by_level,
+        needs_diff           = TRUE,
+        selector             = .select_metric_default,
+        label                = "LA"
+      )
+    } else {
+      rho.pearson_boot <- NULL
+      Cb_boot <- NULL
+    }
+
     list(
       LCC    = rho_boot,
       LPC    = rho.pearson_boot,
       Cb     = Cb_boot,
-      wcount = fit$wcount
+      wcount = fit$wcount,
+      state  = state_record
     )
   }
   
@@ -529,8 +621,14 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     pb <- utils::txtProgressBar(min = 0, max = nboot, style = 3)
     on.exit(close(pb), add = TRUE)
     
+    if (!is.null(rng_seed)) {
+      set.seed(rng_seed)
+    }
+
     for (i in seq_len(nboot)) {
       res <- one_bootstrap(i)
+      boot_state[[i]] <- res$state
+      res$state <- NULL
       
       if (ldb == 1L) {
         LCC_Boot[, i] <- res$LCC
@@ -556,25 +654,83 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   } else {
     ## Parallel with doSNOW + foreach; keep existing progress behaviour
     cl <- parallel::makeCluster(numCore)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
     doSNOW::registerDoSNOW(cl)
+    if (is.null(rng_seed)) {
+      doRNG::registerDoRNG()
+    } else {
+      doRNG::registerDoRNG(rng_seed)
+    }
     
     pb <- utils::txtProgressBar(min = 0, max = nboot, style = 3)
+    on.exit(close(pb), add = TRUE)
     progress <- function(n) utils::setTxtProgressBar(pb, n)
     opts <- list(progress = progress)
     
+    lib_paths <- .libPaths()
+    parallel::clusterCall(
+      cl,
+      function(paths) {
+        .libPaths(paths)
+        NULL
+      },
+      lib_paths
+    )
+
+    pkg_path <- getNamespaceInfo(asNamespace("lcc"), "path")
+    parallel::clusterCall(
+      cl,
+      function(path, can_use_pkgload) {
+        load_dev <- FALSE
+        if (can_use_pkgload && requireNamespace("pkgload", quietly = TRUE)) {
+          loader <- get("load_all", envir = asNamespace("pkgload"))
+          load_dev <- tryCatch({
+            loader(
+              path,
+              compile = FALSE,
+              helpers = FALSE,
+              attach_testthat = FALSE,
+              reset = FALSE,
+              quiet = TRUE
+            )
+            TRUE
+          }, error = function(e) FALSE)
+        }
+        if (!load_dev) {
+          if (!require("lcc", character.only = TRUE, quietly = TRUE)) {
+            stop("Failed to load the 'lcc' package on a worker.")
+          }
+        }
+        NULL
+      },
+      pkg_path,
+      pkgload_available
+    )
+
     results <- foreach::foreach(
       i = seq_len(nboot),
       .options.snow = opts,
-      .packages = c("nlme", "lcc")
+      .packages = c("nlme", "MASS"),
+      .export = c(
+        "extract_random_effects_cov",
+        "compute_betas",
+        "get_basis",
+        ".precompute_longitudinal",
+        ".compute_LCC",
+        ".compute_LPC",
+        ".compute_LA",
+        ".bootstrap_metric_loop",
+        ".select_metric_lcc",
+        ".select_metric_default"
+      )
     ) %dorng% {
       one_bootstrap(i)
     }
     
-    close(pb)
-    parallel::stopCluster(cl)
-    
     for (i in seq_along(results)) {
       res <- results[[i]]
+      boot_state[[i]] <- res$state
+      res$state <- NULL
       if (ldb == 1L) {
         LCC_Boot[, i] <- res$LCC
         if (isTRUE(components)) {
@@ -609,7 +765,8 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   out <- list(
     LCC_Boot = LCC_Boot,
     LPC_Boot = LPC_Boot,
-    Cb_Boot  = Cb_Boot
+    Cb_Boot  = Cb_Boot,
+    state    = boot_state
   )
   .check_range <- function(x, lower, upper, name) {
     if (!all(x >= lower & x <= upper, na.rm = TRUE)) {
@@ -625,6 +782,89 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
   out
 }
 
+.select_metric_default <- function(metric_stack, n_delta) {
+  if (is.list(metric_stack)) {
+    idx <- min(n_delta, length(metric_stack))
+    return(metric_stack[[idx]])
+  }
+  metric_stack
+}
+
+.select_metric_lcc <- function(metric_stack, n_delta) {
+  if (!is.list(metric_stack) || !length(metric_stack)) {
+    abort_internal("LCC metric stack must be a non-empty list.")
+  }
+  fallback <- metric_stack[[1L]]
+  if (length(metric_stack) < 2L) {
+    return(fallback)
+  }
+  candidate_idx <- min(n_delta, length(metric_stack))
+  candidate <- metric_stack[[candidate_idx]]
+  second <- metric_stack[[2L]]
+  if (anyNA(second)) {
+    return(fallback)
+  }
+  candidate
+}
+
+.bootstrap_metric_loop <- function(pre, ldb, compute_metric_from_pre,
+                                   diffbeta = NULL,
+                                   use_delta_by_level = FALSE,
+                                   needs_diff = FALSE,
+                                   selector = .select_metric_default,
+                                   label = "metric") {
+  if (!is.function(compute_metric_from_pre)) {
+    abort_internal(".bootstrap_metric_loop requires a function for {.arg compute_metric_from_pre}.")
+  }
+  if (!is.function(selector)) {
+    abort_internal(".bootstrap_metric_loop requires a selector function.")
+  }
+
+  to_numeric <- function(x) {
+    if (is.null(x)) return(NULL)
+    as.numeric(x)
+  }
+
+  eval_metric <- function(diff_arg) {
+    compute_metric_from_pre(pre, diff_arg)
+  }
+
+  if (ldb <= 1L) {
+    diff_arg <- if (needs_diff) {
+      if (is.null(diffbeta) || !length(diffbeta)) {
+        abort_internal("{label}: missing diffbeta for single comparison.")
+      }
+      to_numeric(diffbeta[[1L]])
+    } else NULL
+    metric_stack <- eval_metric(diff_arg)
+    return(selector(metric_stack, 1L))
+  }
+
+  out <- vector("list", ldb)
+
+  if (!needs_diff) {
+    metric_stack <- eval_metric(NULL)
+    for (j in seq_len(ldb)) {
+      n_delta <- if (use_delta_by_level) j else 1L
+      out[[j]] <- selector(metric_stack, n_delta)
+    }
+    return(out)
+  }
+
+  if (is.null(diffbeta) || length(diffbeta) < ldb) {
+    abort_internal("{label}: expected diffbeta list of length {.val {ldb}}.")
+  }
+
+  for (j in seq_len(ldb)) {
+    diff_arg <- to_numeric(diffbeta[[j]])
+    metric_stack <- eval_metric(diff_arg)
+    n_delta <- if (use_delta_by_level) j else 1L
+    out[[j]] <- selector(metric_stack, n_delta)
+  }
+
+  out
+}
+
 #######################################################################
 # lccBootstrap / lpcBootstrap / laBootstrap                           #
 #######################################################################
@@ -632,123 +872,103 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
 ##' @keywords internal
 lccBootstrap <- function(model_boot, diff_boot, ldb, nboot, tk, q_f) {
   CCC_Boot <- vector("list", nboot)
-  
-  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
-  use_delta_by_level <- nd > 1L
-  
+
   for (i in seq_len(nboot)) {
     model_i <- model_boot[[i]]
-    G_i     <- getVarCov(model_i)
-    q_r_i   <- nrow(G_i) - 1L
-    
-    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
-    
-    if (ldb == 1L) {
-      CCC_Boot[[i]] <- {
-        rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(diff_boot[[i]][[1L]]))
-        # same selection rule as lccWrapper
-        if (length(rho_list) == 1L || sum(is.na(rho_list[[2L]])) != 0) {
-          rho_list[[1L]]
-        } else {
-          rho_list[[1L]]  # when ldb==1, n.delta is always 1
-        }
-      }
-    } else {
-      CCC_i <- vector("list", ldb)
-      for (j in seq_len(ldb)) {
-        n_delta <- if (use_delta_by_level) j else 1L
-        rho_list <- .compute_LCC(pre_i, diffbeta = as.numeric(diff_boot[[i]][[j]]))
-        if (length(rho_list) == 1L || sum(is.na(rho_list[[2L]])) != 0) {
-          CCC_i[[j]] <- rho_list[[1L]]
-        } else {
-          CCC_i[[j]] <- rho_list[[n_delta]]
-        }
-      }
-      CCC_Boot[[i]] <- CCC_i
+    if (is.null(model_i)) {
+      CCC_Boot[[i]] <- NULL
+      next
     }
+
+    summary_i <- summary(model_i)
+    G_i_info  <- extract_random_effects_cov(model_i)
+    q_r_i     <- max(0L, G_i_info$n_re - 1L)
+
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i,
+                                      summary_obj = summary_i, G_info = G_i_info)
+
+    CCC_Boot[[i]] <- .bootstrap_metric_loop(
+      pre                  = pre_i,
+      ldb                  = ldb,
+      compute_metric_from_pre = function(pre_obj, diffbeta_vec) {
+        .compute_LCC(pre_obj, diffbeta = diffbeta_vec)
+      },
+      diffbeta             = diff_boot[[i]],
+      use_delta_by_level   = length(summary_i$modelStruct$varStruct) > 1L,
+      needs_diff           = TRUE,
+      selector             = .select_metric_lcc,
+      label                = "LCC"
+    )
   }
-  
+
   CCC_Boot
 }
 
 ##' @keywords internal
 lpcBootstrap <- function(model_boot, ldb, nboot, tk, q_f) {
   LPC_Boot <- vector("list", nboot)
-  
-  if (ldb == 1L) {
-    for (i in seq_len(nboot)) {
-      model_i <- model_boot[[i]]
-      G_i     <- getVarCov(model_i)
-      q_r_i   <- nrow(G_i) - 1L
-      
-      pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
-      rho_pearson_list <- .compute_LPC(pre_i)
-      
-      LPC_Boot[[i]] <- rho_pearson_list[[1L]]
-    }
-    return(LPC_Boot)
-  }
-  
-  # ldb > 1
-  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
-  use_delta_by_level <- nd > 1L
-  
+
   for (i in seq_len(nboot)) {
     model_i <- model_boot[[i]]
-    G_i     <- getVarCov(model_i)
-    q_r_i   <- nrow(G_i) - 1L
-    
-    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
-    rho_pearson_list <- .compute_LPC(pre_i)
-    
-    LPC_i <- vector("list", ldb)
-    for (j in seq_len(ldb)) {
-      n_delta <- if (use_delta_by_level) j else 1L
-      LPC_i[[j]] <- rho_pearson_list[[n_delta]]
+    if (is.null(model_i)) {
+      LPC_Boot[[i]] <- NULL
+      next
     }
-    LPC_Boot[[i]] <- LPC_i
+
+    summary_i <- summary(model_i)
+    G_i_info  <- extract_random_effects_cov(model_i)
+    q_r_i     <- max(0L, G_i_info$n_re - 1L)
+
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i,
+                                      summary_obj = summary_i, G_info = G_i_info)
+
+    LPC_Boot[[i]] <- .bootstrap_metric_loop(
+      pre                  = pre_i,
+      ldb                  = ldb,
+      compute_metric_from_pre = function(pre_obj, diffbeta_unused) {
+        .compute_LPC(pre_obj)
+      },
+      use_delta_by_level   = length(summary_i$modelStruct$varStruct) > 1L,
+      needs_diff           = FALSE,
+      selector             = .select_metric_default,
+      label                = "LPC"
+    )
   }
-  
+
   LPC_Boot
 }
 
 ##' @keywords internal
 laBootstrap <- function(model_boot, diff_boot, ldb, nboot, tk, q_f) {
   Cb_Boot <- vector("list", nboot)
-  
-  if (ldb == 1L) {
-    for (i in seq_len(nboot)) {
-      model_i <- model_boot[[i]]
-      G_i     <- getVarCov(model_i)
-      q_r_i   <- nrow(G_i) - 1L
-      
-      pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
-      LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(diff_boot[[i]][[1L]]))
-      
-      Cb_Boot[[i]] <- LA_list[[1L]]
-    }
-    return(Cb_Boot)
-  }
-  
-  # ldb > 1
-  nd <- length(summary(model_boot[[1L]])$modelStruct$varStruct)
-  use_delta_by_level <- nd > 1L
-  
+
   for (i in seq_len(nboot)) {
     model_i <- model_boot[[i]]
-    G_i     <- getVarCov(model_i)
-    q_r_i   <- nrow(G_i) - 1L
-    
-    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i)
-    
-    Cb_i <- vector("list", ldb)
-    for (j in seq_len(ldb)) {
-      n_delta <- if (use_delta_by_level) j else 1L
-      LA_list <- .compute_LA(pre_i, diffbeta = as.numeric(diff_boot[[i]][[j]]))
-      Cb_i[[j]] <- LA_list[[n_delta]]
+    if (is.null(model_i)) {
+      Cb_Boot[[i]] <- NULL
+      next
     }
-    Cb_Boot[[i]] <- Cb_i
+
+    summary_i <- summary(model_i)
+    G_i_info  <- extract_random_effects_cov(model_i)
+    q_r_i     <- max(0L, G_i_info$n_re - 1L)
+
+    pre_i <- .precompute_longitudinal(model_i, tk, q_f = q_f, q_r = q_r_i,
+                                      summary_obj = summary_i, G_info = G_i_info)
+
+    Cb_Boot[[i]] <- .bootstrap_metric_loop(
+      pre                  = pre_i,
+      ldb                  = ldb,
+      compute_metric_from_pre = function(pre_obj, diffbeta_vec) {
+        .compute_LA(pre_obj, diffbeta = diffbeta_vec)
+      },
+      diffbeta             = diff_boot[[i]],
+      use_delta_by_level   = length(summary_i$modelStruct$varStruct) > 1L,
+      needs_diff           = TRUE,
+      selector             = .select_metric_default,
+      label                = "LA"
+    )
   }
-  
+
   Cb_Boot
 }

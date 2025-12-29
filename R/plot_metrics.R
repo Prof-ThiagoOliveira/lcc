@@ -84,7 +84,14 @@ Pearson <- function(dataset, resp, subject, method, time) {
     y2 <- wide[[col_tgt]]
     keep <- stats::complete.cases(y1, y2)
     if (sum(keep) < 2L) return(NA_real_)
-    stats::cor(y1[keep], y2[keep])
+    y1_keep <- y1[keep]
+    y2_keep <- y2[keep]
+    v1 <- stats::var(y1_keep)
+    v2 <- stats::var(y2_keep)
+    if (!is.finite(v1) || !is.finite(v2) || v1 <= 0 || v2 <= 0) {
+      return(NA_real_)
+    }
+    stats::cor(y1_keep, y2_keep)
   }
   
   lapply(
