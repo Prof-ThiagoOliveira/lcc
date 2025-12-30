@@ -70,7 +70,20 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
-  lcc_model <- lccModel
+  lcc_model <- function(...) {
+    ns <- tryCatch(getNamespace("lcc"), error = function(e) NULL)
+    if (is.null(ns)) {
+      abort_internal("Namespace 'lcc' not loaded when invoking lccModel() during bootstrap.")
+    }
+    lcc_fun <- tryCatch(
+      get("lccModel", envir = ns, inherits = FALSE),
+      error = function(e) NULL
+    )
+    if (is.null(lcc_fun)) {
+      abort_internal("Failed to locate lccModel() inside the 'lcc' namespace on a bootstrap worker.")
+    }
+    lcc_fun(...)
+  }
 
   ## Pre-allocate
   n_tk     <- length(tk)
