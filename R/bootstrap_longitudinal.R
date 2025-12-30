@@ -70,20 +70,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
-  lcc_model <- function(...) {
-    ns <- tryCatch(getNamespace("lcc"), error = function(e) NULL)
-    if (is.null(ns)) {
-      abort_internal("Namespace 'lcc' not loaded when invoking lccModel() during bootstrap.")
-    }
-    lcc_fun <- tryCatch(
-      get("lccModel", envir = ns, inherits = FALSE),
-      error = function(e) NULL
-    )
-    if (is.null(lcc_fun)) {
-      abort_internal("Failed to locate lccModel() inside the 'lcc' namespace on a bootstrap worker.")
-    }
-    lcc_fun(...)
-  }
+  lcc_model_env <- new.env(parent = emptyenv())
 
   ## Pre-allocate
   n_tk     <- length(tk)
@@ -499,7 +486,6 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     db
   }
   
-  ## One bootstrap iteration
   one_bootstrap <- function(i) {
     Data_boot <- switch(
       boot.scheme,
@@ -513,7 +499,15 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       abort_input("Unknown 'boot.scheme' in bootstrapSamples()")
     )
     
-    fit <- lcc_model(
+    if (!exists("fn", envir = lcc_model_env, inherits = FALSE)) {
+      assign(
+        "fn",
+        get("lccModel", envir = asNamespace("lcc"), inherits = FALSE),
+        envir = lcc_model_env
+      )
+    }
+
+    fit <- get("fn", envir = lcc_model_env)(
       dataset      = Data_boot,
       resp         = "resp",
       subject      = "subject",
