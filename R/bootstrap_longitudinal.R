@@ -70,22 +70,18 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
-  lcc_model <- function(...) {
-    if (!"lcc" %in% loadedNamespaces()) {
-      requireNamespace("lcc", quietly = TRUE)
-    }
-    fn <- tryCatch(
-      get("lccModel", envir = asNamespace("lcc"), inherits = FALSE),
-      error = function(e) {
-        msg <- conditionMessage(e)
-        abort_internal(
-          "Could not locate internal fitter {.code lccModel} in the {.pkg lcc} namespace: {.val {msg}}",
-          msg = msg
+  lcc_model_fn <- tryCatch(
+    get("lccModel", envir = asNamespace("lcc"), inherits = FALSE),
+    error = function(e) {
+      abort_internal(
+        paste0(
+          "Could not locate internal fitter lccModel in the lcc namespace: ",
+          conditionMessage(e)
         )
-      }
-    )
-    fn(...)
-  }
+      )
+    }
+  )
+  lcc_model <- function(...) lcc_model_fn(...)
 
   ## Pre-allocate
   n_tk     <- length(tk)
@@ -728,7 +724,10 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       i = seq_len(nboot),
       .options.snow = opts,
       .packages = c("nlme", "MASS", "lcc"),
-      .export = c("abort_internal", "abort_input", "warn_general", "inform_general")
+      .export = c(
+        "abort_internal", "abort_input", "warn_general", "inform_general",
+        "lcc_model_fn"
+      )
     ) %dorng% {
       one_bootstrap(i)
     }
