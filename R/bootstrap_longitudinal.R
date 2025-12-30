@@ -728,7 +728,8 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     results <- foreach::foreach(
       i = seq_len(nboot),
       .options.snow = opts,
-      .packages = c("nlme", "MASS", "lcc")
+      .packages = c("nlme", "MASS", "lcc"),
+      .export = c("abort_internal", "abort_input", "warn_general", "inform_general")
     ) %dorng% {
       one_bootstrap(i)
     }
