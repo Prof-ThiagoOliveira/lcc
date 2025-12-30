@@ -4,7 +4,17 @@
 \alias{lccSummary}
 \title{Internal Function to Summarize Fitted and Sampled Values for \code{lcc} Objects}
 \usage{
-lccSummary(model, tk, tk.plot, tk.plot2, metrics, ldb, ci, components)
+lccSummary(
+  model,
+  tk,
+  tk.plot,
+  tk.plot2,
+  metrics,
+  ldb,
+  ci,
+  components,
+  degenerate_resp = FALSE
+)
 }
 \arguments{
 \item{model}{the fitted \code{nlme} model stored within the \code{lcc} object.}

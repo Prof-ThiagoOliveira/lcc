@@ -304,7 +304,8 @@ lccInternal <- function(model, q_f, q_r, interaction, tk,
       metrics    = metrics,
       ldb        = ldb,
       ci         = FALSE,
-      components = components
+      components = components,
+      degenerate_resp = degenerate_resp
     )
 
     CI <- NULL
@@ -363,7 +364,8 @@ lccInternal <- function(model, q_f, q_r, interaction, tk,
       metrics    = metrics,
       ldb        = ldb,
       ci         = TRUE,
-      components = components
+      components = components,
+      degenerate_resp = degenerate_resp
     )
   }
   

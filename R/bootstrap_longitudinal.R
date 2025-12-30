@@ -70,6 +70,23 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
+  lcc_model <- function(...) {
+    if (!"lcc" %in% loadedNamespaces()) {
+      requireNamespace("lcc", quietly = TRUE)
+    }
+    fn <- tryCatch(
+      get("lccModel", envir = asNamespace("lcc"), inherits = FALSE),
+      error = function(e) {
+        msg <- conditionMessage(e)
+        abort_internal(
+          "Could not locate internal fitter {.code lccModel} in the {.pkg lcc} namespace: {.val {msg}}",
+          msg = msg
+        )
+      }
+    )
+    fn(...)
+  }
+
   ## Pre-allocate
   n_tk     <- length(tk)
   LCC_Boot <- if (ldb == 1L) matrix(NA_real_, nrow = n_tk, ncol = nboot) else vector("list", nboot)
@@ -498,7 +515,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       abort_input("Unknown 'boot.scheme' in bootstrapSamples()")
     )
     
-    fit <- lccModel(
+    fit <- lcc_model(
       dataset      = Data_boot,
       resp         = "resp",
       subject      = "subject",
@@ -697,7 +714,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
           }, error = function(e) FALSE)
         }
         if (!load_dev) {
-          if (!require("lcc", character.only = TRUE, quietly = TRUE)) {
+          if (!requireNamespace("lcc", quietly = TRUE)) {
             stop("Failed to load the 'lcc' package on a worker.")
           }
         }
@@ -710,19 +727,8 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     results <- foreach::foreach(
       i = seq_len(nboot),
       .options.snow = opts,
-      .packages = c("nlme", "MASS"),
-      .export = c(
-        "extract_random_effects_cov",
-        "compute_betas",
-        "get_basis",
-        ".precompute_longitudinal",
-        ".compute_LCC",
-        ".compute_LPC",
-        ".compute_LA",
-        ".bootstrap_metric_loop",
-        ".select_metric_lcc",
-        ".select_metric_default"
-      )
+      .packages = c("nlme", "MASS", "lcc"),
+      .export = c("abort_internal", "abort_input", "warn_general", "inform_general")
     ) %dorng% {
       one_bootstrap(i)
     }

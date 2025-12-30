@@ -35,6 +35,9 @@ abort_internal <- function(message, ..., .call = caller_env()) {
 
 # Generic warning
 warn_general <- function(message, ..., .subclass = NULL) {
+  if (!isTRUE(getOption("lcc.show.warnings", TRUE))) {
+    return(invisible(NULL))
+  }
   old <- options(cli.width = 1000L, width = 1000L)
   on.exit(options(old), add = TRUE)
   cli::cli_warn(

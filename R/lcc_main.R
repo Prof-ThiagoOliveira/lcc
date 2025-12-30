@@ -471,6 +471,9 @@ lcc <- function(data, resp, subject, method, time,
   
   # keep original call
   lcc_call <- match.call()
+  old_warn_opt <- getOption("lcc.show.warnings", NULL)
+  on.exit(options(lcc.show.warnings = old_warn_opt), add = TRUE)
+  options(lcc.show.warnings = isTRUE(show.warnings))
   
   if (is.null(numCore)) {
     cores <- parallel::detectCores(logical = FALSE)

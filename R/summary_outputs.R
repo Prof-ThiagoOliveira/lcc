@@ -33,7 +33,8 @@
 ##'
 ##' @keywords internal
 lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
-                       ldb, ci, components) {
+                       ldb, ci, components,
+                       degenerate_resp = FALSE) {
 
   method_levels <- levels(model$data$method)
 
@@ -46,15 +47,23 @@ lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
     }
   }
 
-  GF <- CCC(stats::predict(model), model$data$resp)
+  if (isTRUE(degenerate_resp)) {
+    GF <- NA_real_
+    CCC_vals <- lapply(
+      seq_len(ldb),
+      function(i) data.frame(V1 = rep(NA_real_, length(tk.plot2)))
+    )
+  } else {
+    GF <- CCC(stats::predict(model), model$data$resp)
 
-  CCC_vals <- CCC_lin(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
+    CCC_vals <- CCC_lin(
+      dataset = model$data,
+      resp    = "resp",
+      subject = "subject",
+      method  = "method",
+      time    = "time"
+    )
+  }
 
   to_comp_list <- function(values) {
     extract_numeric <- function(x) {
@@ -149,13 +158,20 @@ lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
     return(invisible(plot.data))
   }
 
-  Pearson_vals <- Pearson(
-    dataset = model$data,
-    resp    = "resp",
-    subject = "subject",
-    method  = "method",
-    time    = "time"
-  )
+  if (isTRUE(degenerate_resp)) {
+    Pearson_vals <- lapply(
+      seq_len(ldb),
+      function(i) data.frame(V1 = rep(NA_real_, length(tk.plot2)))
+    )
+  } else {
+    Pearson_vals <- Pearson(
+      dataset = model$data,
+      resp    = "resp",
+      subject = "subject",
+      method  = "method",
+      time    = "time"
+    )
+  }
 
   lpc_est <- metrics$lpc$estimate
   lpc_ci  <- metrics$lpc$ci
