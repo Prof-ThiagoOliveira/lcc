@@ -686,41 +686,20 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       lib_paths
     )
 
-    pkg_path <- getNamespaceInfo(asNamespace("lcc"), "path")
     parallel::clusterCall(
       cl,
-      function(path, can_use_pkgload) {
-        load_dev <- FALSE
-        if (can_use_pkgload && requireNamespace("pkgload", quietly = TRUE)) {
-          loader <- get("load_all", envir = asNamespace("pkgload"))
-          load_dev <- tryCatch({
-            loader(
-              path,
-              compile = FALSE,
-              helpers = FALSE,
-              attach_testthat = FALSE,
-              reset = FALSE,
-              quiet = TRUE
-            )
-            TRUE
-          }, error = function(e) FALSE)
-        }
-        if (!load_dev) {
-          if (!requireNamespace("lcc", quietly = TRUE)) {
-            stop("Failed to load the 'lcc' package on a worker.")
-          }
+      function() {
+        if (!requireNamespace("lcc", quietly = TRUE)) {
+          stop("Failed to load the 'lcc' package on a worker.")
         }
         NULL
-      },
-      pkg_path,
-      pkgload_available
+      }
     )
 
     results <- foreach::foreach(
       i = seq_len(nboot),
       .options.snow = opts,
-      .packages = c("nlme", "MASS", "lcc"),
-      .export = c("abort_internal", "abort_input", "warn_general", "inform_general")
+      .packages = c("nlme", "MASS", "lcc")
     ) %dorng% {
       one_bootstrap(i)
     }
