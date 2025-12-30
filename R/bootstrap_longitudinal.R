@@ -70,35 +70,7 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
     rng_seed <- check_scalar_integer(rng_seed, arg = "rng_seed")
   }
 
-  lcc_model <- function(...) {
-    if (!"lcc" %in% loadedNamespaces()) {
-      requireNamespace("lcc", quietly = TRUE)
-    }
-
-    resolve_lcc_model <- function() {
-      if ("lcc" %in% loadedNamespaces()) {
-        ns <- asNamespace("lcc")
-        if (exists("lccModel", envir = ns, inherits = FALSE)) {
-          return(get("lccModel", envir = ns, inherits = FALSE))
-        }
-      }
-      if (exists("lccModel", envir = globalenv(), inherits = FALSE)) {
-        return(get("lccModel", envir = globalenv(), inherits = FALSE))
-      }
-      if (exists("lccModel", inherits = TRUE)) {
-        return(get("lccModel", inherits = TRUE))
-      }
-      NULL
-    }
-
-    fn <- resolve_lcc_model()
-    if (is.null(fn) || !is.function(fn)) {
-      abort_internal(
-        "Could not locate internal fitter {.fn lccModel} after loading the 'lcc' namespace."
-      )
-    }
-    fn(...)
-  }
+  lcc_model <- lccModel
 
   ## Pre-allocate
   n_tk     <- length(tk)
@@ -729,12 +701,6 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
         if (!load_dev) {
           if (!requireNamespace("lcc", quietly = TRUE)) {
             stop("Failed to load the 'lcc' package on a worker.")
-          }
-        }
-        if (!exists("lccModel", envir = globalenv(), inherits = FALSE)) {
-          ns <- asNamespace("lcc")
-          if (exists("lccModel", envir = ns, inherits = FALSE)) {
-            assign("lccModel", get("lccModel", envir = ns, inherits = FALSE), envir = globalenv())
           }
         }
         NULL
