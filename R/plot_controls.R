@@ -54,6 +54,17 @@
 #'
 #' @importFrom ggplot2 ggplot aes
 #'
+#' @examples
+#' ctrl <- plotControl(
+#'   plot        = FALSE,
+#'   colour      = "steelblue",
+#'   point_alpha = 0.4,
+#'   ci_alpha    = 0.2,
+#'   xlab        = "Measurement time",
+#'   ylab        = "Concordance"
+#' )
+#' str(ctrl)
+#'
 #' @export
 plotControl <- function(plot        = TRUE,
                         shape       = 16,

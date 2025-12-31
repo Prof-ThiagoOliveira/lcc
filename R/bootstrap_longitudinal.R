@@ -286,6 +286,12 @@ bootstrapSamples <- function(nboot, model, q_f, q_r, interaction, covar,
       matrix(1, nrow = nrow(subj_dat), ncol = ncol(G_hat))
     }
 
+    if (!is.null(G_hat) && ncol(Z_i) != ncol(G_hat)) {
+      abort_internal(
+        "Dimension mismatch between Z_i and G_hat in bootstrapSamples(): ncol(Z_i) = {.val {ncol(Z_i)}}, ncol(G_hat) = {.val {ncol(G_hat)}}"
+      )
+    }
+
     ## Marginal covariance of y_i from nlme (includes random + residual)
     V_i_obj <- nlme::getVarCov(
       model,

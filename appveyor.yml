@@ -4,7 +4,7 @@
 init:
   ps: |
         $ErrorActionPreference = "Stop"
-        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Invoke-WebRequest https://raw.githubusercontent.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
 
 install:
@@ -16,10 +16,12 @@ cache:
 # Adapt as necessary starting from here
 
 build_script:
-  - travis-tool.sh install_deps
+  - ps: |
+        Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes', repos = 'https://cloud.r-project.org'); remotes::install_deps(dependencies = TRUE)"
 
 test_script:
-  - travis-tool.sh run_tests
+  - ps: |
+        Rscript -e "if (!requireNamespace('rcmdcheck', quietly = TRUE)) install.packages('rcmdcheck', repos = 'https://cloud.r-project.org'); rcmdcheck::rcmdcheck('.', args = c('--no-manual', '--as-cran'), error_on = 'warning')"
 
 on_failure:
   - 7z a failure.zip *.Rcheck\*
@@ -38,8 +40,8 @@ artifacts:
   - path: '*.Rcheck\**\*.Rout'
     name: Logs
 
-  - path: '\*_*.tar.gz'
+  - path: '*_*.tar.gz'
     name: Bits
 
-  - path: '\*_*.zip'
+  - path: '*_*.zip'
     name: Bits

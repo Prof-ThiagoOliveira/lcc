@@ -64,6 +64,17 @@ shape, color, and size of plot elements, as well as axis labels. The function
 returns a list containing all these settings, which can be used in plotting 
 functions for \code{lcc} objects.
 }
+\examples{
+ctrl <- plotControl(
+  plot = FALSE,
+  colour = "steelblue",
+  point_alpha = 0.4,
+  ci_alpha = 0.2,
+  xlab = "Measurement time",
+  ylab = "Concordance"
+)
+str(ctrl)
+}
 \author{
 Thiago de Paula Oliveira,
   \email{thiago.paula.oliveira@alumni.usp.br}
