@@ -36,7 +36,7 @@ the no-bootstrap path.}
 
 \item{degenerate_resp}{logical flag indicating that the response is degenerate
 (constant) and metric summaries should fall back to NA placeholders. Defaults
-to \\code{FALSE}.}
+to \code{FALSE}.}
 }
 \description{
 Internally called helper that converts the unified metric bundles into the

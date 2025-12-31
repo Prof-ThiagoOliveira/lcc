@@ -30,7 +30,7 @@
 ##' @param components logical flag indicating whether LPC/LA components were requested.
 ##' @param degenerate_resp logical flag indicating that the response is degenerate
 ##'   (constant) and metric summaries should fall back to NA placeholders. Defaults
-##'   to \\code{FALSE}.
+##'   to \code{FALSE}.
 ##'
 ##' @importFrom stats predict
 ##'
