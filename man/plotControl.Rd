@@ -66,14 +66,15 @@ functions for \code{lcc} objects.
 }
 \examples{
 ctrl <- plotControl(
-  plot = FALSE,
-  colour = "steelblue",
+  plot        = FALSE,
+  colour      = "steelblue",
   point_alpha = 0.4,
-  ci_alpha = 0.2,
-  xlab = "Measurement time",
-  ylab = "Concordance"
+  ci_alpha    = 0.2,
+  xlab        = "Measurement time",
+  ylab        = "Concordance"
 )
 str(ctrl)
+
 }
 \author{
 Thiago de Paula Oliveira,
