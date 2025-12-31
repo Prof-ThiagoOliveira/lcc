@@ -5,9 +5,8 @@
 
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
-[![Build
-Status](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc)
-[![Build status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/main?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc/branch/main)
+[![Main
+workflow](https://github.com/Prof-ThiagoOliveira/lcc/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Prof-ThiagoOliveira/lcc/actions/workflows/main.yml)
 [![codecov](https://codecov.io/github/Prof-ThiagoOliveira/lcc/branch/main/graph/badge.svg?token=AAufXfxoWH)](https://codecov.io/github/Prof-ThiagoOliveira/lcc)
 [![downloads](https://cranlogs.r-pkg.org/badges/lcc)](https://cranlogs.r-pkg.org/badges/lcc)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/lcc)](https://cranlogs.r-pkg.org/badges/grand-total/lcc)
@@ -34,9 +33,18 @@ Rafael de Andrade Moral \[aut\], John Hinde \[aut\], Silvio Sandoval
 Zocchi \[ctb\], and Clarice Garcia Borges Demétrio \[ctb\].
 
 It has been available on CRAN since 2018
-(<https://CRAN.R-project.org/package=lcc>). Its last version was updated
-on 2021-02-26. CRAN has lcc's stable version, which is recommended for
-most users.
+(<https://CRAN.R-project.org/package=lcc>). CRAN hosts the recommended
+stable release; see [NEWS.md](NEWS.md) for the development change log.
+
+Automated checks for the development branch run on Linux, macOS, and
+Windows via GitHub Actions, with code coverage reported through
+[Codecov](https://codecov.io/github/Prof-ThiagoOliveira/lcc). To verify
+the test suite locally you can run:
+
+``` r
+devtools::test()
+devtools::check()
+```
 
 This github page has its version under development. New functions will
 be added as experimental work and, once it is done and running

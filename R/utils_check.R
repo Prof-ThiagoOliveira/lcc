@@ -15,20 +15,20 @@ NULL
 
 # Generic package error
 abort_lcc <- function(message, ..., .subclass = NULL, .call = caller_env()) {
-  msg <- cli::format_inline(message, ...)
+  msg <- cli::format_inline(message, ..., .envir = parent.frame())
   rlang::abort(msg, class = c(.subclass, "lcc_error"), call = .call)
 }
 
 # Errors specifically due to invalid user input
 abort_input <- function(message, ..., .subclass = NULL, .call = caller_env()) {
-  msg <- cli::format_inline(message, ...)
+  msg <- cli::format_inline(message, ..., .envir = parent.frame())
   rlang::abort(msg, class = c(.subclass, "lcc_error_input"), call = .call)
 }
 
 # Errors that should indicate internal bugs / unreachable states
 abort_internal <- function(message, ..., .call = caller_env()) {
   header <- cli::format_inline("Internal error in {.pkg lcc}.")
-  info   <- cli::format_inline(message, ...)
+  info   <- cli::format_inline(message, ..., .envir = parent.frame())
   msg    <- paste0(header, " ", info)
   rlang::abort(msg, class = "lcc_error_internal", call = .call)
 }
@@ -40,8 +40,9 @@ warn_general <- function(message, ..., .subclass = NULL) {
   }
   old <- options(cli.width = 1000L, width = 1000L)
   on.exit(options(old), add = TRUE)
+  msg <- cli::format_inline(message, ..., .envir = parent.frame())
   cli::cli_warn(
-    cli::format_inline(message, ...),
+    msg,
     class = c(.subclass, "lcc_warning")
   )
 }
@@ -50,7 +51,7 @@ warn_general <- function(message, ..., .subclass = NULL) {
 inform_general <- function(message, ...) {
   old <- options(cli.width = 1000L, width = 1000L)
   on.exit(options(old), add = TRUE)
-  cli::cli_inform(cli::format_inline(message, ...))
+  cli::cli_inform(cli::format_inline(message, ..., .envir = parent.frame()))
 }
 
 # -------------------------------------------------------------------

@@ -244,7 +244,11 @@ lcc_intervals <- function(rho, tk.plot, tk.plot2, ldb, model, ci,
     eps   <- 1e-8
     lower <- bounds[1L]
     upper <- bounds[2L]
+    orig_dim <- dim(boot_mat)
     boot_mat <- pmax(lower + eps, pmin(upper - eps, boot_mat))
+    if (!is.null(orig_dim)) {
+      dim(boot_mat) <- orig_dim
+    }
   }
 
   invalid <- !is.finite(boot_mat)

@@ -61,13 +61,28 @@ validate_non_degenerate_var <- function(x, name_x = "x") {
 # --------------------------------------------------------------------
 
 safe_clamp_r <- function(x, eps = 1e-8) {
-  base::pmax(-1 + eps, base::pmin(1 - eps, x))
+  dims <- dim(x)
+  clamped <- base::pmax(-1 + eps, base::pmin(1 - eps, x))
+  if (!is.null(dims)) {
+    dim(clamped) <- dims
+  }
+  clamped
 }
 
 safe_fisher <- function(r, eps = 1e-8) {
-  ZFisher(safe_clamp_r(r, eps = eps))
+  dims <- dim(r)
+  transformed <- ZFisher(safe_clamp_r(r, eps = eps))
+  if (!is.null(dims)) {
+    dim(transformed) <- dims
+  }
+  transformed
 }
 
 safe_fisher_inv <- function(z, eps = 1e-8) {
-  safe_clamp_r(ZFisher_inv(z), eps = eps)
+  dims <- dim(z)
+  inv <- safe_clamp_r(ZFisher_inv(z), eps = eps)
+  if (!is.null(dims)) {
+    dim(inv) <- dims
+  }
+  inv
 }
