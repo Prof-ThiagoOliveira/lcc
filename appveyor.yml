@@ -17,7 +17,7 @@ cache:
 
 build_script:
   - ps: |
-        Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes', repos = 'https://cloud.r-project.org'); remotes::install_deps(dependencies = TRUE)"
+  Rscript -e "options(repos = c(CRAN = 'https://cloud.r-project.org')); Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = 'true'); if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes', type = 'binary'); remotes::install_deps(dependencies = TRUE, upgrade = 'never', type = 'binary')"
 
 test_script:
   - ps: |
