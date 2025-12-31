@@ -28,6 +28,9 @@
 ##' @param ldb integer giving the number of method comparisons.
 ##' @param ci logical flag indicating whether confidence intervals were requested.
 ##' @param components logical flag indicating whether LPC/LA components were requested.
+##' @param degenerate_resp logical flag indicating that the response is degenerate
+##'   (constant) and metric summaries should fall back to NA placeholders. Defaults
+##'   to \\code{FALSE}.
 ##'
 ##' @importFrom stats predict
 ##'
@@ -181,7 +184,13 @@ lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
   CCC_list     <- to_comp_list(CCC_vals)
   Pearson_list <- to_comp_list(Pearson_vals)
   LA_sample    <- mapply(
-    function(ccc, pear) ccc / pear,
+    function(ccc, pear) {
+      eps <- .Machine$double.eps * 100
+      keep <- abs(pear) > eps
+      out <- rep(NA_real_, length(ccc))
+      out[keep] <- ccc[keep] / pear[keep]
+      out
+    },
     CCC_list,
     Pearson_list,
     SIMPLIFY = FALSE

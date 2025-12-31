@@ -140,7 +140,8 @@ fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
   }
   if (object$plot_info$components == FALSE && type != "lcc") {
     abort_input(
-      "It is necessary to include components = TRUE in the lcc() function to calculate the fitted values for type '{type}'"
+      "It is necessary to include components = TRUE in the lcc() function to calculate the fitted values for type '{type}'",
+      type = type
     )
   }
   

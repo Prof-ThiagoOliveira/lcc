@@ -5,8 +5,8 @@
 #'
 #' @name utils_check
 #' @keywords internal
-#' @importFrom cli cli_abort cli_warn cli_inform
-#' @importFrom rlang is_bool is_scalar_integerish is_string arg_match0 caller_arg caller_env
+#' @importFrom cli cli_abort cli_warn cli_inform format_inline
+#' @importFrom rlang is_bool is_scalar_integerish is_string arg_match0 caller_arg caller_env abort
 NULL
 
 # -------------------------------------------------------------------

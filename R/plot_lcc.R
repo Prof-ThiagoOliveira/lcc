@@ -167,7 +167,7 @@ lccPlot <- function(obj, type = "lcc", control = list(), ...) {
       Pearson_vals = Pearson_vals,
       ...
     ),
-    abort_input("Unknown 'type' in lccPlot: {type}")
+    abort_input("Unknown 'type' in lccPlot: {type}", type = type)
   )
   
   ## Optionally print for interactive use

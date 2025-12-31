@@ -33,6 +33,10 @@ the no-bootstrap path.}
 \item{ci}{logical flag indicating whether confidence intervals were requested.}
 
 \item{components}{logical flag indicating whether LPC/LA components were requested.}
+
+\item{degenerate_resp}{logical flag indicating that the response is degenerate
+(constant) and metric summaries should fall back to NA placeholders. Defaults
+to \\code{FALSE}.}
 }
 \description{
 Internally called helper that converts the unified metric bundles into the

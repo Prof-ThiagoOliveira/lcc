@@ -629,7 +629,12 @@ ciCompute <- function(rho, rho.pearson, Cb, tk.plot, tk.plot2, ldb, model,
     z0 <- stats::qnorm(p0)
     jack_bar <- mean(jack)
     u <- jack_bar - jack
-    a <- sum(u^3) / (6 * (sum(u^2)^(3/2)))
+    denom <- sum(u^2)
+    a <- if (denom > .Machine$double.eps) {
+      sum(u^3) / (6 * (denom^(3/2)))
+    } else {
+      0
+    }
     z_alpha <- stats::qnorm(c(alpha / 2, 1 - alpha / 2))
     adj <- function(z) stats::pnorm(z0 + (z0 + z) / (1 - a * (z0 + z)))
     probs <- adj(z_alpha)
