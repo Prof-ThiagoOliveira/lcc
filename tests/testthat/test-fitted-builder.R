@@ -13,7 +13,7 @@ test_that("fittedBuilder builds data.frame for single comparison", {
 
   res_lcc <- lcc:::fittedBuilder(obj, type = "lcc")
   expect_s3_class(res_lcc, "data.frame")
-  expect_equal(res_lcc$Methods, rep("B vs A", 2))
+  expect_equal(as.character(res_lcc$Methods), rep("B vs A", 2))
   expect_equal(res_lcc$`fitted.LCC`, c(0.4, 0.5))
 })
 
@@ -65,7 +65,7 @@ test_that("fittedBuilder stacks multi-comparison outputs", {
   )
 
   res_multi <- lcc:::fittedBuilder(obj, type = "lpc")
-  expect_equal(res_multi$Methods, rep(unlist(comp_labels), each = 2))
+  expect_equal(as.character(res_multi$Methods), rep(unlist(comp_labels), each = 2))
   expect_equal(res_multi$Time, rep(c(0, 1), times = 2))
   expect_equal(res_multi$`fitted.LPC`, unlist(lapply(lpc_tables, `[[`, "LPC")))
 })

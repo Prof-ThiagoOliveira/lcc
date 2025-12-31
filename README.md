@@ -7,8 +7,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lcc)](https://cran.r-project.org/package=lcc)
 [![Build
 Status](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc.svg?branch=master)](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc)
-[![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/master?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc)
+[![Build status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/main?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc/branch/main)
 [![codecov](https://codecov.io/github/Prof-ThiagoOliveira/lcc/branch/main/graph/badge.svg?token=AAufXfxoWH)](https://codecov.io/github/Prof-ThiagoOliveira/lcc)
 [![downloads](https://cranlogs.r-pkg.org/badges/lcc)](https://cranlogs.r-pkg.org/badges/lcc)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/lcc)](https://cranlogs.r-pkg.org/badges/grand-total/lcc)
