@@ -187,8 +187,10 @@ lccSummary <- function(model, tk, tk.plot, tk.plot2, metrics,
     function(ccc, pear) {
       eps <- .Machine$double.eps * 100
       keep <- abs(pear) > eps
+      keep[is.na(keep)] <- FALSE
       out <- rep(NA_real_, length(ccc))
-      out[keep] <- ccc[keep] / pear[keep]
+      valid <- keep & !is.na(ccc)
+      out[valid] <- ccc[valid] / pear[valid]
       out
     },
     CCC_list,
