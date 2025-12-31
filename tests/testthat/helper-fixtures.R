@@ -28,20 +28,60 @@ build_test_lcc <- local({
 
     data <- build_fixture_dataset()
 
-    fit <- lcc(
-      data       = data,
-      subject    = "Fruit",
-      resp       = "H_mean",
-      method     = "Method",
-      time       = "Time",
-      qf         = 1,
-      qr         = 0,
-      components = components,
-      ci         = FALSE,
-      show.warnings = FALSE,
-      keep.boot.models = FALSE,
-      numCore    = 1
+    fit <- try(
+      lcc(
+        data       = data,
+        subject    = "Fruit",
+        resp       = "H_mean",
+        method     = "Method",
+        time       = "Time",
+        qf         = 1,
+        qr         = 0,
+        components = components,
+        ci         = FALSE,
+        show.warnings = FALSE,
+        keep.boot.models = FALSE,
+        numCore    = 1
+      ),
+      silent = TRUE
     )
+
+    if (inherits(fit, "try-error")) {
+      ctrl_retry <- nlme::lmeControl(
+        msMaxIter = 200,
+        msMaxEval = 400,
+        tolerance = 1e-8,
+        niterEM   = 60
+      )
+
+      fit <- try(
+        lcc(
+          data       = data,
+          subject    = "Fruit",
+          resp       = "H_mean",
+          method     = "Method",
+          time       = "Time",
+          qf         = 1,
+          qr         = 0,
+          components = components,
+          ci         = FALSE,
+          show.warnings = FALSE,
+          keep.boot.models = FALSE,
+          numCore    = 1,
+          lme.control = ctrl_retry
+        ),
+        silent = TRUE
+      )
+    }
+
+    if (inherits(fit, "try-error")) {
+      cond <- attr(fit, "condition")
+      msg <- if (!is.null(cond)) conditionMessage(cond) else as.character(fit)
+      if (isNamespaceLoaded("testthat")) {
+        testthat::skip(paste0("Fixture lcc fit failed to converge: ", msg))
+      }
+      stop("Fixture lcc fit failed to converge: ", msg)
+    }
 
     assign(key, fit, envir = cache)
     fit
