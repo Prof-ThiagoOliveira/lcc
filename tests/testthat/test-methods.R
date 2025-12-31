@@ -65,3 +65,37 @@ test_that("Test if interaction works",{
                                     seq(0, 10, length.out = 30)))))
 })
 #=======================================================================
+test_that("fixture-based lcc object exercises S3 helpers", {
+  fit <- build_test_lcc(components = TRUE)
+
+  expect_true(is.lcc(fit))
+  expect_false(is.lcc(list()))
+
+  fitted_lcc <- testthat::capture_output(res_lcc <- fitted(fit, type = "lcc"))
+  expect_s3_class(res_lcc, "data.frame")
+  expect_true("fitted.LCC" %in% names(res_lcc))
+
+  fitted_lpc <- testthat::capture_output(res_lpc <- fitted(fit, type = "lpc"))
+  expect_s3_class(res_lpc, "data.frame")
+  expect_true("fitted.LPC" %in% names(res_lpc))
+
+  fitted_la <- testthat::capture_output(res_la <- fitted(fit, type = "la"))
+  expect_s3_class(res_la, "data.frame")
+  expect_true("fitted.LA" %in% names(res_la))
+
+  expect_error(fitted(fit, type = "invalid"), "Available 'type'")
+
+  printed <- testthat::capture_output(print_return <- print(fit))
+  expect_true(nzchar(printed))
+  expect_identical(print_return, fit)
+
+  summary_model <- testthat::capture_output(sum_model <- summary(fit, type = "model"))
+  expect_s3_class(sum_model, "summary.lcc")
+
+  summary_metrics <- testthat::capture_output(sum_metrics <- summary(fit, type = "lcc"))
+  expect_s3_class(sum_metrics, "summary.lcc")
+  expect_true("fitted" %in% names(sum_metrics))
+
+  expect_error(summary(fit, type = "unknown"), "Available 'type' are 'lcc' or 'model'")
+})
+#=======================================================================
