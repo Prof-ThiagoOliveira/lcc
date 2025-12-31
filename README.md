@@ -10,7 +10,6 @@ Status](https://app.travis-ci.com/Prof-ThiagoOliveira/lcc.svg?branch=master)](ht
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/fva5so5gjy23sir5/branch/master?svg=true)](https://ci.appveyor.com/project/Prof-ThiagoOliveira/lcc)
 [![codecov](https://codecov.io/github/Prof-ThiagoOliveira/lcc/branch/main/graph/badge.svg?token=AAufXfxoWH)](https://codecov.io/github/Prof-ThiagoOliveira/lcc)
-[![Coverage sunburst](https://codecov.io/github/Prof-ThiagoOliveira/lcc/graphs/sunburst.svg?token=AAufXfxoWH)](https://codecov.io/github/Prof-ThiagoOliveira/lcc)
 [![downloads](https://cranlogs.r-pkg.org/badges/lcc)](https://cranlogs.r-pkg.org/badges/lcc)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/lcc)](https://cranlogs.r-pkg.org/badges/grand-total/lcc)
 
