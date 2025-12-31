@@ -5,7 +5,7 @@
 \title{Internal Function to Prepare \code{\link[lcc]{lccModel}}
   Function}
 \value{
-No return value, called for side effects
+A named list with resolved arguments used internally by lccModel
 }
 \description{
 This is an internally called function used to verify

@@ -1,14 +1,17 @@
-citHeader("To cite lcc in publications, please use:")
-
-citEntry(
-  entry    = "Article",
-  title    = "lcc: an R package to estimate theconcordance correlation, Pearsoncorrelation and accuracy over time",
-  author   = "Oliveira, T.P.; Moral, R.A.; Zocchi, S.S.; Demetrio, C.G.B.; Hinde, J.",
-  journal  = "PeerJ",
-  year     = "2020",
-  pages    = "8:e9850",
-  url      = "https://peerj.com/articles/9850/",
-  textVersion = paste(
-
-  )
+bibentry(
+  bibtype = "Article",
+  title   = "lcc: an R package to estimate the concordance correlation, Pearson correlation, and accuracy over time",
+  author  = c(
+    person("Thiago de Paula", "Oliveira"),
+    person("Rafael de Andrade", "Moral"),
+    person("Silvio Sandoval", "Zocchi"),
+    person("Clarice Garcia Borges", "Demétrio"),
+    person("John", "Hinde")
+  ),
+  journal = "PeerJ",
+  year    = 2020,
+  volume  = 8,
+  pages   = "e9850",
+  doi     = "10.7717/peerj.9850",
+  url     = "https://peerj.com/articles/9850/"
 )

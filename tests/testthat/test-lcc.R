@@ -77,7 +77,7 @@ test_that("var.class and weights.form" ,{
   expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
                    method = "Method", time = "Time", qf = 2, qr = 2,
                    var.class = varIdent, weights.form = "both"),
-               "Please specify the 'weight.form' correctly for varIdent class")
+               "weights.form.*varExp", fixed = FALSE)
 
   # Wrong name for var.class and weights.form
   expect_error(lcc(data = hue, subject = "Fruit", resp = "H_mean",
@@ -228,7 +228,7 @@ test_that("Test if confidence interval works",{
                         resp = "Response", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 50, components = TRUE,
-                        percentileMet = TRUE),is_a("lcc"))
+                        ci.method = "percentile"),is_a("lcc"))
   expect_that(fme4<-lcc(data = hue, subject = "Fruit",
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
@@ -237,11 +237,30 @@ test_that("Test if confidence interval works",{
                         resp = "H_mean", method = "Method",
                         time = "Time", qf = 1, qr = 1, ci=TRUE,
                         nboot = 50, components = TRUE,
-                        percentileMet = TRUE),is_a("lcc"))
-  expect_equal(fme2$Summary.lcc$fitted$LCC,
-               fme3$Summary.lcc$fitted$LCC, tolerance = 0.05)
-  expect_equal(fme4$Summary.lcc$fitted$LCC,
-               fme5$Summary.lcc$fitted$LCC, tolerance = 0.1)
+                        ci.method = "percentile"),is_a("lcc"))
+  L2 <- fme2$Summary.lcc$fitted$LCC
+  L3 <- fme3$Summary.lcc$fitted$LCC
+  expect_equal(L2$Time, L3$Time)
+  expect_equal(L2$LCC, L3$LCC, tolerance = 0.05)
+  for (col in c("Lower", "Upper")) {
+    expect_equal(length(L2[[col]]), length(L2$Time))
+    expect_equal(length(L3[[col]]), length(L3$Time))
+  }
+  
+  L4 <- fme4$Summary.lcc$fitted$LCC
+  L5 <- fme5$Summary.lcc$fitted$LCC
+  expect_equal(L4$Time, L5$Time)
+  expect_equal(L4$LCC, L5$LCC, tolerance = 0.1)
+  for (col in c("Lower", "Upper")) {
+    expect_equal(length(L4[[col]]), length(L4$Time))
+    expect_equal(length(L5[[col]]), length(L5$Time))
+    v4 <- L4[[col]]
+    v5 <- L5[[col]]
+    keep <- is.finite(v4) & is.finite(v5)
+    if (any(keep)) {
+      expect_equal(v4[keep], v5[keep], tolerance = 0.1)
+    }
+  }
 })
 
 #-----------------------------------------------------------------------

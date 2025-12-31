@@ -3,15 +3,95 @@
 \name{lccInternal}
 \alias{lccInternal}
 \title{Internal Function to Prepare \code{lcc} Objects}
-\description{
-This is an internally called function used to prepare
-  \code{lcc} objects for calculate the longitudinal concordance
-  correlation, longitudinal Pearson correlation, longitudinal bias
-  corrector, and plotting
+\usage{
+lccInternal(
+  model,
+  q_f,
+  q_r,
+  interaction,
+  tk,
+  covar,
+  pdmat,
+  diffbeta,
+  time_lcc,
+  ci,
+  boot.scheme,
+  ci.method,
+  alpha,
+  nboot,
+  labels,
+  var.class,
+  weights.form,
+  show.warnings,
+  components,
+  lme.control,
+  method.init,
+  numCore,
+  keep_models,
+  boot_seed
+)
 }
-\author{
-Thiago de Paula Oliveira,
-  \email{thiago.paula.oliveira@alumni.usp.br} and Rafael de Andrade Moral,
-  \email{rafael_moral@yahoo.com.br}
+\arguments{
+\item{model}{fitted \code{nlme} object returned by \code{lccModel}.}
+
+\item{q_f}{polynomial degree for fixed effects.}
+
+\item{q_r}{polynomial degree requested for random effects.}
+
+\item{interaction}{logical indicating whether a method-by-time
+interaction was estimated.}
+
+\item{tk}{sorted vector of observed time points.}
+
+\item{covar}{optional character vector of additional covariates in the
+mixed model.}
+
+\item{pdmat}{variance-covariance structure identifier passed from
+\code{lcc}.}
+
+\item{diffbeta}{list of fixed-effect contrasts between methods.}
+
+\item{time_lcc}{optional list controlling the prediction grid.}
+
+\item{ci}{logical indicating whether confidence intervals are requested.}
+
+\item{boot.scheme}{bootstrap resampling strategy.}
+
+\item{ci.method}{bootstrap confidence-interval construction method.}
+
+\item{alpha}{significance level used for confidence intervals.}
+
+\item{nboot}{number of bootstrap replicates.}
+
+\item{labels}{internal labeling data produced in \code{lcc}.}
+
+\item{var.class}{variance-function specification.}
+
+\item{weights.form}{character describing the variance-function formula.}
+
+\item{show.warnings}{logical; propagate convergence warnings from
+bootstrap fits.}
+
+\item{components}{logical; include longitudinal Pearson correlation
+and accuracy components.}
+
+\item{lme.control}{optional control list for \code{nlme::lme}.}
+
+\item{method.init}{fitting method used for the initial model.}
+
+\item{numCore}{number of cores allocated for bootstrap computation.}
+
+\item{keep_models}{logical; retain bootstrap fit objects.}
+
+\item{boot_seed}{optional integer seed for bootstrap reproducibility.}
+}
+\value{
+Invisibly returns a list containing \code{Summary.lcc},
+  plotting auxiliaries, cached metrics, and bootstrap state.
+}
+\description{
+Internally constructs the metric estimates, bootstrap
+  summaries, and plotting auxiliaries consumed by downstream
+  helpers. This routine is not exported.
 }
 \keyword{internal}

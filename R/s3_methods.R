@@ -133,14 +133,16 @@ print.lcc <- function(x, digits = NULL, ...){
 ##' @export
 fitted.lcc <- function(object, type = "lcc", digits = NULL, ...){
   if (!inherits(object, "lcc")) {
-    stop("Object must inherit from class 'lcc'", call. = FALSE)
+    abort_input("Object must inherit from class 'lcc'")
   }
   if (!type %in% c("lcc", "lpc", "la")) {
-    stop("Available 'type' are 'lcc', 'lpc', or 'la'", call. = FALSE)
+    abort_input("Available 'type' are 'lcc', 'lpc', or 'la'")
   }
   if (object$plot_info$components == FALSE && type != "lcc") {
-    stop(paste0("It is necessary to include components = TRUE in the lcc() function ",
-                "to calculate the fitted values for type '", type, "'"), call. = FALSE)
+    abort_input(
+      "It is necessary to include components = TRUE in the lcc() function to calculate the fitted values for type '{type}'",
+      type = type
+    )
   }
   
   cat(paste0("Fitted ", switch(type,
@@ -305,7 +307,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
       }
       invisible(x)
     }else{
-      stop("Available only for classes summary.lcc or summary.lme", call.=FALSE)
+      abort_input("Available only for classes summary.lcc or summary.lme")
     }
   }
 }
@@ -327,16 +329,37 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 ##'   \code{\link[lcc]{lcc}}. The returned object has a
 ##'   \code{\link[base]{print}} method.
 ##'
+##' @details When the original fit involves multiple method comparisons
+##'   (\code{ldb > 1}), the \code{fitted} and \code{sampled} components
+##'   are returned as lists with one data frame per comparison. Each data
+##'   frame retains the time grid used in the analysis and, when confidence
+##'   intervals are requested, includes \code{Lower}/\code{Upper} columns
+##'   derived from the underlying metric bundle. Degenerate settings may
+##'   yield \code{NA} estimates; confidence intervals from bootstrap
+##'   samples can also return \code{NA} when few successful replicates are
+##'   available or under severe heteroscedasticity.
+##'
 ##' @return an object inheriting from class \code{summary.lcc}
-##'   including: \item{fitted}{the fitted values extracted from the
-##'   \code{lcc} object.} \item{gof}{the goodness of fit (gof) measurement
-##'   is calculated using the concordance correlation coefficient between
-##'   fitted and observed values. Value of 1 denote perfect concordance.}
-##'   \item{AIC}{the Akaike Information Criterion corresponding to object.}
-##'   \item{BIC}{the Bayesian Information Criterion corresponding to object.}
-##'   \item{logLik}{If \code{REML=FALSE}, returns the log-likelihood value
-##'   of the linear mixed-effects model; otherwise, the restricted
-##'   log-likelihood is returned}
+##'   including: \item{fitted}{the fitted metric summaries extracted from
+##'   the \code{lcc} object; returns a single data frame for
+##'   \code{ldb = 1} or a list of data frames otherwise.}
+##'   \item{sampled}{empirical concordance summaries on the sampled time
+##'   grid, matching the shape of \code{fitted}.}
+##'   \item{gof}{goodness-of-fit measurement computed as the concordance
+##'   correlation coefficient between fitted and observed values. Value of
+##'   1 denotes perfect concordance.}
+##'   \item{comp}{character vector or list describing the method
+##'   comparisons.}
+##'   \item{info}{auxiliary information mirroring \code{plot_info},
+##'   including \code{metrics} bundles with \code{estimate},
+##'   \code{bootstrap}, \code{ci}, and \code{grid} entries.}
+##'   \item{AIC}{the Akaike Information Criterion corresponding to the
+##'   fitted model.}
+##'   \item{BIC}{the Bayesian Information Criterion corresponding to the
+##'   fitted model.}
+##'   \item{logLik}{If \code{REML = FALSE}, returns the log-likelihood
+##'   value of the linear mixed-effects model; otherwise, the restricted
+##'   log-likelihood is returned.}
 ##'
 ##' @param object an object inheriting from class
 ##'   \code{\link[lcc]{lcc}}, representing a fitted longitudinal
@@ -384,8 +407,7 @@ print.summary.lcc <- function(x, verbose =  FALSE, digits = NULL, ...){
 summary.lcc <- function(object, type, adjustSigma = TRUE,
                         verbose = FALSE, ...)
 {
-  if (!inherits(object, "lcc")) stop("Object must inherit from class \"lcc\"",
-                                call.=FALSE)
+  if (!inherits(object, "lcc")) abort_input("Object must inherit from class \"lcc\"")
   if(missing(type)) type <- "model"
   if(type=="model" || type=="lcc"){
     if(type == "lcc") {
@@ -449,7 +471,7 @@ summary.lcc <- function(object, type, adjustSigma = TRUE,
                 class = c("summary.lcc", "model", class(obj)))
     }
   }else {
-    stop("Available 'type' are 'lcc' or 'model'", call. = FALSE)
+    abort_input("Available 'type' are 'lcc' or 'model'")
   }
 }
 
@@ -552,10 +574,10 @@ plot.lcc <- function(x, which = c(1L:6L),
                      cex.oma.man = 1.25, ...) {
   
   if (!is.lcc(x))
-    stop("use only with 'lcc' objects", call. = FALSE)
+    abort_input("use only with 'lcc' objects")
   
   if (!is.numeric(which) || any(which < 1) || any(which > 6))
-    stop("'which' must be in 1:6")
+    abort_input("'which' must be in 1:6")
   
   model <- x$model
   r <- residuals(model)
@@ -680,7 +702,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @param ... optional arguments passed to the \code{coef.lme}
 ##'   function.
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
+##' @details See methods for \code{\link[nlme]{nlme}} objects to get more
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
@@ -702,7 +724,7 @@ plot.lcc <- function(x, which = c(1L:6L),
 ##' @export
 coef.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("The 'object' must be of class 'lcc'.", call. = FALSE)
+    abort_input("The 'object' must be of class 'lcc'.")
   
   x <- coef(object$model)
   colNames <- colnames(x)
@@ -751,7 +773,7 @@ coef.lcc <- function(object, ...) {
 ##' The function specifically retrieves the variance-covariance matrix associated
 ##' with the fixed effects of the \code{lcc} object, which is useful for understanding
 ##' the relationship between these effects. For more details on variance-covariance
-##' matrices, refer to the methods for \code{\link{nlme}} objects.
+##' matrices, refer to the methods for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link{summary.lcc}}, \code{\link{lccPlot}},
 ##'   \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}}
@@ -767,7 +789,7 @@ coef.lcc <- function(object, ...) {
 ##' @export
 vcov.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   covMatrix <- vcov(object$model, ...)
   
@@ -829,7 +851,7 @@ vcov.lcc <- function(object, ...) {
 ##' @export
 getVarCov.lcc <- function(obj, type = "random.effects", ...) {
   if (!is.lcc(obj))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   varCovMatrix <- getVarCov(obj$model, type = type, ...)
   
@@ -879,7 +901,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##' The function provides a convenient way to examine the differences between
 ##' observed and predicted values in the model. Understanding these residuals
 ##' can be crucial for model diagnostics and validation. For more information,
-##' refer to the methods for \code{\link{nlme}} objects.
+##' refer to the methods for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}},
 ##'   \code{\link{coef.lcc}}, \code{\link{vcov.lcc}}
@@ -894,7 +916,7 @@ getVarCov.lcc <- function(obj, type = "random.effects", ...) {
 ##' @export
 residuals.lcc <- function(object, type = "response", ...) {
   if (!is.lcc(object))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   residuals(object$model, type = type, ...)
 }
@@ -940,7 +962,7 @@ residuals.lcc <- function(object, type = "response", ...) {
 
 AIC.lcc <- function(object, ..., k = 2) {
   if (!is.lcc(object))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   if (!missing(...)) {
     models <- list(object$model, ...)
@@ -951,7 +973,7 @@ AIC.lcc <- function(object, ..., k = 2) {
         nObs = if (is.null(nObs)) NA_integer_ else nObs)
     })
     if (length(unique(na.omit(vals["nObs", ]))) > 1)
-      warning("models are not all fitted to the same number of observations")
+      warn_general("models are not all fitted to the same number of observations")
     
     val <- data.frame(AIC = vals["AIC", ], row.names = names(models))
     val
@@ -1000,7 +1022,7 @@ AIC.lcc <- function(object, ..., k = 2) {
 
 BIC.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   if (!missing(...)) {
     models <- list(object$model, ...)
@@ -1011,7 +1033,7 @@ BIC.lcc <- function(object, ...) {
         nObs = if (is.null(nObs)) NA_integer_ else nObs)
     })
     if (length(unique(na.omit(vals["nObs", ]))) > 1)
-      warning("models are not all fitted to the same number of observations")
+      warn_general("models are not all fitted to the same number of observations")
     
     val <- data.frame(df = vals["df", ], BIC = -2 * vals["logLik", ] + log(vals["nObs", ]) * vals["df", ],
                       row.names = names(models))
@@ -1044,7 +1066,7 @@ BIC.lcc <- function(object, ...) {
 ##' @details 
 ##' This function is useful for examining the random effects associated with
 ##' groups or subjects in the model. For a detailed explanation of these effects,
-##' see the documentation for \code{\link{nlme}} objects.
+##' see the documentation for \code{\link[nlme]{nlme}} objects.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{coef.lcc}},
 ##'
@@ -1060,7 +1082,7 @@ BIC.lcc <- function(object, ...) {
 
 ranef.lcc <- function(object, ...) {
   if (!is.lcc(object))
-    stop("The provided object is not of class 'lcc'.", call. = FALSE)
+    abort_input("The provided object is not of class 'lcc'.")
   
   randomEffects <- ranef(object$model, ...)
   
@@ -1103,7 +1125,7 @@ ranef.lcc <- function(object, ...) {
 ##'   log-likelihood is returned.
 ##' @param ... further arguments passed to \code{\link{logLik}}.
 ##'
-##' @details See methods for \code{\link{nlme}} objects to get more
+##' @details See methods for \code{\link[nlme]{nlme}} objects to get more
 ##'   details.
 ##'
 ##' @author Thiago de Paula Oliveira,
@@ -1125,7 +1147,7 @@ ranef.lcc <- function(object, ...) {
 
 logLik.lcc <- function(object, ..., REML) {
    if (!is.lcc(object))
-     stop("use only with \"lcc\" objects" , call. = FALSE)
+     abort_input("use only with \"lcc\" objects")
    logLik(object$model,  REML = REML, ...)
 }
 
@@ -1157,7 +1179,7 @@ logLik.lcc <- function(object, ..., REML) {
 ##'   Defaults to \code{FALSE}.
 ##'
 ##' @details 
-##' This function is an adaptation from \code{\link{anova.lme}}. 
+##' This function is an adaptation from \code{\link[nlme]{anova.lme}}. 
 ##' It assesses whether the addition of terms significantly improves model fit.
 ##'
 ##' @seealso \code{\link[lcc]{lcc}}, \code{\link{summary.lcc}}
@@ -1194,7 +1216,7 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
   dots <- list(...)
   if ((rt <- length(dots) + 1L) == 1L) {
     if (!inherits(object$model, "lme")) {
-      stop("object must inherit from class \"lme\" ")
+      abort_input("object must inherit from class \"lme\"")
     }
     vFix <- attr(object$model$fixDF, "varFixFact")
     if (adjustSigma && object$model$method == "ML")
@@ -1232,7 +1254,7 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
     valid.cl <- c("lme", "lcc")
     if (!all(match(termsClass, valid.cl, 0))) {
       valid.cl <- paste0("\"", valid.cl, "\"")
-      stop(gettextf("objects must inherit from classes %s, or %s",
+      abort_input(gettextf("objects must inherit from classes %s, or %s",
         paste(head(valid.cl, -1), collapse = ", "),
         tail(valid.cl, 1)), domain = NA)
     }
@@ -1249,7 +1271,7 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
         ## Return the response formula as a one sided formula
         form <- formula(object)
         if (!(inherits(form, "formula") && (length(form) == 3))) {
-          stop("'form' must be a two-sided formula")
+          abort_input("'form' must be a two-sided formula")
         }
         eval(parse(text = paste("~", deparse(form[[2]]))))
       }
@@ -1257,9 +1279,9 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
                    "")
     subs <- as.logical(match(resp, resp[1L], FALSE))
     if (!all(subs))
-      warning("some fitted objects deleted because response differs from the first model")
+      warn_general("some fitted objects deleted because response differs from the first model")
     if (sum(subs) == 1)
-      stop("first model has a different response from the rest")
+      abort_input("first model has a different response from the rest")
     object <- object[subs]
     rt <- length(object)
     termsModel <- lapply(object, function(el) formula(el)[-2])
@@ -1268,7 +1290,7 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
     else val, "")
     if (length(uEst <- unique(estMeth[!is.na(estMeth)])) >
       1) {
-      stop("all fitted objects must have the same estimation method")
+      abort_input("all fitted objects must have the same estimation method")
     }
     estMeth[is.na(estMeth)] <- uEst
     REML <- uEst == "REML"
@@ -1282,20 +1304,20 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
         else val
       }, ".")
       if (length(unique(aux)) > 1) {
-        warning("fitted objects with different fixed effects. REML comparisons are not meaningful.")
+        warn_general("fitted objects with different fixed effects. REML comparisons are not meaningful.")
       }
     }
     termsCall <- lapply(object, function(el) {
       if (is.null(val <- el$call) && is.null(val <- attr(el,
         "call")))
-        stop("objects must have a \"call\" component or attribute")
+        abort_input("objects must have a \"call\" component or attribute")
       val
     })
     termsCall <- vapply(termsCall, function(el) paste(deparse(el),
       collapse = ""), "")
     aux <- lapply(object, logLik, REML)
     if (length(unique(vapply(aux, attr, 1, "nall"))) > 1) {
-      stop("all fitted objects must use the same number of observations")
+      abort_input("all fitted objects must use the same number of observations")
     }
     dfModel <- vapply(aux, attr, 1, "df")
     logLik <- vapply(aux, c, 1.1)
@@ -1354,8 +1376,8 @@ anova.lcc <- function(object, ..., test = TRUE, type = c("sequential", "marginal
 ##'
 ##' @param ... further arguments passed to \code{\link{print}}.
 ##'
-##' @details Modified from \code{\link{anova.lme}}. For more details see
-##' methods for \code{\link{nlme}}.
+##' @details Modified from \code{\link[nlme]{anova.lme}}. For more details see
+##' methods for \code{\link[nlme]{nlme}}.
 ##'
 ##' @author Thiago de Paula Oliveira,
 ##'   \email{thiago.paula.oliveira@@alumni.usp.br}

@@ -6,7 +6,19 @@
 ##' @description Precomputes quantities (polynomial bases, tGt, deltas, etc.)
 ##'   that are shared across LCC, LPC and LA for a given model and time grid.
 ##' @keywords internal
-.precompute_longitudinal <- function(model, tk, q_f, q_r, basis = NULL) {
+.precompute_longitudinal <- function(model, tk, q_f, q_r, basis = NULL,
+                                     G_info = NULL, summary_obj = NULL) {
+  if (is.null(G_info)) {
+    G_info <- extract_random_effects_cov(model)
+  }
+  G <- G_info$G
+  q_r_actual <- max(0L, G_info$n_re - 1L)
+
+  if (!identical(q_r_actual, q_r)) {
+    q_r  <- q_r_actual
+    basis <- NULL
+  }
+
   # Polynomial bases (reuse if provided and compatible)
   if (!is.null(basis) &&
       identical(basis$tk, tk) &&
@@ -19,9 +31,14 @@
     Tk_r <- outer(tk, 0:q_r, `^`)
     Tk_f <- outer(tk, 0:q_f, `^`)
   }
+
+  if (ncol(G) != ncol(Tk_r)) {
+    abort_internal(
+      "Random-effects covariance dimension {.val {ncol(G)}} incompatible with q_r = {.val {q_r}}."
+    )
+  }
   
   # Random-effect variance part: tGt = diag(Tk_r %*% G %*% t(Tk_r))
-  G  <- getVarCov(model)
   AG <- Tk_r %*% G
   tGt <- rowSums(AG * Tk_r)
   
@@ -29,9 +46,11 @@
   sig2_epsilon <- model$sigma^2
   
   # Variance structure and delta parameters
-  varcomp   <- summary(model)
-  varStruct <- varcomp$modelStruct$varStruct
-  deltas    <- getDelta(model = model)
+  if (is.null(summary_obj)) {
+    summary_obj <- summary(model)
+  }
+  varStruct <- summary_obj$modelStruct$varStruct
+  deltas    <- getDelta(model = model, summary_obj = summary_obj)
   
   list(
     tk            = tk,
@@ -93,8 +112,7 @@
       rho <- lapply(gdl_list, function(gdlVal) computeRho(gd, gdlVal))
       
     } else {
-      stop("Method not implemented for the specified varStruct formula.",
-           call. = FALSE)
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
@@ -105,7 +123,7 @@
     )
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   rho
@@ -150,8 +168,7 @@
       rho.pearson <- lapply(gdlL, function(gdli) calculateRhoPearson(gd, gdli))
       
     } else {
-      print("Method not implemented yet")
-      rho.pearson <- list()
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
@@ -161,7 +178,7 @@
     )
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   rho.pearson
@@ -218,15 +235,14 @@
       LA <- lapply(gdl_list, function(gdlVal) computeLA(gd, gdlVal))
       
     } else {
-      stop("Method not implemented for the specified varStruct formula.",
-           call. = FALSE)
+      abort_input("Method not implemented for the specified varStruct formula.")
     }
     
   } else if (varType == "NULL") {
     LA <- list(computeLA(1, 1), NA)
     
   } else {
-    stop("Unsupported variance structure type: ", varType, call. = FALSE)
+    abort_input("Unsupported variance structure type: {varType}")
   }
   
   LA
@@ -240,8 +256,8 @@
 
 ##' @keywords internal
 lccWrapper <- function(model, q_f, tk, diffbeta, n.delta) {
-  G   <- getVarCov(model)
-  q_r <- nrow(G) - 1L
+  G_info <- extract_random_effects_cov(model)
+  q_r    <- max(0L, G_info$n_re - 1L)
   
   pre <- .precompute_longitudinal(model, tk, q_f = q_f, q_r = q_r)
   rho_list <- .compute_LCC(pre, diffbeta = diffbeta)
@@ -256,8 +272,8 @@ lccWrapper <- function(model, q_f, tk, diffbeta, n.delta) {
 
 ##' @keywords internal
 lpcWrapper <- function(model, q_f, tk, n.delta) {
-  G   <- getVarCov(model)
-  q_r <- nrow(G) - 1L
+  G_info <- extract_random_effects_cov(model)
+  q_r    <- max(0L, G_info$n_re - 1L)
   
   pre <- .precompute_longitudinal(model, tk, q_f = q_f, q_r = q_r)
   rho_pearson_list <- .compute_LPC(pre)
@@ -267,8 +283,8 @@ lpcWrapper <- function(model, q_f, tk, n.delta) {
 
 ##' @keywords internal
 laWrapper <- function(model, q_f, tk, diffbeta, n.delta) {
-  G   <- getVarCov(model)
-  q_r <- nrow(G) - 1L
+  G_info <- extract_random_effects_cov(model)
+  q_r    <- max(0L, G_info$n_re - 1L)
   
   pre <- .precompute_longitudinal(model, tk, q_f = q_f, q_r = q_r)
   LA_list <- .compute_LA(pre, diffbeta = diffbeta)

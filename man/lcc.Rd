@@ -5,10 +5,34 @@
 \title{Longitudinal concordance correlation (LCC) from polynomial mixed
   effects regression models using fixed effects and variance components}
 \usage{
-lcc(data, resp, subject, method, time, interaction, qf,
-    qr, covar, gs, pdmat, var.class, weights.form, time_lcc, ci,
-    percentileMet, alpha, nboot, show.warnings, components,
-    REML, lme.control, numCore)
+lcc(
+  data,
+  resp,
+  subject,
+  method,
+  time,
+  interaction = TRUE,
+  qf = 1,
+  qr = 0,
+  covar = NULL,
+  gs = NULL,
+  pdmat = pdSymm,
+  var.class = NULL,
+  weights.form = NULL,
+  time_lcc = NULL,
+  ci = FALSE,
+  boot.scheme = "np_case",
+  ci.method = "normal",
+  alpha = 0.05,
+  nboot = 5000,
+  show.warnings = FALSE,
+  components = FALSE,
+  keep.boot.models = FALSE,
+  boot.seed = NULL,
+  REML = TRUE,
+  lme.control = NULL,
+  numCore = NULL
+)
 }
 \arguments{
 \item{data}{an object of class \code{data.frame}.}
@@ -101,10 +125,35 @@ list may contain the following components:
 confidence intervals are calculated for the LCC, LPC, and LA
 statistics and printed in the output. Default is \code{FALSE}.}
 
-\item{percentileMet}{logical. Method used to calculate the
-non-parametric bootstrap intervals. If \code{FALSE} (the default),
-the normal approximation method is used. If \code{TRUE}, the
-percentile method is used instead.}
+\item{boot.scheme}{character. Bootstrap resampling scheme. Defaults
+to \code{"np_case"} (subject-level case bootstrap). Other options:
+\describe{
+  \item{\code{"np_case"}:}{resample subjects with replacement; keep
+    original responses.}
+  \item{\code{"np_case_resid_gr"}:}{case bootstrap; replace the
+    response with fitted values plus residuals resampled from the
+    global residual pool.}
+  \item{\code{"np_case_resid_ir"}:}{case bootstrap; replace the
+    response with fitted values plus residuals resampled within
+    each subject.}
+  \item{\code{"np_re_resid_gr"}:}{resample subject-specific fitted
+    trajectories (includes random effects), then add residuals
+    sampled from the pooled residuals.}
+  \item{\code{"np_re_resid_ir"}:}{resample subject-specific fitted
+    trajectories, then add residuals resampled within each
+    subject.}
+  \item{\code{"sp_case_pr"}:}{semiparametric case bootstrap;
+    resample subjects, use their fitted trajectories, then add
+    Gaussian noise with variance equal to the estimated residual
+    variance.}
+  \item{\code{"p_re_pr"}:}{fully parametric; simulate random
+    effects from the estimated covariance and residuals from a
+    Gaussian with the estimated residual variance, then generate
+    responses via \eqn{X_i \hat{\beta} + Z_i u_i^* + \varepsilon_i^*}.}
+}}
+
+\item{ci.method}{character. Confidence-interval construction method:
+\code{"normal"} (default), \code{"percentile"}, or \code{"bca"}.}
 
 \item{alpha}{significance level. Default is \code{0.05}.}
 
@@ -122,6 +171,15 @@ intervals for LPC and LA are printed in the output. If
 \code{FALSE} (the default), only estimates and confidence
 intervals for the LCC statistic are provided.}
 
+\item{keep.boot.models}{logical. If \code{TRUE}, retains the full
+fitted models for each bootstrap replicate in the returned object.
+Defaults to \code{FALSE}, storing only lightweight summaries to
+reduce memory usage.}
+
+\item{boot.seed}{optional integer scalar used to seed the bootstrap
+random number generator. The same seed reproduces the bootstrap
+sampling across parallel backends and grid sizes.}
+
 \item{REML}{logical. If \code{TRUE} (the default), the model is fit
 by maximising the restricted log-likelihood. If \code{FALSE}, the
 full log-likelihood is maximised.}
@@ -132,8 +190,10 @@ algorithm, replacing the defaults of
 to \code{NULL}. The returned list is passed as the \code{control}
 argument to \code{\link[nlme]{lme}}.}
 
-\item{numCore}{integer. Number of cores used in parallel during
-bootstrap computation. Default is \code{1}.}
+\item{numCore}{integer or \code{NULL}. Number of cores used in
+parallel during bootstrap computation. If \code{NULL} (default),
+the function attempts to use one fewer than the available cores;
+otherwise it uses the supplied value.}
 }
 \value{
 An object of class \code{lcc}. The output is a list with
@@ -147,6 +207,9 @@ An object of class \code{lcc}. The output is a list with
     predictions and observed data as a goodness-of-fit measure
     (gof).}
   \item{data}{the input data set.}
+  \item{plot_info}{auxiliary structures used for plotting,
+    including \code{tk.plot}, \code{tk.plot2}, and the normalized
+    \code{metrics} bundle described above.}
 }
 \description{
 The \code{lcc} function computes fitted values and
@@ -158,6 +221,21 @@ The \code{lcc} function computes fitted values and
   with flexible variance-covariance structures for random effects and
   variance functions that can model heteroscedastic within-subject
   errors, with or without time as a covariate.
+}
+\details{
+The unified metric schema stored in \code{plot_info$metrics}
+  provides a consistent shape for single and multiple method
+  comparisons. Each metric bundle is a list with elements
+  \code{estimate} (named list of time-indexed vectors),
+  \code{bootstrap} (named list of matrices with columns indexed by
+  bootstrap replicate), \code{ci} (named list of "lower"/"upper"
+  matrices carrying \code{ci_level} and \code{ci_method}
+  attributes), and \code{grid} (list containing the prediction grid
+  used for the metric; for \code{ldb > 1} both primary and
+  comparison grids are provided). Degenerate or ill-conditioned fits may
+  return \code{NA} estimates; callers should monitor warnings when
+  working with very small samples or highly heteroscedastic
+  variance structures.
 }
 \examples{
 data(hue)
@@ -228,6 +306,43 @@ fm5 <- update(fm1, ci = TRUE, nboot = 500)
 summary(fm5)
 lccPlot(fm5) +
   geom_hline(yintercept = 1, linetype = "dashed")
+
+## Using plot control knobs for y-axis scaling
+ctrl <- plotControl(
+  # Zoom on upper part of the scale to make the effect visible
+  scale_y_continuous = list(
+    limits = c(0.7, 1),
+    breaks = seq(0.7, 1, by = 0.05)
+  ),
+  # Remove padding for a tight frame
+  expand_y = c(0, 0)
+)
+lccPlot(fm5, control = ctrl)
+
+# Or add generous padding while keeping the full 0–1 range
+ctrl_pad <- plotControl(
+  scale_y_continuous = list(limits = c(0, 1)),
+  expand_y = c(0.15, 0.15)
+)
+lccPlot(fm5, control = ctrl_pad)
+}
+
+## Comparing bootstrap schemes and CI methods (small nboot for example)
+\dontrun{
+set.seed(123)
+fm_np_norm <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "normal")
+fm_np_pct  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "percentile")
+fm_np_bca  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_case", ci.method = "bca")
+fm_re_res  <- update(fm1, ci = TRUE, nboot = 100,
+                     boot.scheme = "np_re_resid_gr", ci.method = "normal")
+
+lccPlot(fm_np_norm) + ggtitle("np_case / normal")
+lccPlot(fm_np_pct)  + ggtitle("np_case / percentile")
+lccPlot(fm_np_bca)  + ggtitle("np_case / bca")
+lccPlot(fm_re_res)  + ggtitle("np_re_resid_gr / normal")
 }
 
 ## Considering three methods of colour evaluation

@@ -2,6 +2,50 @@
 # Internal wrappers: plot_lcc / plot_lpc / plot_la
 #######################################################################
 
+clamp01 <- function(x) pmin(pmax(x, 0), 1)
+
+#' Apply optional y-axis controls specified in plotControl()
+#' @keywords internal
+apply_axis_controls <- function(p, arg) {
+  normalise_expand <- function(expand_y) {
+    if (is.null(expand_y)) {
+      return(c(0.02, 0.02))
+    }
+    if (inherits(expand_y, "waiver") || inherits(expand_y, "ggplot_expand")) {
+      return(expand_y)
+    }
+    if (is.numeric(expand_y) && length(expand_y) %in% c(2L, 4L)) {
+      return(expand_y)
+    }
+    if (is.list(expand_y) && !is.null(expand_y$mult) && is.numeric(expand_y$mult)) {
+      return(expand_y$mult)
+    }
+    if (is.list(expand_y)) {
+      vals <- unlist(expand_y, use.names = FALSE)
+      if (is.numeric(vals) && length(vals) %in% c(2L, 4L)) {
+        return(vals)
+      }
+    }
+    # Fallback: small default expansion
+    c(0.02, 0.02)
+  }
+
+  expand_val <- normalise_expand(arg$expand_y)
+
+  if (!is.null(arg$scale_y_continuous)) {
+    sc_args <- arg$scale_y_continuous
+    if (is.null(sc_args$expand)) {
+      sc_args$expand <- expand_val
+    } else {
+      sc_args$expand <- normalise_expand(sc_args$expand)
+    }
+    p <- p + do.call(ggplot2::scale_y_continuous, sc_args)
+  } else {
+    p <- p + ggplot2::scale_y_continuous(expand = expand_val)
+  }
+  p
+}
+
 ##' @keywords internal
 plot_lcc <- function(rho, ENV.LCC, tk.plot, tk.plot2, ldb, model, ci, arg,
                      CCC_vals, ...) {
@@ -104,9 +148,6 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
   ci_fill     <- if (!is.null(arg$ci_fill)) arg$ci_fill else arg$colour
   ci_alpha    <- if (!is.null(arg$ci_alpha)) arg$ci_alpha else 0.15
   point_alpha <- if (!is.null(arg$point_alpha)) arg$point_alpha else 0.8
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
-  
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   if (!ci) {
     ## No CI
@@ -128,6 +169,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -159,11 +201,15 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
     
   } else {
     ## With CI
     if (ldb == 1L) {
+      if (ncol(ENV.LCC) == 0L) {
+        ENV.LCC <- matrix(NA_real_, nrow = 2L, ncol = length(rho))
+      }
       data_plot <- data.frame(
         LCC       = clamp01(rho),
         Time      = tk.plot,
@@ -196,6 +242,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -203,6 +250,9 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
       for (i in seq_len(ldb)) {
         lab_i <- level_label(i)
         env_i <- ENV.LCC[[i]]
+        if (ncol(env_i) == 0L) {
+          env_i <- matrix(NA_real_, nrow = 2L, ncol = nrow(rho))
+        }
         data_main[[i]] <- data.frame(
           LCC       = clamp01(rho[, i]),
           Time      = tk.plot,
@@ -237,6 +287,7 @@ plotBuilder_lcc <- function(rho, ENV.LCC, tk.plot, CCC,
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
   }
   
@@ -270,7 +321,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
   
   if (!ci) {
     if (ldb == 1L) {
-      data_plot  <- data.frame(LPC = LPC,                      Time = tk.plot)
+      data_plot  <- data.frame(LPC = clamp01(LPC),             Time = tk.plot)
       data_plot2 <- data.frame(Pearson = Pearson_vals[[1L]]$V1, Time = tk.plot2)
       
       Plot <- ggplot2::ggplot(data_plot, ggplot2::aes(x = Time, y = LPC)) +
@@ -287,6 +338,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -294,7 +346,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
       for (i in seq_len(ldb)) {
         lab_i <- level_label(i)
         data_main[[i]] <- data.frame(
-          LPC   = LPC[, i],
+          LPC   = clamp01(LPC[, i]),
           Time  = tk.plot,
           Level = lab_i
         )
@@ -318,6 +370,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
     
   } else {
@@ -354,6 +407,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -395,6 +449,7 @@ plotBuilder_lpc <- function(LPC, ENV.LPC, tk.plot, Pearson_vals,
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
   }
   
@@ -422,7 +477,6 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
   level_label <- function(i) {
     paste(method_levels[i + 1L], "vs.", method_levels[1L])
   }
-  clamp01 <- function(x) pmin(pmax(x, 0), 1)
   
   LA_fun <- function(i) CCC_vals[[i]]$V1 / Pearson_vals[[i]]$V1
   
@@ -439,7 +493,7 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
         ggplot2::geom_line(colour = arg$colour, linewidth = arg$size) +
         ggplot2::geom_point(
           data  = data_plot2,
-          ggplot2::aes(x = Time, y = Cb),
+          ggplot2::aes(x = Time, y = clamp01(Cb)),
           shape = arg$shape,
           alpha = point_alpha
         ) +
@@ -449,6 +503,7 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -473,25 +528,26 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
         ggplot2::geom_line(colour = arg$colour, linewidth = arg$size) +
         ggplot2::geom_point(
           data  = data_plot2,
-          ggplot2::aes(x = Time, y = Cb),
+          ggplot2::aes(x = Time, y = clamp01(Cb)),
           shape = arg$shape,
           alpha = point_alpha
         ) +
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
     
   } else {
     if (ldb == 1L) {
       data_plot <- data.frame(
-        LA       = Cb,
+        LA       = clamp01(Cb),
         Time     = tk.plot,
-        lower_LA = t(ENV.Cb)[, 1L],
-        upper_LA = t(ENV.Cb)[, 2L]
+        lower_LA = clamp01(t(ENV.Cb)[, 1L]),
+        upper_LA = clamp01(t(ENV.Cb)[, 2L])
       )
       data_plot2 <- data.frame(
-        Cb   = LA_fun(1L),
+        Cb   = clamp01(LA_fun(1L)),
         Time = tk.plot2
       )
       
@@ -516,6 +572,7 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
           title = level_label(1L)
         ) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
       
     } else {
       data_main <- vector("list", ldb)
@@ -524,14 +581,14 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
         lab_i <- level_label(i)
         env_i <- ENV.Cb[[i]]
         data_main[[i]] <- data.frame(
-          LA       = Cb[, i],
+          LA       = clamp01(Cb[, i]),
           Time     = tk.plot,
-          lower_LA = t(env_i)[, 1L],
-          upper_LA = t(env_i)[, 2L],
+          lower_LA = clamp01(t(env_i)[, 1L]),
+          upper_LA = clamp01(t(env_i)[, 2L]),
           Level    = lab_i
         )
         data_la[[i]] <- data.frame(
-          Cb    = LA_fun(i),
+          Cb    = clamp01(LA_fun(i)),
           Time  = tk.plot2,
           Level = lab_i
         )
@@ -557,6 +614,7 @@ plotBuilder_la <- function(CCC_vals, Pearson_vals, Cb, ENV.Cb,
         ggplot2::facet_wrap(~Level) +
         ggplot2::labs(x = arg$xlab, y = arg$ylab) +
         .lcc_default_theme()
+      Plot <- apply_axis_controls(Plot, arg)
     }
   }
   

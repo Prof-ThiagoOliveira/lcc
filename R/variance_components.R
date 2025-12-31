@@ -26,9 +26,71 @@
 ##'   \email{rafael_moral@@yahoo.com.br}
 ##'
 ##' @keywords internal
-getDelta <- function(model) {
-  varcomp   <- summary(model)
-  varStruct <- varcomp$modelStruct$varStruct
+extract_random_effects_cov <- function(model, tolerance = 1e-8) {
+  G_obj <- nlme::getVarCov(model, type = "random.effects")
+
+  coerce_matrix <- function(x) {
+    if (is.null(x)) {
+      return(NULL)
+    }
+    if (is.matrix(x)) {
+      return(x)
+    }
+    if (inherits(x, "pdMat") || inherits(x, "VarCov")) {
+      return(as.matrix(x))
+    }
+    if (is.numeric(x) && length(x) == 1L) {
+      val <- as.numeric(x)
+      return(matrix(val, nrow = 1L, ncol = 1L))
+    }
+    NULL
+  }
+
+  mats <- NULL
+  if (is.list(G_obj)) {
+    mats <- lapply(G_obj, coerce_matrix)
+    mats <- Filter(Negate(is.null), mats)
+  } else {
+    mats <- list(coerce_matrix(G_obj))
+  }
+
+  if (!length(mats) || any(vapply(mats, is.null, logical(1L)))) {
+    abort_internal("Failed to extract random-effects covariance matrix.")
+  }
+
+  G <- mats[[1L]]
+  for (mat in mats[-1L]) {
+    if (!all(dim(mat) == dim(G))) {
+      abort_internal(
+        "Random-effects covariance matrix dimensions differ across groups."
+      )
+    }
+    if (max(abs(mat - G)) > tolerance) {
+      warn_general(
+        "Random-effects covariance differs across groups beyond tolerance; using first instance."
+      )
+      break
+    }
+  }
+
+  if (!is.matrix(G) || !nrow(G) || !ncol(G)) {
+    abort_internal("Failed to extract random-effects covariance matrix.")
+  }
+  if (nrow(G) != ncol(G)) {
+    abort_internal(
+      "Random-effects covariance matrix must be square; got {.val {nrow(G)}} x {.val {ncol(G)}}."
+    )
+  }
+
+  list(G = G, n_re = nrow(G))
+}
+
+##' @keywords internal
+getDelta <- function(model, summary_obj = NULL) {
+  if (is.null(summary_obj)) {
+    summary_obj <- summary(model)
+  }
+  varStruct <- summary_obj$modelStruct$varStruct
   
   # default placeholders
   delta  <- 0
@@ -72,13 +134,11 @@ getDelta <- function(model) {
         g_mode      <- "exp"
         
       } else {
-        stop("Method not implemented for the specified varStruct formula.",
-             call. = FALSE)
+        abort_input("Method not implemented for the specified varStruct formula.")
       }
       
     } else {
-      stop("Method only implemented for classes varIdent and varExp",
-           call. = FALSE)
+      abort_input("Method only implemented for classes varIdent and varExp")
     }
   }
   

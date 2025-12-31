@@ -22,7 +22,7 @@ and covariance structure of the fixed effects in the model.
 The function specifically retrieves the variance-covariance matrix associated
 with the fixed effects of the \code{lcc} object, which is useful for understanding
 the relationship between these effects. For more details on variance-covariance
-matrices, refer to the methods for \code{\link{nlme}} objects.
+matrices, refer to the methods for \code{\link[nlme]{nlme}} objects.
 }
 \examples{
 \dontrun{

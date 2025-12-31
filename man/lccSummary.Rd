@@ -3,14 +3,43 @@
 \name{lccSummary}
 \alias{lccSummary}
 \title{Internal Function to Summarize Fitted and Sampled Values for \code{lcc} Objects}
+\usage{
+lccSummary(
+  model,
+  tk,
+  tk.plot,
+  tk.plot2,
+  metrics,
+  ldb,
+  ci,
+  components,
+  degenerate_resp = FALSE
+)
+}
+\arguments{
+\item{model}{the fitted \code{nlme} model stored within the \code{lcc} object.}
+
+\item{tk}{original time grid from the data.}
+
+\item{tk.plot}{time grid used for fitted trajectories.}
+
+\item{tk.plot2}{time grid used for sampled trajectories.}
+
+\item{metrics}{list of metric bundles (LCC, LPC, LA) produced by \code{ciBuilder} or
+the no-bootstrap path.}
+
+\item{ldb}{integer giving the number of method comparisons.}
+
+\item{ci}{logical flag indicating whether confidence intervals were requested.}
+
+\item{components}{logical flag indicating whether LPC/LA components were requested.}
+
+\item{degenerate_resp}{logical flag indicating that the response is degenerate
+(constant) and metric summaries should fall back to NA placeholders. Defaults
+to \code{FALSE}.}
+}
 \description{
-Internally called function for summarizing fitted and sampled values, and the 
-  concordance correlation coefficient between them for \code{lcc} objects.
-}
-\details{
-Returns a summary of fitted and sampled values and their concordance correlation.
-}
-\author{
-Thiago de Paula Oliveira, \email{thiago.paula.oliveira@alumni.usp.br}
+Internally called helper that converts the unified metric bundles into the
+  structures consumed by downstream plotting and summary routines.
 }
 \keyword{internal}

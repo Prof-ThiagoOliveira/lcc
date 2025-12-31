@@ -29,7 +29,7 @@ be obtained based on the specified type.
 The function provides a convenient way to examine the differences between
 observed and predicted values in the model. Understanding these residuals
 can be crucial for model diagnostics and validation. For more information,
-refer to the methods for \code{\link{nlme}} objects.
+refer to the methods for \code{\link[nlme]{nlme}} objects.
 }
 \examples{
 \dontrun{

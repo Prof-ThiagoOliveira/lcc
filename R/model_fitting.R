@@ -80,7 +80,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
     pos <- pmatch(covar, names(Data))
     
     if (any(nap <- is.na(pos))) {
-      stop(
+      abort_input(
         sprintf(
           ngettext(
             length(nap),
@@ -88,8 +88,7 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
             "unrecognized 'covar' variable named %s ignored"
           ),
           paste(sQuote(covar[nap]), collapse = ", ")
-        ),
-        call. = FALSE
+        )
       )
       pos   <- pos[!nap]
       covar <- covar[!nap]
@@ -125,9 +124,8 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
     random_struct <- list(subject = pdSymm(form = ~ 1))
   } else {
     if (!is.function(pdmat)) {
-      stop(
-        "Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural.",
-        call. = FALSE
+      abort_input(
+        "Available only for pdSymm, pdLogChol, pdDiag, pdIdent, pdCompSymm, and pdNatural."
       )
     }
     random_struct <- list(subject = pdmat(form = ~ fmla.rand - 1))
@@ -170,7 +168,11 @@ lccModel <- function(dataset, resp, subject, method, time, qf, qr,
   warning.count <- 0L
   if (inherits(model.lme, "try-error")) {
     warning.count <- 1L
-    mes <- paste(capture.output(cat(model.lme[1])), collapse = " ")
+    cond <- attr(model.lme, "condition")
+    mes <- if (!is.null(cond)) conditionMessage(cond) else NULL
+    if (is.null(mes)) {
+      mes <- paste(capture.output(model.lme[1]), collapse = " ")
+    }
   } else if (is.character(model.lme$apVar)) {
     warning.count <- 1L
     mes <- model.lme$apVar
